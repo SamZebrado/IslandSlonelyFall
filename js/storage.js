@@ -44,10 +44,48 @@ export function exportData() {
 
 export function importData(jsonStr) {
   try {
-    const data = JSON.parse(jsonStr);
-    if (!data.version || !data.meta) {
-      throw new Error('Invalid data structure');
+    if (!jsonStr || typeof jsonStr !== 'string' || jsonStr.trim() === '') {
+      throw new Error('Empty input');
     }
+    
+    const data = JSON.parse(jsonStr);
+    
+    if (Array.isArray(data)) {
+      throw new Error('Expected object, got array');
+    }
+    
+    if (typeof data !== 'object' || data === null) {
+      throw new Error('Invalid data type');
+    }
+    
+    if (!data.version || typeof data.version !== 'string') {
+      throw new Error('Missing or invalid version');
+    }
+    
+    if (!data.meta || typeof data.meta !== 'object') {
+      throw new Error('Missing or invalid meta');
+    }
+    
+    if (!Array.isArray(data.empathyRecords)) {
+      throw new Error('Invalid empathyRecords');
+    }
+    
+    if (!Array.isArray(data.statusRecords)) {
+      throw new Error('Invalid statusRecords');
+    }
+    
+    if (!Array.isArray(data.habits)) {
+      throw new Error('Invalid habits');
+    }
+    
+    if (!Array.isArray(data.habitLogs)) {
+      throw new Error('Invalid habitLogs');
+    }
+    
+    if (!Array.isArray(data.priorityRecords)) {
+      throw new Error('Invalid priorityRecords');
+    }
+    
     saveState(data);
     return { success: true, data };
   } catch (e) {

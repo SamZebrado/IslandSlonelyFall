@@ -8,6 +8,20 @@ import { formatEmpathyRecord, getRecentRecords, getCombinedFeed } from './review
 let state = loadState();
 let currentPage = 'home';
 
+const CRISIS_KEYWORDS = [
+  '自杀', '自残', '不想活', '活着没意义', '活着没意思', '结束生命',
+  '伤害自己', '杀死自己', '轻生', '想死', '活不下去了'
+];
+
+function detectCrisis(text) {
+  if (!text) return false;
+  return CRISIS_KEYWORDS.some(keyword => text.includes(keyword));
+}
+
+window.showCrisisNotice = function() {
+  $('#crisisNotice')?.classList.remove('hidden');
+};
+
 function $(selector) {
   return document.querySelector(selector);
 }
@@ -91,6 +105,10 @@ function renderEmpathy() {
         <h3>发生了什么？</h3>
         <p class="step-hint">试着描述这个场景，尽量区分事实和评价</p>
         <textarea id="empathySituation" placeholder="例如：今天会议上老板对我的方案提出了质疑……" rows="4"></textarea>
+        <div class="safety-notice hidden" id="crisisNotice">
+          <span class="notice-icon">💙</span>
+          <p>我注意到这段内容里可能包含比较强烈的痛苦或安全风险。这个工具只能帮助你做简单整理，不能替代专业支持。如果你现在可能伤害自己或他人，请尽快联系身边可信任的人、当地紧急服务，或专业危机支持资源。你也可以先离开危险物品和危险环境，去一个更安全的地方。</p>
+        </div>
         <div class="step-actions">
           <button class="btn btn-text" onclick="skipEmpathyStep('situation')">跳过</button>
           <button class="btn btn-primary" onclick="nextEmpathyStep(2)">下一步</button>
@@ -228,6 +246,11 @@ window.nextEmpathyStep = function(step) {
   if (step === 2) {
     const situation = $('#empathySituation')?.value || '';
     window.empathyData.situation = situation;
+    
+    if (detectCrisis(situation)) {
+      window.showCrisisNotice();
+    }
+    
     const customFeeling = $('#customFeeling')?.value || '';
     if (customFeeling && !window.empathyData.feelings.includes(customFeeling)) {
       window.empathyData.feelings.push(customFeeling);
