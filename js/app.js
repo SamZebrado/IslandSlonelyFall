@@ -300,7 +300,6 @@ window.finishEmpathy = function() {
   state.empathyRecords.push(record);
   saveState(state);
   
-  const selfCard = otherCard = '';
   let html = '';
   if (selfExpression) {
     html += `<div class="expression-card"><label>对自己说的话：</label><p>${selfExpression}</p></div>`;
