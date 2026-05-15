@@ -232,23 +232,23 @@ window.nextEmpathyStep = function(step) {
     if (customFeeling && !window.empathyData.feelings.includes(customFeeling)) {
       window.empathyData.feelings.push(customFeeling);
     }
+    $('#empathyStep1')?.classList.add('hidden');
+    $('#empathyStep2')?.classList.remove('hidden');
   } else if (step === 3) {
     const customNeed = $('#customNeed')?.value || '';
     if (customNeed && !window.empathyData.needs.includes(customNeed)) {
       window.empathyData.needs.push(customNeed);
     }
+    $('#empathyStep2')?.classList.add('hidden');
+    $('#empathyStep3')?.classList.remove('hidden');
   } else if (step === 4) {
     window.empathyData.request = $('#empathyRequest')?.value || '';
+    $('#empathyStep3')?.classList.add('hidden');
+    $('#empathyStep3b')?.classList.remove('hidden');
+  } else if (step === 5) {
+    $('#empathyStep3b')?.classList.add('hidden');
+    $('#empathyStep4')?.classList.remove('hidden');
   }
-  
-  for (let i = 1; i <= 5; i++) {
-    const el = $(`#empathyStep${i === 3 ? '3b' : (i === 4 ? '3b' : i)}`);
-    if (el) el.classList.add('hidden');
-  }
-  
-  const stepKey = step === 3 ? '3b' : step;
-  const target = $(`#empathyStep${stepKey}`);
-  if (target) target.classList.remove('hidden');
 };
 
 window.skipEmpathyStep = function(field) {
