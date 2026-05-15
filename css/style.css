@@ -4,6 +4,19 @@
   box-sizing: border-box;
 }
 
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+.btn:focus-visible,
+.gate-node:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 :root {
   --color-bg: #f8fafc;
   --color-card: #ffffff;
@@ -1289,6 +1302,31 @@ select:focus {
 @keyframes gateGlow {
   0%, 100% { box-shadow: 0 0 12px rgba(251, 191, 36, 0.3); }
   50% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .gate-node.active {
+    animation: none;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+    transform: none;
+  }
+  
+  .gate-node.active .gate-icon {
+    transform: none;
+  }
+  
+  .record-item:hover {
+    transform: none;
+    box-shadow: none;
+  }
 }
 
 @media (max-width: 480px) {
