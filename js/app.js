@@ -1,5 +1,6 @@
 import { loadState, saveState, exportData, importData, clearAllData, hasExistingData } from './storage.js';
 import { FEELINGS, NEEDS, TARGETS, TONES, EXPRESSIONS, generateEmpathyResponse } from './empathy.js';
+import { buildExpressionOptions, buildActionTips } from './expressionTuner.js';
 import { ENERGY_LEVELS, PRESSURE_LEVELS, CLARITY_LEVELS, STATUS_OPTIONS, DIRECTIONS, formatStatusRecord, getStatusFeedback } from './dashboard.js';
 import { createHabit, getTodayHabits, getHabitLogsForToday, completeHabit, skipHabit, getHabitCompletionStats, DEFAULT_REWARDS, DEFAULT_TRIGGERS } from './habits.js';
 import { PRIORITY_CATEGORIES, analyzePriority, formatPriorityRecord } from './priority.js';
@@ -153,18 +154,47 @@ function renderEmpathy() {
       
       <div class="empathy-step hidden" id="empathyStep4">
         <div class="step-indicator">步骤 5/5</div>
-        <h3>选择表达方式</h3>
-        <p class="step-hint">你想对谁说？用什么样的语气？</p>
-        <div class="target-select">
-          <label>对象：</label>
-          ${TARGETS.map(t => `<button class="btn btn-option" data-target="${t}" onclick="selectTarget(this)">${t}</button>`).join('')}
+        <h3>🎛️ 表达调音台</h3>
+        <p class="step-hint">整理出来的内容不一定要发给别人。你可以先选择一个更适合当下状态的表达方式。</p>
+        
+        <div class="expression-tuner-card" style="background: rgba(255,255,255,0.8); border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+          <div class="form-group">
+            <label style="font-weight: 500; margin-bottom: 8px; display: block;">沟通对象：</label>
+            <div class="audience-select" style="display: flex; flex-wrap: wrap; gap: 8px;">
+              <button class="btn btn-option" data-audience="self" onclick="selectAudience(this)">自己</button>
+              <button class="btn btn-option" data-audience="partnerFriend" onclick="selectAudience(this)">伴侣/朋友</button>
+              <button class="btn btn-option" data-audience="coworker" onclick="selectAudience(this)">同事</button>
+              <button class="btn btn-option" data-audience="supervisor" onclick="selectAudience(this)">导师/上级</button>
+              <button class="btn btn-option" data-audience="family" onclick="selectAudience(this)">家人</button>
+              <button class="btn btn-option" data-audience="unsafePerson" onclick="selectAudience(this)">暂不适合沟通</button>
+            </div>
+          </div>
+          
+          <div class="form-group" style="margin-top: 16px;">
+            <label style="font-weight: 500; margin-bottom: 8px; display: block;">表达方式：</label>
+            <div class="mode-select" style="display: flex; flex-wrap: wrap; gap: 8px;">
+              <button class="btn btn-option" data-mode="journal" onclick="selectMode(this)">只记录</button>
+              <button class="btn btn-option" data-mode="message" onclick="selectMode(this)">发消息</button>
+              <button class="btn btn-option" data-mode="faceToFace" onclick="selectMode(this)">当面说</button>
+              <button class="btn btn-option" data-mode="schedule" onclick="selectMode(this)">先约时间</button>
+              <button class="btn btn-option" data-mode="boundary" onclick="selectMode(this)">只设边界</button>
+            </div>
+          </div>
+          
+          <div class="form-group" style="margin-top: 16px;">
+            <label style="font-weight: 500; margin-bottom: 8px; display: block;">语气强度：</label>
+            <div class="tone-select" style="display: flex; flex-wrap: wrap; gap: 8px;">
+              <button class="btn btn-option" data-tone="light" onclick="selectExpressionTone(this)">很轻</button>
+              <button class="btn btn-option" data-tone="gentle" onclick="selectExpressionTone(this)">温和</button>
+              <button class="btn btn-option" data-tone="clear" onclick="selectExpressionTone(this)">清楚</button>
+              <button class="btn btn-option" data-tone="firm" onclick="selectExpressionTone(this)">坚定</button>
+              <button class="btn btn-option" data-tone="boundary" onclick="selectExpressionTone(this)">边界明确</button>
+            </div>
+          </div>
         </div>
-        <div class="tone-select hidden" id="toneSelect">
-          <label>语气：</label>
-          ${TONES.map(t => `<button class="btn btn-option" data-tone="${t}" onclick="selectTone(this)">${t}</button>`).join('')}
-        </div>
+        
         <div class="step-actions">
-          <button class="btn btn-primary" onclick="finishEmpathy()">生成表达</button>
+          <button class="btn btn-primary" id="generateExpressionBtn" onclick="finishEmpathy()" disabled style="opacity: 0.5;">生成表达建议</button>
         </div>
       </div>
       
@@ -182,7 +212,22 @@ function renderEmpathy() {
   renderFeelingsGrid();
   renderNeedsGrid();
   
-  window.empathyData = { situation: '', feelings: [], needs: [], request: '', target: '', tone: '' };
+  window.empathyData = { 
+    situation: '', 
+    feelings: [], 
+    needs: [], 
+    request: '', 
+    audience: '', 
+    mode: '', 
+    tone: '',
+    expressionTuner: {
+      audience: '',
+      mode: '',
+      tone: '',
+      suggestions: [],
+      actionTips: []
+    }
+  };
 }
 
 function renderFeelingsGrid() {
@@ -295,6 +340,45 @@ window.selectTone = function(btn) {
   window.empathyData.tone = btn.dataset.tone;
 };
 
+window.selectAudience = function(btn) {
+  document.querySelectorAll('[data-audience]').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  window.empathyData.audience = btn.dataset.audience;
+  window.empathyData.expressionTuner.audience = btn.dataset.audience;
+  checkExpressionReady();
+};
+
+window.selectMode = function(btn) {
+  document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  window.empathyData.mode = btn.dataset.mode;
+  window.empathyData.expressionTuner.mode = btn.dataset.mode;
+  checkExpressionReady();
+};
+
+window.selectExpressionTone = function(btn) {
+  document.querySelectorAll('[data-tone]').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  window.empathyData.tone = btn.dataset.tone;
+  window.empathyData.expressionTuner.tone = btn.dataset.tone;
+  checkExpressionReady();
+};
+
+function checkExpressionReady() {
+  const btn = $('#generateExpressionBtn');
+  if (!btn) return;
+  const hasAudience = window.empathyData.audience !== '';
+  const hasMode = window.empathyData.mode !== '';
+  const hasTone = window.empathyData.tone !== '';
+  if (hasAudience && hasMode && hasTone) {
+    btn.disabled = false;
+    btn.style.opacity = '1';
+  } else {
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+  }
+}
+
 window.finishEmpathy = function() {
   const data = window.empathyData;
   
@@ -305,11 +389,33 @@ window.finishEmpathy = function() {
     selfExpression = `我感到${data.feelings.join('、')}，允许自己接纳这些感受。`;
   }
   
-  let otherExpression = '';
-  if (data.target && data.tone && EXPRESSIONS[data.target] && EXPRESSIONS[data.target][data.tone]) {
-    const options = EXPRESSIONS[data.target][data.tone];
-    otherExpression = options[Math.floor(Math.random() * options.length)];
-  }
+  const suggestions = buildExpressionOptions({
+    audience: data.audience,
+    mode: data.mode,
+    tone: data.tone,
+    observation: data.situation,
+    feelings: data.feelings,
+    needs: data.needs,
+    request: data.request
+  });
+  
+  const actionTips = buildActionTips({
+    audience: data.audience,
+    mode: data.mode,
+    tone: data.tone
+  });
+  
+  const audienceLabels = {
+    self: '自己',
+    partnerFriend: '伴侣/朋友',
+    coworker: '同事',
+    supervisor: '导师/上级',
+    family: '家人',
+    unsafePerson: '暂不适合沟通的人'
+  };
+  
+  data.expressionTuner.suggestions = suggestions;
+  data.expressionTuner.actionTips = actionTips;
   
   const record = {
     timestamp: new Date().toISOString(),
@@ -318,26 +424,60 @@ window.finishEmpathy = function() {
     needs: data.needs,
     request: data.request,
     selfExpression,
-    otherExpression
+    expressionTuner: { ...data.expressionTuner }
   };
   
   state.empathyRecords.push(record);
   saveState(state);
   
   let html = '';
+  
   if (selfExpression) {
     html += `<div class="expression-card"><label>对自己说的话：</label><p>${selfExpression}</p></div>`;
   }
-  if (otherExpression) {
-    html += `<div class="expression-card"><label>对${data.target}说的话：</label><p>${otherExpression}</p></div>`;
+  
+  if (suggestions.length > 0) {
+    html += `<div style="margin-top: 20px;"><h4 style="margin-bottom: 12px; color: var(--color-primary);">💬 ${audienceLabels[data.audience] || data.audience}的表达建议</h4>`;
+    suggestions.forEach((suggestion, idx) => {
+      html += `<div class="expression-card">
+        <p>${suggestion}</p>
+        <button class="btn btn-small btn-text" onclick="copyExpression(this)" data-text="${suggestion.replace(/"/g, '&quot;')}">复制</button>
+      </div>`;
+    });
+    html += `</div>`;
   }
-  if (!selfExpression && !otherExpression) {
+  
+  if (actionTips.length > 0) {
+    html += `<div class="action-suggestion">
+      <h4>${data.mode === 'faceToFace' ? '👀 动作与眼神建议' : '📋 发消息前检查'}</h4>
+      <ul>`;
+    actionTips.forEach(tip => {
+      html += `<li>${tip}</li>`;
+    });
+    html += `</ul></div>`;
+  }
+  
+  if (!selfExpression && suggestions.length === 0) {
     html += `<p class="gentle-note">这次记录已经放进回顾花园。</p>`;
   }
   
   $('#resultCard').innerHTML = html;
   document.querySelector('.empathy-step')?.classList.add('hidden');
   $('#empathyResult')?.classList.remove('hidden');
+};
+
+window.copyExpression = function(btn) {
+  const text = btn.dataset.text;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const originalText = btn.textContent;
+    btn.textContent = '已复制!';
+    setTimeout(() => {
+      btn.textContent = originalText;
+    }, 1500);
+  }).catch(() => {
+    alert('复制失败，请手动选择文本复制');
+  });
 };
 
 function renderStatus() {

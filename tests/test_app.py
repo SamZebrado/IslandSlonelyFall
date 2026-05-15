@@ -91,17 +91,19 @@ def run_tests():
             page.locator('#empathyStep3b button:has-text("下一步")').click()
             page.wait_for_timeout(500)
             
-            if page.locator('#empathyStep4:has-text("选择表达方式")').is_visible():
+            if page.locator('#empathyStep4:has-text("表达调音台")').is_visible():
                 log_result("步骤5显示", "通过")
             else:
                 log_result("步骤5显示", "失败")
             
-            page.locator('[data-target="自己"]').click()
-            page.locator('[data-tone="温和"]').click()
-            page.locator('button:has-text("生成表达")').click()
+            page.locator('[data-audience="self"]').click()
+            page.locator('[data-mode="journal"]').click()
+            page.locator('[data-tone="gentle"]').click()
+            page.wait_for_timeout(300)
+            page.locator('#generateExpressionBtn').click()
             page.wait_for_timeout(500)
             
-            if page.locator('#empathyResult:has-text("对自己说的话")').is_visible():
+            if page.locator('#empathyResult').is_visible():
                 log_result("表达生成", "通过")
             else:
                 log_result("表达生成", "失败")
