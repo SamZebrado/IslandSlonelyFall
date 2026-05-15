@@ -4,9 +4,48 @@
 
 基于 deep-research-report.md 中的自我共情、状态觉察、微习惯养成和优先级决策内容进行模块化设计。
 
-## P1.2 视觉与玩法迭代
+## P1.4 优先级决策岛五道门
 
-### 表达调音台
+### 五道门配置
+
+```javascript
+const PRIORITY_GATES = [
+  { id: 'release', name: '放下门', question: '这件事真的需要你处理吗？' },
+  { id: 'simplify', name: '简化门', question: '如果不追求完整版本，它能被缩小到什么程度？' },
+  { id: 'delegate', name: '求助门', question: '这件事有没有一部分可以借助别人、工具或模板？' },
+  { id: 'defer', name: '稍后门', question: '这件事适合现在处理，还是适合稍后处理？' },
+  { id: 'focus', name: '专注门', question: '如果今天只推进一点点，最小下一步是什么？' }
+];
+```
+
+### gatePath数据结构
+
+```javascript
+priorityRecord = {
+  gatePath: [
+    { gateId, gateName, question, answer, feedback, nextStep, timeBlock }
+  ]
+}
+```
+
+### 温和反馈文案示例
+
+- "能放下的事情，也是在保护精力。"
+- "缩小任务不是偷懒，是给行动留入口。"
+- "不一定要一个人把整件事扛完。"
+- "有意识地延后，也是一种决策。"
+- "最小下一步已经足够成为入口。"
+
+### 视觉设计
+
+- 五道门显示为海上的小岛节点
+- 当前门高亮发光
+- 已完成门点亮小灯
+- 未到达门保持低饱和
+
+## P1.3 微习惯工坊轻量游戏化
+
+### 种子/点灯视觉反馈
 
 新增"表达调音台"功能，替代原来的简单表达方式选择：
 

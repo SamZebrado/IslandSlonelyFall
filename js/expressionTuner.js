@@ -133,8 +133,8 @@ function buildExpressionOptions(input) {
   if (audience === 'unsafePerson') {
     options.push(`这部分我先记录下来，不急着发给对方。`);
     options.push(`我现在更适合先保护自己的边界，而不是马上解释。`);
-    options.push(`这件事我先放一放，不值得我现在消耗自己。`);
-    options.push(`我可以选择不解释，这是我的权利。`);
+    options.push(`这件事我先放一放，现在不急着消耗自己。`);
+    options.push(`我可以先把这件事放远一点，不急着继续消耗自己。`);
   }
 
   if (mode === 'schedule') {

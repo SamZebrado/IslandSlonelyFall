@@ -19,6 +19,27 @@ export function formatEmpathyRecord(record) {
   };
 }
 
+export function formatPriorityRecord(record) {
+  const date = new Date(record.timestamp);
+  const dateStr = `${date.getMonth() + 1}月${date.getDate()}日 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  
+  const result = record.result || {};
+  const categoryInfo = {
+    DELETE: { label: '删除', icon: '✕', color: '#94a3b8' },
+    DEFER: { label: '延后', icon: '⏸', color: '#64748b' },
+    SIMPLIFY: { label: '简化', icon: '~', color: '#94a3b8' },
+    DELEGATE: { label: '委托', icon: '→', color: '#94a3b8' },
+    TODAY: { label: '今天推进', icon: '●', color: '#6366f1' },
+    NOW: { label: '立即处理', icon: '★', color: '#8b5cf6' }
+  }[result.category] || { label: '待定', icon: '?', color: '#9ca3af' };
+  
+  return {
+    ...record,
+    dateStr,
+    categoryInfo
+  };
+}
+
 export function getRecentRecords(records, limit = 5) {
   return records
     .slice()

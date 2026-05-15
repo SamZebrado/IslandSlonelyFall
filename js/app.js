@@ -3,7 +3,7 @@ import { FEELINGS, NEEDS, TARGETS, TONES, EXPRESSIONS, generateEmpathyResponse }
 import { buildExpressionOptions, buildActionTips } from './expressionTuner.js';
 import { ENERGY_LEVELS, PRESSURE_LEVELS, CLARITY_LEVELS, STATUS_OPTIONS, DIRECTIONS, formatStatusRecord, getStatusFeedback } from './dashboard.js';
 import { createHabit, getTodayHabits, getHabitLogsForToday, completeHabit, skipHabit, getHabitCompletionStats, getTodayHabitStats, pickHabitFeedback, DEFAULT_REWARDS, DEFAULT_TRIGGERS } from './habits.js';
-import { PRIORITY_CATEGORIES, analyzePriority, formatPriorityRecord } from './priority.js';
+import { PRIORITY_CATEGORIES, PRIORITY_GATES, analyzePriority, formatPriorityRecord, derivePriorityDecision } from './priority.js';
 import { formatEmpathyRecord, getRecentRecords, getCombinedFeed } from './review.js';
 
 let state = loadState();
@@ -851,67 +851,49 @@ window.deleteHabit = function(habitId) {
 };
 
 function renderPriority() {
+  window.prioritySession = {
+    taskText: '',
+    currentGateIndex: 0,
+    gatePath: [],
+    nextStep: '',
+    suggestedTimeBlock: ''
+  };
+  
   $('#app').innerHTML = `
     <div class="page priority-page">
       ${renderBackButton('home')}
       <header class="page-header">
         <h2>🚪 优先级决策岛</h2>
-        <p>通过五道门，找到最合适的行动</p>
+        <p>经过五道门，找到最合适的行动</p>
       </header>
       
       <div class="priority-form">
-        <div class="form-group">
-          <label>输入一个任务：</label>
-          <textarea id="priorityTask" rows="2" placeholder="例如：完成季度报告"></textarea>
+        <div class="gate-path" id="gatePath">
+          ${PRIORITY_GATES.map((gate, idx) => `
+            <div class="gate-node pending" data-gate="${gate.id}" data-index="${idx}">
+              <div class="gate-icon">🚪</div>
+              <div class="gate-short-label">${gate.shortLabel}</div>
+            </div>
+          `).join('<div class="gate-connector"></div>')}
         </div>
         
-        <div class="gate" id="gate1">
-          <div class="gate-number">第一道门</div>
-          <h3>这件事真的需要做吗？</h3>
-          <div class="gate-buttons">
-            <button class="btn btn-option" data-answer="yes" onclick="answerGate(this, 1)">是</button>
-            <button class="btn btn-option" data-answer="no" onclick="answerGate(this, 1)">否</button>
+        <div class="task-input-section" id="taskInputSection">
+          <div class="form-group">
+            <label>有什么事情需要决定？</label>
+            <textarea id="priorityTask" rows="2" placeholder="例如：完成季度报告"></textarea>
           </div>
+          <button class="btn btn-primary" onclick="startPriorityGates()">开始穿越五道门</button>
         </div>
         
-        <div class="gate hidden" id="gate2">
-          <div class="gate-number">第二道门</div>
-          <h3>能不能删除？</h3>
-          <div class="gate-buttons">
-            <button class="btn btn-option" data-answer="yes" onclick="answerGate(this, 2)">可以</button>
-            <button class="btn btn-option" data-answer="no" onclick="answerGate(this, 2)">不可以</button>
-          </div>
-        </div>
-        
-        <div class="gate hidden" id="gate3">
-          <div class="gate-number">第三道门</div>
-          <h3>能不能简化、交给别人或推迟？</h3>
-          <div class="gate-buttons">
-            <button class="btn btn-option" data-answer="yes" onclick="answerGate(this, 3)">可以</button>
-            <button class="btn btn-option" data-answer="no" onclick="answerGate(this, 3)">不可以</button>
-          </div>
-          <input type="text" id="gate3Input" class="gate-input hidden" placeholder="简化的方式或最小步骤">
-        </div>
-        
-        <div class="gate hidden" id="gate4">
-          <div class="gate-number">第四道门</div>
-          <h3>现在做它是否比其他事情更重要？</h3>
-          <div class="gate-buttons">
-            <button class="btn btn-option" data-answer="yes" onclick="answerGate(this, 4)">是</button>
-            <button class="btn btn-option" data-answer="no" onclick="answerGate(this, 4)">否</button>
-          </div>
-        </div>
-        
-        <div class="gate hidden" id="gate5">
-          <div class="gate-number">第五道门</div>
-          <h3>如果今天只能推进一点点，最小下一步是什么？</h3>
-          <input type="text" id="gate5Input" placeholder="描述最小的一步">
-          <button class="btn btn-primary" onclick="finishPriority()">完成决策</button>
+        <div class="gate-card hidden" id="gateCard">
+          <div class="gate-feedback hidden" id="gateFeedback"></div>
+          <div class="gate-content" id="gateContent"></div>
         </div>
         
         <div class="priority-result hidden" id="priorityResult">
           <h3>✨ 决策结果</h3>
           <div class="result-card" id="resultCard"></div>
+          <div class="priority-path-summary" id="pathSummary"></div>
           <div class="step-actions">
             <button class="btn btn-secondary" onclick="resetPriority()">再来一次</button>
             <button class="btn btn-primary" onclick="navigate('home')">返回首页</button>
@@ -920,71 +902,204 @@ function renderPriority() {
       </div>
     </div>
   `;
-  
-  window.priorityData = { task: '', answers: {} };
 }
 
-window.answerGate = function(btn, gate) {
-  document.querySelectorAll(`#gate${gate} .btn-option`).forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  
-  const answer = btn.dataset.answer;
-  window.priorityData.answers[`q${gate}`] = answer;
-  
-  if (gate === 3) {
-    $('#gate3Input')?.classList.remove('hidden');
+window.startPriorityGates = function() {
+  const taskText = $('#priorityTask')?.value?.trim();
+  if (!taskText) {
+    alert('请输入需要决定的事情');
+    return;
   }
   
-  const nextGate = gate + 1;
-  $(`#gate${gate}`)?.classList.add('hidden');
-  $(`#gate${nextGate}`)?.classList.remove('hidden');
+  window.prioritySession.taskText = taskText;
+  $('#taskInputSection')?.classList.add('hidden');
+  $('#gateCard')?.classList.remove('hidden');
+  renderCurrentGate();
 };
 
-window.finishPriority = function() {
-  window.priorityData.task = $('#priorityTask')?.value || '';
-  window.priorityData.answers.q5 = $('#gate5Input')?.value || '';
+function renderCurrentGate() {
+  const session = window.prioritySession;
+  const gate = PRIORITY_GATES[session.currentGateIndex];
+  if (!gate) {
+    showPriorityResult();
+    return;
+  }
   
-  const result = analyzePriority(window.priorityData.task, window.priorityData.answers);
+  updateGatePath();
+  
+  let html = `
+    <div class="gate-header">
+      <div class="gate-icon-large">${gate.icon}</div>
+      <h3>${gate.name}</h3>
+      <p class="gate-description">${gate.description}</p>
+    </div>
+    <div class="gate-question">${gate.question}</div>
+    <div class="gate-options">
+  `;
+  
+  if (gate.options) {
+    gate.options.forEach(opt => {
+      html += `<button class="btn btn-option" data-value="${opt.value}" onclick="selectGateOption('${opt.value}', '${gate.id}')">${opt.label}</button>`;
+    });
+  } else if (gate.id === 'focus') {
+    html += `<input type="text" id="focusNextStep" placeholder="描述最小的一步..." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 12px;">`;
+    html += `<div class="time-block-select" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">`;
+    gate.timeOptions?.forEach(t => {
+      html += `<button class="btn btn-option" data-time="${t.value}" onclick="selectTimeBlock('${t.value}')">${t.label}</button>`;
+    });
+    html += `</div>`;
+    html += `<button class="btn btn-primary" onclick="finishFocusGate()">确定最小下一步</button>`;
+  }
+  
+  html += `</div>`;
+  
+  $('#gateContent').innerHTML = html;
+}
+
+window.selectGateOption = function(value, gateId) {
+  const session = window.prioritySession;
+  const gate = PRIORITY_GATES.find(g => g.id === gateId);
+  const option = gate?.options?.find(o => o.value === value);
+  
+  if (!option) return;
+  
+  session.gatePath.push({
+    gateId,
+    gateName: gate.name,
+    question: gate.question,
+    answer: value,
+    feedback: option.feedback
+  });
+  
+  $('#gateFeedback').textContent = option.feedback;
+  $('#gateFeedback').classList.remove('hidden');
+  
+  const nextGateIndex = session.currentGateIndex + 1;
+  
+  setTimeout(() => {
+    session.currentGateIndex = nextGateIndex;
+    $('#gateFeedback').classList.add('hidden');
+    
+    if (nextGateIndex >= PRIORITY_GATES.length) {
+      showPriorityResult();
+    } else {
+      renderCurrentGate();
+    }
+  }, 1200);
+};
+
+window.selectTimeBlock = function(value) {
+  const session = window.prioritySession;
+  const gate = PRIORITY_GATES.find(g => g.id === 'focus');
+  const timeOpt = gate?.timeOptions?.find(t => t.value === value);
+  
+  document.querySelectorAll('.time-block-select .btn-option').forEach(b => b.classList.remove('selected'));
+  const btn = document.querySelector(`.time-block-select [data-time="${value}"]`);
+  if (btn) btn.classList.add('selected');
+  
+  session.suggestedTimeBlock = timeOpt?.label || '';
+};
+
+window.finishFocusGate = function() {
+  const session = window.prioritySession;
+  const nextStep = $('#focusNextStep')?.value?.trim();
+  
+  if (!nextStep && session.suggestedTimeBlock !== '今天不安排，只记录') {
+    alert('请描述最小的一步');
+    return;
+  }
+  
+  const gate = PRIORITY_GATES.find(g => g.id === 'focus');
+  
+  session.nextStep = nextStep || '只记录，暂不安排时间';
+  session.gatePath.push({
+    gateId: 'focus',
+    gateName: gate.name,
+    question: gate.question,
+    answer: nextStep,
+    nextStep: session.nextStep,
+    timeBlock: session.suggestedTimeBlock,
+    feedback: gate.feedback
+  });
+  
+  $('#gateFeedback').textContent = gate.feedback;
+  $('#gateFeedback').classList.remove('hidden');
+  
+  setTimeout(() => {
+    showPriorityResult();
+  }, 1200);
+};
+
+function updateGatePath() {
+  const session = window.prioritySession;
+  
+  document.querySelectorAll('.gate-node').forEach((node, idx) => {
+    node.classList.remove('active', 'completed', 'pending');
+    
+    if (idx < session.currentGateIndex) {
+      node.classList.add('completed');
+    } else if (idx === session.currentGateIndex) {
+      node.classList.add('active');
+    } else {
+      node.classList.add('pending');
+    }
+  });
+}
+
+function showPriorityResult() {
+  const session = window.prioritySession;
+  
+  $('#gateCard')?.classList.add('hidden');
+  $('#priorityResult')?.classList.remove('hidden');
+  
+  const result = derivePriorityDecision(session.gatePath);
+  const categoryInfo = PRIORITY_CATEGORIES[result.category];
   
   const record = {
+    id: Date.now().toString(),
     timestamp: new Date().toISOString(),
-    task: window.priorityData.task,
-    answers: { ...window.priorityData.answers },
-    result
+    task: session.taskText,
+    result,
+    gatePath: session.gatePath,
+    decision: result.category
   };
   
   state.priorityRecords.push(record);
   saveState(state);
   
-  const categoryInfo = PRIORITY_CATEGORIES[result.category];
-  
   let html = `
-    <div class="result-category" style="color: ${categoryInfo.color}">
-      ${categoryInfo.icon} ${categoryInfo.label}
+    <div class="result-category" style="background: ${categoryInfo.color}20; border-left: 4px solid ${categoryInfo.color}; padding: 16px; border-radius: 8px;">
+      <span style="font-size: 24px;">${categoryInfo.icon}</span>
+      <span style="font-size: 18px; font-weight: 600; margin-left: 8px;">${categoryInfo.label}</span>
     </div>
     <div class="result-section">
-      <label>任务：</label>
+      <label>🎯 任务：</label>
       <p>${record.task}</p>
     </div>
     <div class="result-section">
-      <label>最小下一步：</label>
+      <label>📍 最小下一步：</label>
       <p>${result.minStep}</p>
     </div>
     ${result.timeBlock ? `
       <div class="result-section">
-        <label>建议时间块：</label>
+        <label>⏱️ 建议时间块：</label>
         <p>${result.timeBlock}</p>
       </div>
     ` : ''}
-    <div class="result-section gentle">
+    <div class="result-section gentle" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 16px; border-radius: 12px;">
       <p>💬 ${result.reminder}</p>
     </div>
   `;
   
   $('#resultCard').innerHTML = html;
-  document.querySelector('.priority-form')?.classList.add('hidden');
-  $('#priorityResult')?.classList.remove('hidden');
-};
+  
+  let pathHtml = '<div class="path-summary-title">🛤️ 经过的路径</div><div class="path-steps">';
+  session.gatePath.forEach(item => {
+    pathHtml += `<span class="path-step" style="background: #e0e7ff; padding: 4px 12px; border-radius: 16px; margin: 4px; display: inline-block; font-size: 13px;">${item.gateName}</span>`;
+  });
+  pathHtml += '</div>';
+  $('#pathSummary').innerHTML = pathHtml;
+}
 
 window.resetPriority = function() {
   renderPriority();

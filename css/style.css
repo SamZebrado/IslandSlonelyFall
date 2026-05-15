@@ -1029,6 +1029,149 @@ select:focus {
   75% { transform: translateX(5px); }
 }
 
+.gate-path {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  margin: 20px 0;
+  padding: 12px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+  overflow-x: auto;
+}
+
+.gate-connector {
+  width: 20px;
+  height: 2px;
+  background: #e5e7eb;
+  flex-shrink: 0;
+}
+
+.gate-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.gate-node.pending {
+  opacity: 0.5;
+}
+
+.gate-node.active {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.3);
+  animation: gateGlow 2s ease-in-out infinite;
+}
+
+.gate-node.completed {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.gate-icon {
+  font-size: 20px;
+}
+
+.gate-short-label {
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.gate-node.active .gate-short-label {
+  color: #92400e;
+  font-weight: 600;
+}
+
+.gate-node.completed .gate-short-label {
+  color: #059669;
+}
+
+.gate-card {
+  background: rgba(255,255,255,0.9);
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 16px;
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-md);
+}
+
+.gate-feedback {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  text-align: center;
+  font-size: 15px;
+  color: #065f46;
+  animation: fadeIn 0.3s ease;
+}
+
+.gate-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.gate-icon-large {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+
+.gate-description {
+  color: #6b7280;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.gate-question {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 16px 0;
+  text-align: center;
+  color: #374151;
+}
+
+.gate-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.gate-options .btn-option {
+  min-width: 100px;
+}
+
+.priority-path-summary {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 12px;
+}
+
+.path-summary-title {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.path-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@keyframes gateGlow {
+  0%, 100% { box-shadow: 0 0 12px rgba(251, 191, 36, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.5); }
+}
+
 @media (max-width: 480px) {
   #app {
     padding: 16px;
@@ -1053,13 +1196,29 @@ select:focus {
   .cloud {
     display: none;
   }
-  
+
   .habits-gentle-stats {
     padding: 12px 16px;
   }
-  
+
   .habits-gentle-stats div:last-child {
     gap: 12px;
     font-size: 12px;
+  }
+
+  .gate-path {
+    justify-content: flex-start;
+  }
+
+  .gate-node {
+    padding: 6px 8px;
+  }
+
+  .gate-node .gate-icon {
+    font-size: 16px;
+  }
+
+  .gate-short-label {
+    font-size: 10px;
   }
 }

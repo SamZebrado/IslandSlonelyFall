@@ -221,59 +221,55 @@ def run_tests():
             page.locator('.module-card:has-text("优先级决策岛")').click()
             page.wait_for_load_state('networkidle')
             
-            if page.locator('#gate1:has-text("第一道门")').is_visible():
+            if page.locator('.gate-path').is_visible():
                 log_result("优先级决策岛入口", "通过")
             else:
                 log_result("优先级决策岛入口", "失败")
             
+            gate_nodes = page.locator('.gate-node')
+            node_count = len(gate_nodes.all())
+            if node_count >= 5:
+                log_result("五道门路径显示", "通过")
+            else:
+                log_result("五道门路径显示", "失败", f"只有{node_count}个")
+            
             page.locator('#priorityTask').fill('完成季度报告')
-            page.locator('#gate1 button[data-answer="yes"]').click()
-            page.wait_for_timeout(500)
+            page.locator('button:has-text("开始穿越五道门")').click()
+            page.wait_for_timeout(800)
             
-            if page.locator('#gate2:has-text("第二道门")').is_visible():
-                log_result("第一道门流转", "通过")
+            if page.locator('.gate-card:not(.hidden)').is_visible():
+                log_result("进入第一道门", "通过")
             else:
-                log_result("第一道门流转", "失败")
+                log_result("进入第一道门", "失败")
             
-            page.locator('#gate2 button[data-answer="no"]').click()
-            page.wait_for_timeout(500)
-            
-            if page.locator('#gate3:has-text("第三道门")').is_visible():
-                log_result("第二道门流转", "通过")
-            else:
-                log_result("第二道门流转", "失败")
-            
-            page.locator('#gate3 button[data-answer="no"]').click()
-            page.wait_for_timeout(500)
-            
-            if page.locator('#gate4:has-text("第四道门")').is_visible():
-                log_result("第三道门流转", "通过")
-            else:
-                log_result("第三道门流转", "失败")
-            
-            page.locator('#gate4 button[data-answer="yes"]').click()
-            page.wait_for_timeout(500)
-            
-            if page.locator('#gate5:has-text("第五道门")').is_visible():
-                log_result("第四道门流转", "通过")
-            else:
-                log_result("第四道门流转", "失败")
-            
-            page.locator('#gate5Input').fill('打开文档写一行')
-            
-            page.locator('#gate5 button:has-text("完成决策")').click()
+            page.locator('button:has-text("可以删除")').click()
             page.wait_for_timeout(1500)
             
-            result_visible = page.locator('#priorityResult').is_visible()
+            completed = page.locator('.gate-node.completed')
+            completed_count = len(completed.all())
+            if completed_count >= 1:
+                log_result("第一道门完成", "通过")
+            else:
+                log_result("第一道门完成", "失败", f"只有{completed_count}个已完成")
             
-            if result_visible:
+            page.locator('button:has-text("可以缩小")').click()
+            page.wait_for_timeout(1500)
+            
+            page.locator('button:has-text("可以求助")').click()
+            page.wait_for_timeout(1500)
+            
+            page.locator('button:has-text("现在适合")').click()
+            page.wait_for_timeout(1500)
+            
+            page.locator('#focusNextStep').fill('打开文档写一行')
+            page.locator('button:has-text("2分钟")').click()
+            page.locator('button:has-text("确定最小下一步")').click()
+            page.wait_for_timeout(1500)
+            
+            if page.locator('.priority-result:not(.hidden)').is_visible():
                 log_result("决策完成", "通过")
             else:
-                result_has_content = '决策结果' in page.locator('#priorityResult').inner_html()
-                if result_has_content:
-                    log_result("决策完成", "通过")
-                else:
-                    log_result("决策完成", "失败", "结果区域未显示")
+                log_result("决策完成", "失败")
                 
         except Exception as e:
             log_result("优先级决策岛流程", "失败", str(e))
