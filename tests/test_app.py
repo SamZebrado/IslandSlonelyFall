@@ -197,16 +197,16 @@ def run_tests():
             else:
                 log_result("创建微习惯", "失败")
             
-            if page.locator('.habit-item button:has-text("完成")').first.is_visible():
-                page.locator('.habit-item button:has-text("完成")').first.click()
+            if page.locator('.habit-item button:has-text("点亮")').first.is_visible():
+                page.locator('.habit-item button:has-text("点亮")').first.click()
                 page.wait_for_timeout(500)
                 
-                if page.locator('.habit-item:has-text("打个勾")').is_visible():
+                if page.locator('.habit-item .habit-badge:not(.skipped)').is_visible():
                     log_result("完成微习惯", "通过")
                 else:
                     log_result("完成微习惯", "失败")
             else:
-                log_result("完成微习惯", "失败", "未找到完成按钮")
+                log_result("完成微习惯", "失败", "未找到点亮按钮")
                 
         except Exception as e:
             log_result("微习惯工坊流程", "失败", str(e))

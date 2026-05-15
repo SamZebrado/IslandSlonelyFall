@@ -2,7 +2,7 @@ import { loadState, saveState, exportData, importData, clearAllData, hasExisting
 import { FEELINGS, NEEDS, TARGETS, TONES, EXPRESSIONS, generateEmpathyResponse } from './empathy.js';
 import { buildExpressionOptions, buildActionTips } from './expressionTuner.js';
 import { ENERGY_LEVELS, PRESSURE_LEVELS, CLARITY_LEVELS, STATUS_OPTIONS, DIRECTIONS, formatStatusRecord, getStatusFeedback } from './dashboard.js';
-import { createHabit, getTodayHabits, getHabitLogsForToday, completeHabit, skipHabit, getHabitCompletionStats, DEFAULT_REWARDS, DEFAULT_TRIGGERS } from './habits.js';
+import { createHabit, getTodayHabits, getHabitLogsForToday, completeHabit, skipHabit, getHabitCompletionStats, getTodayHabitStats, pickHabitFeedback, DEFAULT_REWARDS, DEFAULT_TRIGGERS } from './habits.js';
 import { PRIORITY_CATEGORIES, analyzePriority, formatPriorityRecord } from './priority.js';
 import { formatEmpathyRecord, getRecentRecords, getCombinedFeed } from './review.js';
 
@@ -644,14 +644,24 @@ function renderHabits() {
   const todayHabits = getTodayHabits(state.habits);
   const todayLogs = getHabitLogsForToday(state.habitLogs);
   const stats = getHabitCompletionStats(state.habits, state.habitLogs);
+  const gentleStats = getTodayHabitStats(state.habitLogs);
   
   $('#app').innerHTML = `
     <div class="page habits-page">
       ${renderBackButton('home')}
       <header class="page-header">
-        <h2>🔧 微习惯工坊</h2>
+        <h2>🌱 微习惯工坊</h2>
         <p>创建小而简单的习惯，慢慢来</p>
       </header>
+      
+      <div class="habits-gentle-stats" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 16px; text-align: center; box-shadow: var(--shadow-sm);">
+        <div style="font-size: 14px; color: #92400e; margin-bottom: 8px;">今天的小灯</div>
+        <div style="display: flex; justify-content: center; gap: 24px; font-size: 13px;">
+          <div><span style="color: #059669; font-weight: 600;">${gentleStats.completed}</span> 已点亮</div>
+          <div><span style="color: #0891b2; font-weight: 600;">${gentleStats.total - gentleStats.completed - gentleStats.skipped}</span> 待照看</div>
+          <div><span style="color: #6b7280; font-weight: 600;">${gentleStats.skipped}</span> 先放过</div>
+        </div>
+      </div>
       
       <div class="habits-progress">
         <div class="progress-bar">
@@ -667,6 +677,8 @@ function renderHabits() {
       <div class="habits-list" id="habitsList">
         ${renderHabitsList(todayHabits, todayLogs)}
       </div>
+      
+      <div id="habitFeedbackToast" class="habit-feedback-toast hidden" style="position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); padding: 12px 20px; border-radius: 20px; box-shadow: var(--shadow-lg); z-index: 100; max-width: 280px; text-align: center;"></div>
       
       <div class="create-habit-form hidden" id="createHabitForm">
         <h3>创建微习惯</h3>
@@ -711,21 +723,36 @@ function renderHabitsList(habits, logs) {
     const isCompleted = log?.status === 'completed';
     const isSkipped = log?.status === 'skipped';
     
+    let iconClass = 'seed-icon';
+    let statusIcon = '🌱';
+    let statusLabel = '';
+    
+    if (isCompleted) {
+      iconClass = 'seed-icon completed';
+      statusIcon = '🌿';
+      statusLabel = habit.reward || '已完成';
+    } else if (isSkipped) {
+      iconClass = 'seed-icon skipped';
+      statusIcon = '🌰';
+      statusLabel = '先放过';
+    }
+    
     return `
-      <div class="habit-item ${isCompleted ? 'completed' : ''} ${isSkipped ? 'skipped' : ''}">
-        <div class="habit-content">
+      <div class="habit-item ${isCompleted ? 'completed' : ''} ${isSkipped ? 'skipped' : ''} ${isCompleted ? 'gentle-glow' : ''}">
+        <div class="habit-icon ${iconClass}" style="font-size: 24px; margin-right: 12px;">${statusIcon}</div>
+        <div class="habit-content" style="flex: 1;">
           <div class="habit-identity">${habit.identity}</div>
           <div class="habit-action">${habit.action}</div>
           <div class="habit-trigger">触发：${habit.trigger || habit.triggerCustom || '随时'}</div>
         </div>
         <div class="habit-actions">
           ${!isCompleted && !isSkipped ? `
-            <button class="btn btn-small btn-success" onclick="doHabit('${habit.id}')">完成</button>
+            <button class="btn btn-small btn-success" onclick="doHabit('${habit.id}')">点亮</button>
             <button class="btn btn-small btn-text" onclick="skipHabitRecord('${habit.id}')">跳过</button>
           ` : isCompleted ? `
-            <span class="habit-badge">✓ ${habit.reward}</span>
+            <span class="habit-badge" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">✓ ${statusLabel}</span>
           ` : isSkipped ? `
-            <span class="habit-badge skipped">跳过</span>
+            <span class="habit-badge skipped">${statusIcon} ${statusLabel}</span>
           ` : ''}
           <button class="btn btn-small btn-text" onclick="editHabit('${habit.id}')">编辑</button>
           <button class="btn btn-small btn-text danger" onclick="deleteHabit('${habit.id}')">删除</button>
@@ -771,14 +798,33 @@ window.saveNewHabit = function() {
 window.doHabit = function(habitId) {
   completeHabit(habitId, state.habitLogs);
   saveState(state);
+  showHabitFeedback('complete');
   renderHabits();
 };
 
 window.skipHabitRecord = function(habitId) {
   skipHabit(habitId, state.habitLogs);
   saveState(state);
+  showHabitFeedback('skip');
   renderHabits();
 };
+
+function showHabitFeedback(action) {
+  const feedback = pickHabitFeedback(action);
+  if (!feedback) return;
+  
+  const toast = $('#habitFeedbackToast');
+  if (!toast) return;
+  
+  toast.textContent = feedback;
+  toast.classList.remove('hidden');
+  toast.classList.add('fade-in');
+  
+  setTimeout(() => {
+    toast.classList.add('hidden');
+    toast.classList.remove('fade-in');
+  }, 2500);
+}
 
 window.editHabit = function(habitId) {
   const habit = state.habits.find(h => h.id === habitId);
