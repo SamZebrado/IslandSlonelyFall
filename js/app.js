@@ -1150,11 +1150,137 @@ window.resetPriority = function() {
   renderPriority();
 };
 
+function getTimeGroup(record) {
+  const recordDate = new Date(record.timestamp);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today.getTime() - 86400000);
+  const threeDaysAgo = new Date(today.getTime() - 3 * 86400000);
+  
+  if (recordDate >= today) {
+    return '今天';
+  } else if (recordDate >= yesterday) {
+    return '昨天';
+  } else if (recordDate >= threeDaysAgo) {
+    return '近三天';
+  } else {
+    return '更早';
+  }
+}
+
+function groupRecordsByTime(records) {
+  const groups = {
+    '今天': [],
+    '昨天': [],
+    '近三天': [],
+    '更早': []
+  };
+  
+  records.forEach(r => {
+    const group = getTimeGroup(r);
+    groups[group].push(r);
+  });
+  
+  return groups;
+}
+
+function renderRecordItem(record, type) {
+  const date = new Date(record.timestamp);
+  const timeStr = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  
+  const typeLabels = {
+    empathy: { label: '共情', color: '#e8d4b8' },
+    status: { label: '状态', color: '#c8d8f5' },
+    habit: { label: '习惯', color: '#c8f0d8' },
+    priority: { label: '决策', color: '#f5dcc8' }
+  };
+  
+  const typeInfo = typeLabels[type] || { label: '记录', color: '#e0e0e0' };
+  
+  let content = '';
+  let extra = '';
+  
+  switch (type) {
+    case 'empathy':
+      const feelings = Array.isArray(record.feelings) ? record.feelings.join('、') : (record.feelings || '');
+      if (feelings) {
+        content = feelings;
+        extra = record.selfExpression ? `<p class="record-note">${record.selfExpression}</p>` : '';
+      }
+      break;
+    case 'status':
+      content = `能量 ${record.energy || '?'}/10 · 压力 ${record.pressure || '?'}/10`;
+      break;
+    case 'habit':
+      content = record.habitName || record.action || '习惯记录';
+      break;
+    case 'priority':
+      content = record.task || record.content || '优先级决策';
+      if (record.result?.category) {
+        const catLabels = {
+          DELETE: '删除',
+          DEFER: '延后',
+          SIMPLIFY: '简化',
+          DELEGATE: '委托',
+          TODAY: '今天',
+          NOW: '立即'
+        };
+        extra = `<span class="record-badge" style="background: #f5dcc8;">${catLabels[record.result.category] || record.result.category}</span>`;
+      }
+      break;
+    default:
+      content = record.content || record.text || record.title || '记录';
+  }
+  
+  return `
+    <article class="garden-record record-${type}">
+      <div class="record-header">
+        <span class="record-type" style="background: ${typeInfo.color}">${typeInfo.label}</span>
+        <time class="record-time">${timeStr}</time>
+      </div>
+      <p class="record-title">${content}</p>
+      ${extra}
+    </article>
+  `;
+}
+
 function renderReview() {
   const feed = getCombinedFeed(state, 10);
-  const empathyRecent = getRecentRecords(state.empathyRecords, 3);
-  const statusRecent = getRecentRecords(state.statusRecords, 3);
-  const priorityRecent = getRecentRecords(state.priorityRecords, 3);
+  const totalRecords = state.empathyRecords.length + state.statusRecords.length + 
+                       (state.habitLogs?.length || 0) + state.priorityRecords.length;
+  
+  const groupedFeed = groupRecordsByTime(feed);
+  
+  const sections = [];
+  ['今天', '昨天', '近三天', '更早'].forEach(timeGroup => {
+    if (groupedFeed[timeGroup].length > 0) {
+      let recordsHtml = '';
+      groupedFeed[timeGroup].forEach(item => {
+        recordsHtml += renderRecordItem(item, item.type);
+      });
+      
+      sections.push(`
+        <section class="garden-section">
+          <h3 class="garden-date">${timeGroup}</h3>
+          <div class="garden-records">
+            ${recordsHtml}
+          </div>
+        </section>
+      `);
+    }
+  });
+  
+  const habitCount = state.habitLogs?.filter(l => {
+    const logDate = new Date(l.timestamp);
+    const today = new Date();
+    return logDate.toDateString() === today.toDateString();
+  }).length || 0;
+  
+  const priorityTodayCount = state.priorityRecords.filter(r => {
+    const recordDate = new Date(r.timestamp);
+    const today = new Date();
+    return recordDate.toDateString() === today.toDateString();
+  }).length;
   
   $('#app').innerHTML = `
     <div class="page review-page">
@@ -1164,51 +1290,21 @@ function renderReview() {
         <p>看看你走过的路</p>
       </header>
       
-      <div class="review-sections">
-        <div class="review-section">
-          <h3>共情记录</h3>
-          ${empathyRecent.length > 0 ? empathyRecent.map(r => {
-            const f = formatEmpathyRecord(r);
-            return `
-              <div class="record-item">
-                <div class="record-time">${f.dateStr}</div>
-                ${f.feelings ? `<div class="record-tags">${f.feelings.split('、').map(ff => `<span class="tag">${ff}</span>`).join('')}</div>` : ''}
-                ${f.selfExpression ? `<div class="record-note">${f.selfExpression}</div>` : ''}
-              </div>
-            `;
-          }).join('') : '<p class="empty-note">还没有共情记录</p>'}
+      ${totalRecords > 0 ? `
+        <div class="garden-summary">
+          <div class="garden-summary-icon">✦</div>
+          <div class="garden-summary-text">
+            共 ${totalRecords} 条记录，其中 ${priorityTodayCount > 0 ? `${priorityTodayCount} 条优先级决策，` : ''}${habitCount > 0 ? `${habitCount} 条微习惯` : ''}留在了这里。
+          </div>
         </div>
-        
-        <div class="review-section">
-          <h3>状态记录</h3>
-          ${statusRecent.length > 0 ? statusRecent.map(r => {
-            const f = formatStatusRecord(r);
-            return `
-              <div class="record-item">
-                <div class="record-time">${f.dateStr}</div>
-                <div class="record-content">
-                  能量：${f.energyLabel} | 压力：${f.pressureLabel}
-                </div>
-              </div>
-            `;
-          }).join('') : '<p class="empty-note">还没有状态记录</p>'}
+      ` : ''}
+      
+      ${sections.length > 0 ? sections.join('') : `
+        <div class="garden-empty">
+          <p>花园里还没有记录。</p>
+          <p>去各个地方走走，留下一些痕迹吧。</p>
         </div>
-        
-        <div class="review-section">
-          <h3>优先级决策</h3>
-          ${priorityRecent.length > 0 ? priorityRecent.map(r => {
-            const f = formatPriorityRecord(r);
-            const cat = PRIORITY_CATEGORIES[f.result?.category] || {};
-            return `
-              <div class="record-item">
-                <div class="record-time">${f.dateStr}</div>
-                <div class="record-content">${r.task}</div>
-                <div class="record-tags"><span class="tag" style="background: ${cat.color}">${cat.label || '未知'}</span></div>
-              </div>
-            `;
-          }).join('') : '<p class="empty-note">还没有决策记录</p>'}
-        </div>
-      </div>
+      `}
       
       <div class="review-actions">
         <h3>数据管理</h3>

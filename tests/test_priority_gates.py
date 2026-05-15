@@ -186,15 +186,11 @@ def run_tests():
             
             page.wait_for_timeout(500)
             
-            priority_section = page.query_selector('.review-section:has-text("优先级决策")')
-            if priority_section:
-                priority_items = priority_section.query_selector_all('.record-item')
-                if len(priority_items) > 0:
-                    log_result("回顾花园显示优先级记录", "通过", f"共{len(priority_items)}条")
-                else:
-                    log_result("回顾花园显示优先级记录", "失败", "section存在但无record-item")
+            priority_records = page.query_selector_all('.record-priority')
+            if len(priority_records) > 0:
+                log_result("回顾花园显示优先级记录", "通过", f"共{len(priority_records)}条")
             else:
-                log_result("回顾花园显示优先级记录", "失败", "未找到优先级决策section")
+                log_result("回顾花园显示优先级记录", "失败", "未找到优先级记录")
                 
         except Exception as e:
             log_result("回顾花园优先级门票", "失败", str(e))

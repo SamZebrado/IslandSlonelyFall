@@ -294,7 +294,7 @@ def run_tests():
             else:
                 log_result("清空数据按钮", "失败")
             
-            if page.locator('.review-section:has-text("共情记录")').is_visible():
+            if page.locator('.record-empathy, .garden-record').first.is_visible():
                 log_result("显示共情记录", "通过")
             else:
                 log_result("显示共情记录", "失败")
