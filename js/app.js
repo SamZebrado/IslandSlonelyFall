@@ -870,7 +870,7 @@ function renderPriority() {
       <div class="priority-form">
         <div class="gate-path" id="gatePath">
           ${PRIORITY_GATES.map((gate, idx) => `
-            <div class="gate-node pending" data-gate="${gate.id}" data-index="${idx}">
+            <div class="gate-node ${idx === 0 ? 'active' : 'pending'}" data-gate="${gate.id}" data-index="${idx}">
               <div class="gate-icon">🚪</div>
               <div class="gate-short-label">${gate.shortLabel}</div>
             </div>

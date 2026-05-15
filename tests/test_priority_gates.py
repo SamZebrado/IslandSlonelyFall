@@ -37,6 +37,7 @@ def run_tests():
             else:
                 log_result("五道门路径节点显示", "失败", f"只有{len(gate_nodes)}个节点")
             
+            page.wait_for_timeout(800)
             first_node = page.query_selector('.gate-node.active')
             if first_node:
                 log_result("第一道门高亮", "通过")
@@ -185,11 +186,15 @@ def run_tests():
             
             page.wait_for_timeout(500)
             
-            priority_items = page.query_selector_all('[class*="priority"], .result-category, [class*="ticket"]')
-            if len(priority_items) > 0:
-                log_result("回顾花园显示优先级记录", "通过", f"共{len(priority_items)}条")
+            priority_section = page.query_selector('.review-section:has-text("优先级决策")')
+            if priority_section:
+                priority_items = priority_section.query_selector_all('.record-item')
+                if len(priority_items) > 0:
+                    log_result("回顾花园显示优先级记录", "通过", f"共{len(priority_items)}条")
+                else:
+                    log_result("回顾花园显示优先级记录", "失败", "section存在但无record-item")
             else:
-                log_result("回顾花园显示优先级记录", "失败", "未找到优先级记录")
+                log_result("回顾花园显示优先级记录", "失败", "未找到优先级决策section")
                 
         except Exception as e:
             log_result("回顾花园优先级门票", "失败", str(e))
