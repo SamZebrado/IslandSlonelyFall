@@ -234,6 +234,89 @@ body {
   color: var(--color-text-light);
 }
 
+.places-section {
+  margin-top: 24px;
+}
+
+.places-title {
+  font-size: 16px;
+  color: #6f654e;
+  margin-bottom: 14px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.place-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.place-card {
+  text-align: left;
+  padding: 16px 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(0,0,0,0.06);
+  background: linear-gradient(180deg, #fffdf8 0%, #f8f4ea 100%);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  cursor: pointer;
+}
+
+.place-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.place-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  background: #efe7d4;
+  color: #6c5a2e;
+  margin-bottom: 8px;
+}
+
+.place-card h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #3d3a33;
+}
+
+.place-desc {
+  margin: 0 0 10px;
+  line-height: 1.4;
+  color: #5d5a54;
+  font-size: 13px;
+}
+
+.place-meta {
+  margin-top: auto;
+}
+
+.place-tag {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: #f3efe6;
+  font-size: 12px;
+  color: #4e4a42;
+}
+
+.place-empathy { background: linear-gradient(180deg, #fff8f0 0%, #f8ece0 100%); }
+.place-status { background: linear-gradient(180deg, #f5f8ff 0%, #e8eef8 100%); }
+.place-habit { background: linear-gradient(180deg, #f0fff4 0%, #e0f4e8 100%); }
+.place-priority { background: linear-gradient(180deg, #fff5e6 0%, #f8ece0 100%); }
+.place-review { background: linear-gradient(180deg, #fff0f5 0%, #f8e8ee 100%); }
+
+.place-empathy .place-badge { background: #f5e0c8; color: #7a5a2e; }
+.place-status .place-badge { background: #c8d8f5; color: #2e4a7a; }
+.place-habit .place-badge { background: #c8f0d8; color: #2e7a4a; }
+.place-priority .place-badge { background: #f5dcc8; color: #7a4a2e; }
+.place-review .place-badge { background: #f5c8d8; color: #7a2e4a; }
+
 .btn {
   display: inline-flex;
   align-items: center;

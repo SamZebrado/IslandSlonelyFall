@@ -52,7 +52,7 @@ def run_tests():
         print("=" * 60)
         
         try:
-            page.locator('.module-card:has-text("共情小屋")').click()
+            page.locator('.place-card:has-text("共情小屋")').click()
             page.wait_for_load_state('networkidle')
             
             if page.locator('#empathyStep1:has-text("发生了什么")').is_visible():
@@ -140,7 +140,7 @@ def run_tests():
         try:
             page.locator('.btn-back').click()
             page.wait_for_load_state('networkidle')
-            page.locator('.module-card:has-text("状态观测台")').click()
+            page.locator('.place-card:has-text("状态观测台")').click()
             page.wait_for_load_state('networkidle')
             
             if page.locator('.status-form:has-text("今日能量")').is_visible():
@@ -176,7 +176,7 @@ def run_tests():
         try:
             page.locator('.btn-back').click()
             page.wait_for_load_state('networkidle')
-            page.locator('.module-card:has-text("微习惯工坊")').click()
+            page.locator('.place-card:has-text("微习惯工坊")').click()
             page.wait_for_load_state('networkidle')
             
             if page.locator('button:has-text("创建新习惯")').is_visible():
@@ -218,7 +218,7 @@ def run_tests():
         try:
             page.locator('.btn-back').click()
             page.wait_for_load_state('networkidle')
-            page.locator('.module-card:has-text("优先级决策岛")').click()
+            page.locator('.place-card:has-text("优先级决策岛")').click()
             page.wait_for_load_state('networkidle')
             
             if page.locator('.gate-path').is_visible():
@@ -281,7 +281,7 @@ def run_tests():
         try:
             page.locator('.btn-back').click()
             page.wait_for_load_state('networkidle')
-            page.locator('.module-card:has-text("回顾花园")').click()
+            page.locator('.place-card:has-text("回顾花园")').click()
             page.wait_for_load_state('networkidle')
             
             if page.locator('.review-page:has-text("导出 JSON")').is_visible():
@@ -319,7 +319,7 @@ def run_tests():
         
         try:
             page.reload(wait_until='networkidle')
-            page.locator('.module-card:has-text("回顾花园")').click()
+            page.locator('.place-card:has-text("回顾花园")').click()
             page.wait_for_load_state('networkidle')
             
             storage_data3 = page.evaluate('''() => {

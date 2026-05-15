@@ -34,8 +34,8 @@ function renderHome() {
   $('#app').innerHTML = `
     <div class="page home-page">
       <header class="home-header">
-        <h1>本地指南游戏</h1>
-        <p class="subtitle">Local Guide Game</p>
+        <h1>本地指南</h1>
+        <p class="subtitle">带你慢慢走，每一步都是探索</p>
       </header>
       
       <div class="safety-notice">
@@ -54,37 +54,55 @@ function renderHome() {
         ` : ''}
       </div>
       
-      <div class="modules-grid">
-        <div class="module-card" onclick="navigate('empathy')">
-          <div class="module-icon">🏠</div>
-          <h3>共情小屋</h3>
-          <p>自我共情与情绪觉察</p>
+      <section class="places-section">
+        <h2 class="places-title">四个地方</h2>
+        <div class="place-grid">
+          <button class="place-card place-empathy" onclick="navigate('empathy')">
+            <div class="place-badge">小屋</div>
+            <h3>共情小屋</h3>
+            <p class="place-desc">先把感受说清楚，再决定下一步。</p>
+            <div class="place-meta">
+              <span class="place-tag">适合先停一下</span>
+            </div>
+          </button>
+          
+          <button class="place-card place-status" onclick="navigate('status')">
+            <div class="place-badge">观测台</div>
+            <h3>状态观测台</h3>
+            <p class="place-desc">看看今天的状态能量。</p>
+            <div class="place-meta">
+              <span class="place-tag">适合了解自己</span>
+            </div>
+          </button>
+          
+          <button class="place-card place-habit" onclick="navigate('habits')">
+            <div class="place-badge">工坊</div>
+            <h3>微习惯工坊</h3>
+            <p class="place-desc">把目标缩小到今天能做的一步。</p>
+            <div class="place-meta">
+              <span class="place-tag">适合立刻动手</span>
+            </div>
+          </button>
+          
+          <button class="place-card place-priority" onclick="navigate('priority')">
+            <div class="place-badge">岛屿</div>
+            <h3>优先级决策岛</h3>
+            <p class="place-desc">经过五道门，找到最合适的行动。</p>
+            <div class="place-meta">
+              <span class="place-tag">适合决定方向</span>
+            </div>
+          </button>
+          
+          <button class="place-card place-review" onclick="navigate('review')">
+            <div class="place-badge">花园</div>
+            <h3>回顾花园</h3>
+            <p class="place-desc">看看最近留下了什么痕迹。</p>
+            <div class="place-meta">
+              <span class="place-tag">适合静静回顾</span>
+            </div>
+          </button>
         </div>
-        
-        <div class="module-card" onclick="navigate('status')">
-          <div class="module-icon">🔭</div>
-          <h3>状态观测台</h3>
-          <p>记录今日状态</p>
-        </div>
-        
-        <div class="module-card" onclick="navigate('habits')">
-          <div class="module-icon">🔧</div>
-          <h3>微习惯工坊</h3>
-          <p>创建小而简单的习惯</p>
-        </div>
-        
-        <div class="module-card" onclick="navigate('priority')">
-          <div class="module-icon">🚪</div>
-          <h3>优先级决策岛</h3>
-          <p>五道门任务决策</p>
-        </div>
-        
-        <div class="module-card" onclick="navigate('review')">
-          <div class="module-icon">🌸</div>
-          <h3>回顾花园</h3>
-          <p>查看记录与导出</p>
-        </div>
-      </div>
+      </section>
     </div>
   `;
 }
