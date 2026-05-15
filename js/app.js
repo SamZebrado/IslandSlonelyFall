@@ -479,6 +479,19 @@ window.finishEmpathy = function() {
     html += `<p class="gentle-note">这次记录已经放进回顾花园。</p>`;
   }
   
+  html += `
+    <div class="next-stop">
+      <div class="next-stop-label">下一站</div>
+      <div class="next-stop-content">
+        <div>
+          <strong>去优先级决策岛</strong>
+          <p>把当前感受转成一个更清楚的选择。</p>
+        </div>
+        <button class="btn btn-small" onclick="navigate('priority')">前往</button>
+      </div>
+    </div>
+  `;
+  
   $('#resultCard').innerHTML = html;
   document.querySelector('.empathy-step')?.classList.add('hidden');
   $('#empathyResult')?.classList.remove('hidden');
@@ -1117,6 +1130,20 @@ function showPriorityResult() {
   });
   pathHtml += '</div>';
   $('#pathSummary').innerHTML = pathHtml;
+  
+  const nextStopSection = document.createElement('div');
+  nextStopSection.className = 'next-stop';
+  nextStopSection.innerHTML = `
+    <div class="next-stop-label">下一站</div>
+    <div class="next-stop-content">
+      <div>
+        <strong>去微习惯工坊</strong>
+        <p>方向已经明确，把它缩成今天的一小步。</p>
+      </div>
+      <button class="btn btn-small" onclick="navigate('habits')">前往</button>
+    </div>
+  `;
+  document.getElementById('priorityResult')?.appendChild(nextStopSection);
 }
 
 window.resetPriority = function() {

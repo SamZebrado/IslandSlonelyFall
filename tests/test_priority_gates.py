@@ -28,7 +28,7 @@ def run_tests():
         
         try:
             page.goto('http://localhost:5173', wait_until='networkidle')
-            page.click('.module-card:has-text("优先级决策岛")')
+            page.click('.place-card:has-text("优先级决策岛")')
             page.wait_for_load_state('networkidle')
             
             gate_nodes = page.query_selector_all('.gate-node')
@@ -181,7 +181,7 @@ def run_tests():
         try:
             page.click('.btn-back')
             page.wait_for_load_state('networkidle')
-            page.click('.module-card:has-text("回顾花园")')
+            page.click('.place-card:has-text("回顾花园")')
             page.wait_for_load_state('networkidle')
             
             page.wait_for_timeout(500)
@@ -206,7 +206,7 @@ def run_tests():
         try:
             page.set_viewport_size({"width": 375, "height": 667})
             page.goto('http://localhost:5173', wait_until='networkidle')
-            page.click('.module-card:has-text("优先级决策岛")')
+            page.click('.place-card:has-text("优先级决策岛")')
             page.wait_for_load_state('networkidle')
             
             gate_nodes = page.query_selector_all('.gate-node')
