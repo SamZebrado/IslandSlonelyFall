@@ -252,7 +252,12 @@ export function exportBackup() {
 }
 
 export function importData(jsonStr) {
+  const previousState = loadState();
+  const tempBackupKey = 'localGuideGameTempBackup';
+  
   try {
+    localStorage.setItem(tempBackupKey, JSON.stringify(previousState));
+    
     if (!jsonStr || typeof jsonStr !== 'string' || jsonStr.trim() === '') {
       throw new Error('Empty input');
     }
@@ -269,9 +274,16 @@ export function importData(jsonStr) {
     
     const normalized = normalizeState(data);
     
-    const previousState = loadState();
+    if (!normalized || typeof normalized !== 'object') {
+      throw new Error('Normalization failed');
+    }
+    
+    if (!Array.isArray(normalized.empathyRecords)) {
+      throw new Error('Invalid empathyRecords after normalization');
+    }
     
     saveState(normalized);
+    localStorage.removeItem(tempBackupKey);
     
     return { 
       success: true, 
@@ -279,6 +291,17 @@ export function importData(jsonStr) {
       restored: previousState.meta.createdAt !== normalized.meta.createdAt
     };
   } catch (e) {
+    try {
+      const tempState = localStorage.getItem(tempBackupKey);
+      if (tempState) {
+        const restored = JSON.parse(tempState);
+        localStorage.setItem(STORAGE_KEY, tempState);
+      }
+    } catch (restoreError) {
+      console.warn('Failed to restore state after import error:', restoreError);
+    }
+    
+    localStorage.removeItem(tempBackupKey);
     return { success: false, error: e.message };
   }
 }
