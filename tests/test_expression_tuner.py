@@ -13,6 +13,9 @@ def log_result(name, status, detail=""):
     print(f"  {symbol} [{status}] {name}" + (f": {detail}" if detail else ""))
     TEST_RESULTS.append((name, status, detail))
 
+def click_visible_button(page, text):
+    page.click(f'#app .empathy-step:not(.hidden) button:has-text("{text}")')
+
 def run_tests():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
@@ -31,32 +34,32 @@ def run_tests():
             page.click('button:has-text("开始今日探索")')
             page.wait_for_selector('.empathy-step')
             
-            page.click('button:has-text("下一步")')
-            page.wait_for_selector('#empathyStep2')
+            click_visible_button(page, "下一步")
+            page.wait_for_selector('#empathyStep2:not(.hidden)')
             log_result("共情步骤2显示", "通过")
             
-            page.click('button:has-text("下一步")')
-            page.wait_for_selector('#empathyStep3')
+            click_visible_button(page, "下一步")
+            page.wait_for_selector('#empathyStep3:not(.hidden)')
             log_result("共情步骤3显示", "通过")
             
-            page.click('button:has-text("下一步")')
-            page.wait_for_selector('#empathyStep3b')
+            click_visible_button(page, "下一步")
+            page.wait_for_selector('#empathyStep3b:not(.hidden)')
             log_result("共情步骤4显示", "通过")
             
-            page.click('button:has-text("下一步")')
-            page.wait_for_selector('#empathyStep4')
+            click_visible_button(page, "下一步")
+            page.wait_for_selector('#empathyStep4:not(.hidden)')
             log_result("步骤5（表达调音台）显示", "通过")
             
-            page.wait_for_selector('.expression-tuner-card')
+            page.wait_for_selector('#empathyStep4 .expression-tuner-card')
             log_result("表达调音台卡片可见", "通过")
             
-            page.wait_for_selector('[data-audience]')
+            page.wait_for_selector('#empathyStep4 [data-audience]')
             log_result("沟通对象选择器可见", "通过")
             
-            page.wait_for_selector('[data-mode]')
+            page.wait_for_selector('#empathyStep4 [data-mode]')
             log_result("表达方式选择器可见", "通过")
             
-            page.wait_for_selector('[data-tone]')
+            page.wait_for_selector('#empathyStep4 [data-tone]')
             log_result("语气强度选择器可见", "通过")
             
         except Exception as e:
@@ -67,13 +70,13 @@ def run_tests():
         print("=" * 60)
         
         try:
-            page.click('[data-audience="self"]')
+            page.click('#empathyStep4 [data-audience="self"]')
             log_result("选择沟通对象：自己", "通过")
             
-            page.click('[data-mode="journal"]')
+            page.click('#empathyStep4 [data-mode="journal"]')
             log_result("选择表达方式：只记录", "通过")
             
-            page.click('[data-tone="gentle"]')
+            page.click('#empathyStep4 [data-tone="gentle"]')
             log_result("选择语气：温和", "通过")
             
             generate_btn = page.query_selector('#generateExpressionBtn')
@@ -92,7 +95,7 @@ def run_tests():
         
         try:
             page.click('#generateExpressionBtn')
-            page.wait_for_selector('#empathyResult')
+            page.wait_for_selector('#empathyResult:not(.hidden)')
             log_result("生成表达后显示结果", "通过")
             
             expression_cards = page.query_selector_all('.expression-card')
@@ -114,16 +117,16 @@ def run_tests():
             page.wait_for_selector('.empathy-step')
             
             for _ in range(4):
-                page.click('button:has-text("下一步")')
-                page.wait_for_timeout(200)
+                click_visible_button(page, "下一步")
+                page.wait_for_timeout(300)
             
-            page.wait_for_selector('#empathyStep4')
+            page.wait_for_selector('#empathyStep4:not(.hidden)')
             
-            page.click('[data-audience="partnerFriend"]')
-            page.click('[data-mode="faceToFace"]')
-            page.click('[data-tone="gentle"]')
+            page.click('#empathyStep4 [data-audience="partnerFriend"]')
+            page.click('#empathyStep4 [data-mode="faceToFace"]')
+            page.click('#empathyStep4 [data-tone="gentle"]')
             page.click('#generateExpressionBtn')
-            page.wait_for_selector('#empathyResult')
+            page.wait_for_selector('#empathyResult:not(.hidden)')
             
             action_suggestion = page.query_selector('.action-suggestion')
             if action_suggestion:
@@ -140,16 +143,16 @@ def run_tests():
             page.wait_for_selector('.empathy-step')
             
             for _ in range(4):
-                page.click('button:has-text("下一步")')
-                page.wait_for_timeout(200)
+                click_visible_button(page, "下一步")
+                page.wait_for_timeout(300)
             
-            page.wait_for_selector('#empathyStep4')
+            page.wait_for_selector('#empathyStep4:not(.hidden)')
             
-            page.click('[data-audience="supervisor"]')
-            page.click('[data-mode="message"]')
-            page.click('[data-tone="clear"]')
+            page.click('#empathyStep4 [data-audience="supervisor"]')
+            page.click('#empathyStep4 [data-mode="message"]')
+            page.click('#empathyStep4 [data-tone="clear"]')
             page.click('#generateExpressionBtn')
-            page.wait_for_selector('#empathyResult')
+            page.wait_for_selector('#empathyResult:not(.hidden)')
             
             action_suggestion = page.query_selector('.action-suggestion')
             if action_suggestion:
@@ -166,16 +169,16 @@ def run_tests():
             page.wait_for_selector('.empathy-step')
             
             for _ in range(4):
-                page.click('button:has-text("下一步")')
-                page.wait_for_timeout(200)
+                click_visible_button(page, "下一步")
+                page.wait_for_timeout(300)
             
-            page.wait_for_selector('#empathyStep4')
+            page.wait_for_selector('#empathyStep4:not(.hidden)')
             
-            page.click('[data-audience="unsafePerson"]')
-            page.click('[data-mode="boundary"]')
-            page.click('[data-tone="boundary"]')
+            page.click('#empathyStep4 [data-audience="unsafePerson"]')
+            page.click('#empathyStep4 [data-mode="boundary"]')
+            page.click('#empathyStep4 [data-tone="boundary"]')
             page.click('#generateExpressionBtn')
-            page.wait_for_selector('#empathyResult')
+            page.wait_for_selector('#empathyResult:not(.hidden)')
             
             expression_cards = page.query_selector_all('.expression-card')
             if len(expression_cards) > 0:
@@ -197,15 +200,15 @@ def run_tests():
             page.wait_for_selector('.empathy-step')
             
             for _ in range(4):
-                page.click('button:has-text("下一步")')
-                page.wait_for_timeout(200)
+                click_visible_button(page, "下一步")
+                page.wait_for_timeout(300)
             
-            page.wait_for_selector('#empathyStep4')
-            page.click('[data-audience="self"]')
-            page.click('[data-mode="journal"]')
-            page.click('[data-tone="gentle"]')
+            page.wait_for_selector('#empathyStep4:not(.hidden)')
+            page.click('#empathyStep4 [data-audience="self"]')
+            page.click('#empathyStep4 [data-mode="journal"]')
+            page.click('#empathyStep4 [data-tone="gentle"]')
             page.click('#generateExpressionBtn')
-            page.wait_for_selector('#empathyResult')
+            page.wait_for_selector('#empathyResult:not(.hidden)')
             
             state_json = page.evaluate('() => localStorage.getItem("localGuideGameState")')
             if state_json:
@@ -235,14 +238,14 @@ def run_tests():
             page.wait_for_selector('.empathy-step')
             
             for _ in range(4):
-                page.click('button:has-text("下一步")')
-                page.wait_for_timeout(200)
+                click_visible_button(page, "下一步")
+                page.wait_for_timeout(300)
             
-            page.wait_for_selector('#empathyStep4')
+            page.wait_for_selector('#empathyStep4:not(.hidden)')
             
-            audience_btns = page.query_selector_all('[data-audience]')
-            mode_btns = page.query_selector_all('[data-mode]')
-            tone_btns = page.query_selector_all('[data-tone]')
+            audience_btns = page.query_selector_all('#empathyStep4 [data-audience]')
+            mode_btns = page.query_selector_all('#empathyStep4 [data-mode]')
+            tone_btns = page.query_selector_all('#empathyStep4 [data-tone]')
             
             if len(audience_btns) >= 6:
                 log_result("移动端沟通对象选择器可用", "通过")
