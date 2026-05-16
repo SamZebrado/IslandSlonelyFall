@@ -116,6 +116,74 @@ window.another3MinuteTask = function() {
   render3MinuteTask();
 };
 
+function renderSaveMePage() {
+  $('#app').innerHTML = `
+    <div class="page save-me-page">
+      ${renderBackButton('home')}
+      <header class="page-header">
+        <h2>🆘 不知道点哪个，直接救我</h2>
+        <p>现在更像哪一种？</p>
+      </header>
+      
+      <div class="save-me-actions">
+        <button class="btn btn-primary btn-large" onclick="quickStart('momentum')">
+          我不想动
+        </button>
+        <button class="btn btn-primary btn-large" onclick="quickStart('priority')">
+          事情太多
+        </button>
+        <button class="btn btn-primary btn-large" onclick="navigate('empathy')">
+          我有点乱
+        </button>
+        <button class="btn btn-primary btn-large" onclick="renderProcrastinationQuick('hate')">
+          我又拖了，很烦自己
+        </button>
+        <button class="btn btn-primary btn-large" onclick="renderProcrastinationQuick('afraid')">
+          我怕做不好
+        </button>
+        <button class="btn btn-primary btn-large" onclick="renderProcrastinationQuick('late')">
+          已经晚了
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+window.renderProcrastinationQuick = function(type) {
+  const resp = procrastinationResponses[type];
+  if (!resp) {
+    navigate('empathy');
+    return;
+  }
+  
+  $('#app').innerHTML = `
+    <div class="page empathy-page">
+      ${renderBackButton('home')}
+      
+      <div class="procrastination-card">
+        <div class="procrastination-icon">💙</div>
+        <p class="procrastination-message">${resp.message}</p>
+        
+        <div class="quick-response-actions">
+          <button class="btn btn-primary" onclick="navigate('priority')">现在找一件事做</button>
+          <button class="btn btn-secondary" onclick="navigate('habits')">选个微习惯</button>
+          <button class="btn btn-secondary" onclick="navigate('home')">先回首页</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  state.empathyRecords.push({
+    id: `procrastination-${Date.now()}`,
+    timestamp: new Date().toISOString(),
+    situation: '拖延后状态',
+    feelings: resp.feelings,
+    needs: resp.needs,
+    type: 'procrastination'
+  });
+  saveState(state);
+};
+
 function renderHome() {
   const hasData = hasExistingData();
   
@@ -127,10 +195,10 @@ function renderHome() {
       </header>
       
       <div class="quick-actions">
-        <button class="quick-action-btn quick-action-rating" onclick="quickStart('rating')">
-          <span class="quick-action-icon">📊</span>
-          <span class="quick-action-text">今日状态</span>
-          <span class="quick-action-hint">觉察当下</span>
+        <button class="quick-action-btn quick-action-save-me" onclick="renderSaveMePage()">
+          <span class="quick-action-icon">🆘</span>
+          <span class="quick-action-text">不知道点哪个，直接救我</span>
+          <span class="quick-action-hint">最省事的入口</span>
         </button>
         <button class="quick-action-btn quick-action-momentum" onclick="quickStart('momentum')">
           <span class="quick-action-icon">🌱</span>
@@ -146,6 +214,11 @@ function renderHome() {
           <span class="quick-action-icon">🌊</span>
           <span class="quick-action-text">有点乱</span>
           <span class="quick-action-hint">2分钟整理</span>
+        </button>
+        <button class="quick-action-btn quick-action-rating" onclick="quickStart('rating')">
+          <span class="quick-action-icon">📊</span>
+          <span class="quick-action-text">今日状态</span>
+          <span class="quick-action-hint">觉察当下</span>
         </button>
       </div>
       
@@ -1978,6 +2051,15 @@ function renderRating() {
         <h2>📊 ${lang === 'zh' ? '今日状态' : "Today's Status"}</h2>
         <p>${lang === 'zh' ? '觉察当下，从评分开始' : 'Be aware of the present'}</p>
       </header>
+      
+      <div class="rating-explanation">
+        <p style="font-size: 14px; color: var(--color-text-light); margin-bottom: 8px;">
+          ${lang === 'zh' ? '💡 小贴士：' : '💡 Tip:'}
+        </p>
+        <p style="font-size: 13px; color: var(--color-text-light);">
+          ${lang === 'zh' ? '这里的「爱」不只是恋爱，也包括家人、朋友、被支持、照顾自己；「工作」也可以是学业。' : '"Love" includes family, friends, and self-care; "Work" can be studies.'}
+        </p>
+      </div>
       
       <div class="rating-container">
         ${categoriesHtml}

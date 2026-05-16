@@ -12,12 +12,12 @@ export const RATING_CATEGORIES = {
   },
   work: {
     id: 'work',
-    name: { zh: '工作', en: 'Work' },
-    nameShort: { zh: '工作', en: 'W' },
+    name: { zh: '学业/工作', en: 'Studies/Work' },
+    nameShort: { zh: '学业/工作', en: 'W' },
     icon: '💼',
     subItems: [
-      { id: 'main', name: { zh: '本职工作', en: 'Main Job' } },
-      { id: 'side', name: { zh: '兼职工作', en: 'Side Job' } },
+      { id: 'main', name: { zh: '本职工作/主学业', en: 'Main Job/Studies' } },
+      { id: 'side', name: { zh: '兼职/副业', en: 'Side Job' } },
       { id: 'volunteer', name: { zh: '业余志愿工作', en: 'Volunteer Work' } }
     ]
   },

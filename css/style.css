@@ -2008,8 +2008,31 @@ select:focus {
   border-color: rgba(245, 158, 11, 0.2);
 }
 
+.quick-action-save-me {
+  background: linear-gradient(180deg, #fee2e2 0%, #fecaca 100%);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.save-me-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.save-me-actions .btn {
+  min-height: 52px;
+}
+
 .rating-page {
   padding-bottom: 40px;
+}
+
+.rating-explanation {
+  background: rgba(255,255,255,0.7);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
 }
 
 .rating-container {
