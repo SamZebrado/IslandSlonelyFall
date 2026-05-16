@@ -5,6 +5,8 @@ import { ENERGY_LEVELS, PRESSURE_LEVELS, CLARITY_LEVELS, STATUS_OPTIONS, DIRECTI
 import { createHabit, getTodayHabits, getHabitLogsForToday, completeHabit, skipHabit, getHabitCompletionStats, getTodayHabitStats, pickHabitFeedback, DEFAULT_REWARDS, DEFAULT_TRIGGERS } from './habits.js';
 import { PRIORITY_CATEGORIES, PRIORITY_GATES, analyzePriority, formatPriorityRecord, derivePriorityDecision } from './priority.js';
 import { formatEmpathyRecord, getRecentRecords, getCombinedFeed } from './review.js';
+import { RATING_CATEGORIES, createRatingRecord, getRecentRatings, formatRatingDate, calculateCategoryAverage, getOverallAverage } from './rating.js';
+import { t, getCurrentLang, setCurrentLang } from './i18n.js';
 
 let state = loadState();
 let currentPage = 'home';
@@ -28,6 +30,23 @@ function $(selector) {
   return document.querySelector(selector);
 }
 
+window.quickStart = function(type) {
+  switch(type) {
+    case 'momentum':
+      navigate('habits');
+      break;
+    case 'priority':
+      navigate('priority');
+      break;
+    case 'empathy':
+      navigate('empathy');
+      break;
+    case 'rating':
+      navigate('rating');
+      break;
+  }
+};
+
 function renderHome() {
   const hasData = hasExistingData();
   
@@ -37,6 +56,29 @@ function renderHome() {
         <h1>本地指南</h1>
         <p class="subtitle">带你慢慢走，每一步都是探索</p>
       </header>
+      
+      <div class="quick-actions">
+        <button class="quick-action-btn quick-action-rating" onclick="quickStart('rating')">
+          <span class="quick-action-icon">📊</span>
+          <span class="quick-action-text">今日状态</span>
+          <span class="quick-action-hint">觉察当下</span>
+        </button>
+        <button class="quick-action-btn quick-action-momentum" onclick="quickStart('momentum')">
+          <span class="quick-action-icon">🌱</span>
+          <span class="quick-action-text">我不想动</span>
+          <span class="quick-action-hint">3分钟启动</span>
+        </button>
+        <button class="quick-action-btn quick-action-priority" onclick="quickStart('priority')">
+          <span class="quick-action-icon">⚡</span>
+          <span class="quick-action-text">事情太多</span>
+          <span class="quick-action-hint">1分钟排序</span>
+        </button>
+        <button class="quick-action-btn quick-action-empathy" onclick="quickStart('empathy')">
+          <span class="quick-action-icon">🌊</span>
+          <span class="quick-action-text">有点乱</span>
+          <span class="quick-action-hint">2分钟整理</span>
+        </button>
+      </div>
       
       <div class="safety-notice">
         <span class="notice-icon">💡</span>
@@ -479,7 +521,31 @@ window.finishEmpathy = function() {
     html += `<p class="gentle-note">这次记录已经放进回顾花园。</p>`;
   }
   
+  const careActions = [
+    { icon: '💧', text: '喝一杯水' },
+    { icon: '🌬️', text: '深呼吸几次' },
+    { icon: '🪟', text: '看看窗外' },
+    { icon: '🎵', text: '听一首喜欢的歌' },
+    { icon: '🧘', text: '站起来伸展一下' },
+    { icon: '📝', text: '把担心写下来' }
+  ];
+  
   html += `
+    <div class="empathy-next-choices">
+      <div class="empathy-choice-header">接下来你想？</div>
+      <div class="empathy-choices">
+        <button class="empathy-choice-btn" onclick="showCareSection()">🌿 我想先照顾自己</button>
+        <button class="empathy-choice-btn" onclick="goToPriorityFromEmpathy()">⚡ 我想把它变成小行动</button>
+      </div>
+    </div>
+    
+    <div class="care-actions-section hidden" id="careActionsSection">
+      <div class="care-actions-label">🌿 照顾一下自己</div>
+      <div class="care-actions-grid">
+        ${careActions.map(a => `<button class="care-action-btn" onclick="this.classList.toggle('done')">${a.icon} ${a.text}</button>`).join('')}
+      </div>
+    </div>
+    
     <div class="next-stop">
       <div class="next-stop-label">下一站</div>
       <div class="next-stop-content">
@@ -505,6 +571,22 @@ window.copyExpression = function(btn) {
     btn.textContent = '已复制!';
     setTimeout(() => {
       btn.textContent = originalText;
+    }, 1500);
+  }).catch(() => {
+    alert('复制失败，请手动选择文本复制');
+  });
+};
+
+window.copyPriorityAction = function(btn) {
+  const text = btn.dataset.action;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const originalText = btn.textContent;
+    btn.textContent = '已复制!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = originalText;
+      btn.classList.remove('copied');
     }, 1500);
   }).catch(() => {
     alert('复制失败，请手动选择文本复制');
@@ -881,14 +963,61 @@ window.deleteHabit = function(habitId) {
   }
 };
 
+window.setPriorityMode = function(simple) {
+  window.prioritySession.simpleMode = simple;
+  const buttons = document.querySelectorAll('.mode-btn');
+  buttons.forEach(btn => {
+    btn.classList.toggle('active', 
+      (btn.textContent.includes('极简') && simple) || 
+      (btn.textContent.includes('完整') && !simple)
+    );
+  });
+  
+  const gatePath = document.getElementById('gatePath');
+  if (gatePath) {
+    if (simple) {
+      gatePath.innerHTML = `
+        <div class="gate-node active">
+          <div class="gate-icon">⚡</div>
+          <div class="gate-short-label">快速决策</div>
+        </div>
+      `;
+    } else {
+      gatePath.innerHTML = PRIORITY_GATES.map((gate, idx) => `
+        <div class="gate-node ${idx === 0 ? 'active' : 'pending'}" data-gate="${gate.id}" data-index="${idx}">
+          <div class="gate-icon">🚪</div>
+          <div class="gate-short-label">${gate.shortLabel}</div>
+        </div>
+      `).join('<div class="gate-connector"></div>');
+    }
+  }
+};
+
+window.applyTemplate = function(template) {
+  const textarea = document.getElementById('priorityTask');
+  if (textarea) {
+    textarea.value = template;
+    textarea.focus();
+  }
+};
+
 function renderPriority() {
   window.prioritySession = {
     taskText: '',
     currentGateIndex: 0,
     gatePath: [],
     nextStep: '',
-    suggestedTimeBlock: ''
+    suggestedTimeBlock: '',
+    simpleMode: false
   };
+  
+  const quickTemplates = [
+    { label: '期末复习', icon: '📚' },
+    { label: '论文拖延', icon: '📝' },
+    { label: '任务太多', icon: '📋' },
+    { label: '不知道先做哪个', icon: '🤔' },
+    { label: '项目优先级', icon: '🎯' }
+  ];
   
   $('#app').innerHTML = `
     <div class="page priority-page">
@@ -897,6 +1026,11 @@ function renderPriority() {
         <h2>🚪 优先级决策岛</h2>
         <p>经过五道门，找到最合适的行动</p>
       </header>
+      
+      <div class="mode-toggle">
+        <button class="mode-btn ${window.prioritySession.simpleMode ? '' : 'active'}" onclick="setPriorityMode(false)">完整模式</button>
+        <button class="mode-btn ${window.prioritySession.simpleMode ? 'active' : ''}" onclick="setPriorityMode(true)">极简模式 ⚡</button>
+      </div>
       
       <div class="priority-form">
         <div class="gate-path" id="gatePath">
@@ -909,6 +1043,11 @@ function renderPriority() {
         </div>
         
         <div class="task-input-section" id="taskInputSection">
+          <div class="quick-templates" id="quickTemplates">
+            ${quickTemplates.map(t => `
+              <button class="template-chip" onclick="applyTemplate('${t.label}')">${t.icon} ${t.label}</button>
+            `).join('')}
+          </div>
           <div class="form-group">
             <label>有什么事情需要决定？</label>
             <textarea id="priorityTask" rows="2" placeholder="例如：完成季度报告"></textarea>
@@ -945,7 +1084,133 @@ window.startPriorityGates = function() {
   window.prioritySession.taskText = taskText;
   $('#taskInputSection')?.classList.add('hidden');
   $('#gateCard')?.classList.remove('hidden');
-  renderCurrentGate();
+  
+  if (window.prioritySession.simpleMode) {
+    renderSimpleGate();
+  } else {
+    renderCurrentGate();
+  }
+};
+
+function renderSimpleGate() {
+  $('#gateContent').innerHTML = `
+    <div class="gate-header">
+      <div class="gate-icon-large">⚡</div>
+      <h3>快速决策</h3>
+      <p class="gate-description">回答三个问题，找到行动方向</p>
+    </div>
+    <div class="simple-questions">
+      <div class="simple-question">
+        <label>1. 这件事必须做吗？</label>
+        <div class="simple-options">
+          <button class="btn btn-option" onclick="answerSimple(1, 'yes')">必须做</button>
+          <button class="btn btn-option" onclick="answerSimple(1, 'no')">可以不做</button>
+        </div>
+      </div>
+      <div class="simple-question hidden" id="simpleQ2">
+        <label>2. 今天能做一点点吗？</label>
+        <div class="simple-options">
+          <button class="btn btn-option" onclick="answerSimple(2, 'yes')">可以</button>
+          <button class="btn btn-option" onclick="answerSimple(2, 'no')">不行</button>
+        </div>
+      </div>
+      <div class="simple-question hidden" id="simpleQ3">
+        <label>3. 最小下一步是什么？</label>
+        <input type="text" id="simpleMinStep" placeholder="描述一个最小的动作..." style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 12px;">
+        <div class="time-block-select" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
+          <button class="btn btn-option" data-time="2分钟" onclick="selectSimpleTime('2分钟')">2分钟</button>
+          <button class="btn btn-option" data-time="5分钟" onclick="selectSimpleTime('5分钟')">5分钟</button>
+          <button class="btn btn-option" data-time="10分钟" onclick="selectSimpleTime('10分钟')">10分钟</button>
+        </div>
+        <button class="btn btn-primary" onclick="finishSimpleGate()">确定</button>
+      </div>
+    </div>
+  `;
+  window.simpleAnswers = { q1: null, q2: null, time: '5分钟' };
+}
+
+window.answerSimple = function(q, answer) {
+  window.simpleAnswers['q' + q] = answer;
+  const qEl = document.getElementById('simpleQ' + q);
+  const nextEl = document.getElementById('simpleQ' + (q + 1));
+  if (qEl) qEl.classList.add('hidden');
+  if (nextEl) nextEl.classList.remove('hidden');
+};
+
+window.selectSimpleTime = function(time) {
+  window.simpleAnswers.time = time;
+  document.querySelectorAll('.time-block-select .btn-option').forEach(b => b.classList.remove('selected'));
+  const btn = document.querySelector(`.time-block-select [data-time="${time}"]`);
+  if (btn) btn.classList.add('selected');
+};
+
+window.finishSimpleGate = function() {
+  const minStep = $('#simpleMinStep')?.value?.trim();
+  if (!minStep) {
+    alert('请描述最小的一步');
+    return;
+  }
+  
+  const session = window.prioritySession;
+  const answers = window.simpleAnswers;
+  
+  let category = 'TODAY';
+  let reminder = '先开始，就已经迈出了第一步。';
+  
+  if (answers.q1 === 'no') {
+    category = 'DELETE';
+    reminder = '能放下的事情，也是在保护精力。';
+  } else if (answers.q2 === 'no') {
+    category = 'DEFER';
+    reminder = '有意识地延后，也是一种决策。';
+  }
+  
+  const record = {
+    id: Date.now().toString(),
+    timestamp: new Date().toISOString(),
+    task: session.taskText,
+    result: {
+      category,
+      minStep,
+      timeBlock: answers.time,
+      reminder
+    },
+    gatePath: [],
+    decision: category,
+    simpleMode: true
+  };
+  
+  state.priorityRecords.push(record);
+  saveState(state);
+  
+  $('#gateCard')?.classList.add('hidden');
+  $('#priorityResult')?.classList.remove('hidden');
+  
+  const categoryInfo = PRIORITY_CATEGORIES[category];
+  const actionText = `我现在要做的事：${session.taskText}
+下一步：${minStep}
+预计时间：${answers.time}
+完成标准：不是做好，只是开始`;
+  
+  $('#resultCard').innerHTML = `
+    <div class="result-category" style="background: ${categoryInfo.color}20; border-left: 4px solid ${categoryInfo.color}; padding: 16px; border-radius: 8px;">
+      <span style="font-size: 24px;">${categoryInfo.icon}</span>
+      <span style="font-size: 18px; font-weight: 600; margin-left: 8px;">${categoryInfo.label}</span>
+    </div>
+    <div class="result-action-box">
+      <div class="result-action-label">📋 立即行动</div>
+      <div class="result-action-item"><strong>我要做的事：</strong>${session.taskText}</div>
+      <div class="result-action-item"><strong>下一步：</strong>${minStep}</div>
+      <div class="result-action-item"><strong>预计时间：</strong>${answers.time}</div>
+      <div class="result-action-item"><strong>完成标准：</strong>不是做好，只是开始</div>
+      <button class="btn btn-small btn-copy-action" onclick="copyPriorityAction(this)" data-action="${actionText.replace(/"/g, '&quot;')}">复制行动</button>
+    </div>
+    <div class="result-section gentle" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); padding: 16px; border-radius: 12px; border-left: 4px solid #10b981;">
+      <p>💬 ${reminder}</p>
+    </div>
+  `;
+  
+  $('#pathSummary').innerHTML = '<div class="path-summary-title">🛤️ 极简模式</div>';
 };
 
 function renderCurrentGate() {
@@ -1098,26 +1363,25 @@ function showPriorityResult() {
   state.priorityRecords.push(record);
   saveState(state);
   
+  const actionText = `我现在要做的事：${session.taskText}
+下一步：${result.minStep}
+预计时间：${result.timeBlock || '自行安排'}
+完成标准：不是做好，只是开始`;
+  
   let html = `
     <div class="result-category" style="background: ${categoryInfo.color}20; border-left: 4px solid ${categoryInfo.color}; padding: 16px; border-radius: 8px;">
       <span style="font-size: 24px;">${categoryInfo.icon}</span>
       <span style="font-size: 18px; font-weight: 600; margin-left: 8px;">${categoryInfo.label}</span>
     </div>
-    <div class="result-section">
-      <label>🎯 任务：</label>
-      <p>${record.task}</p>
+    <div class="result-action-box">
+      <div class="result-action-label">📋 立即行动</div>
+      <div class="result-action-item"><strong>我要做的事：</strong>${record.task}</div>
+      <div class="result-action-item"><strong>下一步：</strong>${result.minStep}</div>
+      ${result.timeBlock ? `<div class="result-action-item"><strong>预计时间：</strong>${result.timeBlock}</div>` : ''}
+      <div class="result-action-item"><strong>完成标准：</strong>不是做好，只是开始</div>
+      <button class="btn btn-small btn-copy-action" onclick="copyPriorityAction(this)" data-action="${actionText.replace(/"/g, '&quot;')}">复制行动</button>
     </div>
-    <div class="result-section">
-      <label>📍 最小下一步：</label>
-      <p>${result.minStep}</p>
-    </div>
-    ${result.timeBlock ? `
-      <div class="result-section">
-        <label>⏱️ 建议时间块：</label>
-        <p>${result.timeBlock}</p>
-      </div>
-    ` : ''}
-    <div class="result-section gentle" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 16px; border-radius: 12px;">
+    <div class="result-section gentle" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); padding: 16px; border-radius: 12px; border-left: 4px solid #10b981;">
       <p>💬 ${result.reminder}</p>
     </div>
   `;
@@ -1306,6 +1570,30 @@ function renderReview() {
         </div>
       `}
       
+      <div class="data-notice">
+        <div class="data-notice-icon">🔒</div>
+        <div class="data-notice-content">
+          <strong>你的数据在这里</strong>
+          <p>所有记录保存在你浏览器的本地存储中，不会发送到任何服务器。如果清除浏览器数据，这些记录也会消失。建议定期导出备份。</p>
+        </div>
+      </div>
+      
+      <div class="crisis-resources">
+        <div class="crisis-resources-header" onclick="toggleCrisisResources()">
+          <span>🆘 需要更多支持？</span>
+          <span class="crisis-toggle" id="crisisToggle">点击展开</span>
+        </div>
+        <div class="crisis-resources-content hidden" id="crisisResourcesContent">
+          <p>这个工具用于日常自我觉察和整理，不能替代专业帮助。如果你正在经历严重困扰：</p>
+          <ul>
+            <li>🗣️ 找一个信任的人聊聊</li>
+            <li>📞 拨打心理援助热线</li>
+            <li>🩺 寻求专业心理咨询</li>
+          </ul>
+          <p class="crisis-note">记住：寻求帮助是勇敢的表现，不是软弱。</p>
+        </div>
+      </div>
+      
       <div class="review-actions">
         <h3>数据管理</h3>
         <div class="action-buttons">
@@ -1363,6 +1651,26 @@ window.clearAllRecords = function() {
   }
 };
 
+window.toggleCrisisResources = function() {
+  const content = $('#crisisResourcesContent');
+  const toggle = $('#crisisToggle');
+  if (content && toggle) {
+    content.classList.toggle('hidden');
+    toggle.textContent = content.classList.contains('hidden') ? '点击展开' : '点击收起';
+  }
+};
+
+window.showCareSection = function() {
+  const section = $('#careActionsSection');
+  if (section) {
+    section.classList.remove('hidden');
+  }
+};
+
+window.goToPriorityFromEmpathy = function() {
+  navigate('priority');
+};
+
 window.navigate = function(page) {
   currentPage = page;
   
@@ -1382,6 +1690,9 @@ window.navigate = function(page) {
     case 'priority':
       renderPriority();
       break;
+    case 'rating':
+      renderRating();
+      break;
     case 'review':
       renderReview();
       break;
@@ -1390,6 +1701,148 @@ window.navigate = function(page) {
   }
 };
 
+function renderRating() {
+  const recentRatings = getRecentRatings(state, 7);
+  const todayRating = recentRatings[0];
+  
+  window.ratingData = {};
+  Object.keys(RATING_CATEGORIES).forEach(catId => {
+    window.ratingData[catId] = {};
+    RATING_CATEGORIES[catId].subItems.forEach(item => {
+      window.ratingData[catId][item.id] = todayRating?.categories?.[catId]?.scores?.[item.id] || 5;
+    });
+  });
+  
+  const lang = getCurrentLang();
+  
+  let categoriesHtml = '';
+  Object.keys(RATING_CATEGORIES).forEach(catId => {
+    const cat = RATING_CATEGORIES[catId];
+    categoriesHtml += `
+      <div class="rating-category" data-category="${catId}">
+        <div class="rating-category-header">
+          <span class="rating-category-icon">${cat.icon}</span>
+          <span class="rating-category-name">${cat.name[lang] || cat.name.zh}</span>
+        </div>
+        <div class="rating-subitems">
+    `;
+    
+    cat.subItems.forEach(subItem => {
+      const currentScore = window.ratingData[catId]?.[subItem.id] || 5;
+      categoriesHtml += `
+        <div class="rating-subitem">
+          <div class="rating-subitem-name">${subItem.name[lang] || subItem.name.zh}</div>
+          <div class="rating-score-row">
+            <button class="rating-btn rating-dec" onclick="adjustRating('${catId}', '${subItem.id}', -1)">−</button>
+            <span class="rating-score" id="score_${catId}_${subItem.id}">${currentScore}</span>
+            <button class="rating-btn rating-inc" onclick="adjustRating('${catId}', '${subItem.id}', 1)">+</button>
+          </div>
+        </div>
+      `;
+    });
+    
+    categoriesHtml += '</div></div>';
+  });
+  
+  let historyHtml = '';
+  if (recentRatings.length > 0) {
+    recentRatings.forEach((record, idx) => {
+      const dateStr = formatRatingDate(record.timestamp);
+      const avg = getOverallAverage(record);
+      let miniScores = '';
+      Object.keys(record.categories).forEach(catId => {
+        const catAvg = calculateCategoryAverage(record, catId);
+        miniScores += `<span class="mini-score">${RATING_CATEGORIES[catId]?.icon || ''}${catAvg}</span>`;
+      });
+      historyHtml += `
+        <div class="history-item ${idx === 0 ? 'today' : ''}">
+          <span class="history-date">${dateStr}</span>
+          <span class="history-avg">${avg}</span>
+          <span class="history-scores">${miniScores}</span>
+        </div>
+      `;
+    });
+  } else {
+    historyHtml = '<p class="empty-note">还没有评分记录</p>';
+  }
+  
+  $('#app').innerHTML = `
+    <div class="page rating-page">
+      ${renderBackButton('home')}
+      <header class="page-header">
+        <h2>📊 ${lang === 'zh' ? '今日状态' : "Today's Status"}</h2>
+        <p>${lang === 'zh' ? '觉察当下，从评分开始' : 'Be aware of the present'}</p>
+      </header>
+      
+      <div class="rating-container">
+        ${categoriesHtml}
+      </div>
+      
+      <div class="rating-save-row">
+        <button class="btn btn-primary btn-large" onclick="saveRating()">
+          ${lang === 'zh' ? '保存评分' : 'Save Rating'}
+        </button>
+      </div>
+      
+      ${recentRatings.length > 0 ? `
+        <div class="rating-history">
+          <h3>${lang === 'zh' ? '最近记录' : 'Recent Records'}</h3>
+          <div class="history-list">
+            ${historyHtml}
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+window.adjustRating = function(catId, subItemId, delta) {
+  if (!window.ratingData[catId]) {
+    window.ratingData[catId] = {};
+  }
+  if (!window.ratingData[catId][subItemId]) {
+    window.ratingData[catId][subItemId] = 5;
+  }
+  
+  window.ratingData[catId][subItemId] = Math.min(9, Math.max(1, window.ratingData[catId][subItemId] + delta));
+  
+  const scoreEl = document.getElementById(`score_${catId}_${subItemId}`);
+  if (scoreEl) {
+    scoreEl.textContent = window.ratingData[catId][subItemId];
+    scoreEl.classList.add('pulse');
+    setTimeout(() => scoreEl.classList.remove('pulse'), 200);
+  }
+};
+
+window.saveRating = function() {
+  const record = createRatingRecord(window.ratingData);
+  state.ratingRecords.push(record);
+  saveState(state);
+  
+  const lang = getCurrentLang();
+  alert(lang === 'zh' ? '已保存！' : 'Saved!');
+  renderRating();
+};
+
+window.toggleLanguage = function() {
+  const currentLang = getCurrentLang();
+  const newLang = currentLang === 'zh' ? 'en' : 'zh';
+  setCurrentLang(newLang);
+  
+  const btn = document.getElementById('langToggleBtn');
+  if (btn) {
+    btn.textContent = newLang === 'zh' ? 'EN' : '中文';
+  }
+  
+  navigate(currentPage);
+};
+
 document.addEventListener('DOMContentLoaded', () => {
+  const lang = getCurrentLang();
+  const btn = document.getElementById('langToggleBtn');
+  if (btn) {
+    btn.textContent = lang === 'zh' ? 'EN' : '中文';
+  }
+  
   navigate('home');
 });

@@ -3,11 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>本地指南游戏 | Local Guide Game</title>
+  <title>慢慢倒 | IslandSlowlyFall</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <div id="app"></div>
+  
+  <div id="topBar" class="top-bar" style="position: fixed; top: 12px; right: 12px; z-index: 1001; display: flex; gap: 8px;">
+    <button id="langToggleBtn" class="btn btn-small lang-btn" onclick="toggleLanguage()" title="切换语言 / Switch Language" style="background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); border-radius: 16px; padding: 6px 12px; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+      EN
+    </button>
+  </div>
   
   <div id="audioControl" class="audio-control hidden" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
     <button id="audioToggleBtn" class="btn btn-small" onclick="toggleAudio()" title="开启/关闭声音" style="background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); border-radius: 50%; width: 44px; height: 44px; font-size: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">

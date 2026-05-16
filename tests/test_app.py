@@ -29,8 +29,8 @@ def run_tests():
         try:
             page.goto('http://localhost:5173', wait_until='networkidle')
             
-            if page.locator('h1:has-text("本地指南游戏")').is_visible():
-                log_result("首页标题", "通过", "包含'本地指南游戏'")
+            if page.locator('h1:has-text("本地指南")').is_visible():
+                log_result("首页标题", "通过", "包含'本地指南'")
             else:
                 log_result("首页标题", "失败", "未找到标题")
             

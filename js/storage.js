@@ -11,6 +11,7 @@ const DEFAULT_STATE = {
   habits: [],
   habitLogs: [],
   priorityRecords: [],
+  ratingRecords: [],
   meta: {
     createdAt: null,
     updatedAt: null
@@ -107,6 +108,19 @@ function normalizeRecord(record, type) {
         normalized.note = String(normalized.note);
       }
       break;
+      
+    case 'rating':
+      if (normalized.categories !== undefined && typeof normalized.categories === 'object') {
+        Object.keys(normalized.categories).forEach(catId => {
+          const cat = normalized.categories[catId];
+          if (cat && cat.scores) {
+            Object.keys(cat.scores).forEach(subId => {
+              cat.scores[subId] = Math.min(9, Math.max(1, Number(cat.scores[subId]) || 5));
+            });
+          }
+        });
+      }
+      break;
   }
   
   Object.keys(normalized).forEach(key => {
@@ -157,6 +171,16 @@ function normalizeState(rawState) {
       state.priorityRecords = rawState.priorityRecords
         .map(r => normalizeRecord(r, 'priority'))
         .filter(Boolean);
+    }
+    
+    if (Array.isArray(rawState.ratingRecords)) {
+      state.ratingRecords = rawState.ratingRecords
+        .filter(r => r && typeof r === 'object' && r.id && r.timestamp)
+        .map(r => ({
+          ...r,
+          id: r.id || `rating_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          timestamp: r.timestamp ? (typeof r.timestamp === 'number' ? new Date(r.timestamp).toISOString() : r.timestamp) : new Date().toISOString()
+        }));
     }
   }
   
