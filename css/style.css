@@ -2179,3 +2179,152 @@ select:focus {
   padding: 2px 6px;
   border-radius: 6px;
 }
+
+.three-min-page {
+  padding-bottom: 40px;
+}
+
+.task-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(253,244,208,0.4) 100%);
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  margin: 24px 0;
+  border: 1px solid rgba(245,158,11,0.2);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.task-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.task-text {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.task-time {
+  font-size: 16px;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.task-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.home-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.student-templates {
+  margin: 20px 0;
+  padding: 16px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 16px;
+}
+
+.student-templates h3 {
+  font-size: 15px;
+  color: var(--color-text);
+  margin-bottom: 12px;
+}
+
+.templates-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.templates-grid .template-chip {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  background: rgba(255,255,255,0.9);
+  font-size: 13px;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.templates-grid .template-chip:hover {
+  background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.1) 100%);
+  border-color: rgba(99,102,241,0.4);
+  transform: translateY(-1px);
+}
+
+.procrastination-entrance {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 20px;
+  border: 1px dashed rgba(99, 102, 241, 0.25);
+}
+
+.procrastination-entrance h3 {
+  font-size: 15px;
+  color: var(--color-text);
+  margin-bottom: 12px;
+}
+
+.entrance-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.entrance-btn {
+  background: rgba(255,255,255,0.95);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 12px;
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 14px;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.entrance-btn:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+  background: rgba(255,255,255,1);
+  transform: translateX(4px);
+}
+
+.procrastination-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(238, 242, 255, 0.6) 100%);
+  border-radius: 20px;
+  padding: 36px 28px;
+  margin-top: 24px;
+  text-align: center;
+  border: 1px solid rgba(99, 102, 241, 0.18);
+  box-shadow: 0 4px 20px rgba(99,102,241,0.1);
+}
+
+.procrastination-icon {
+  font-size: 56px;
+  margin-bottom: 18px;
+}
+
+.procrastination-message {
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--color-text);
+  margin-bottom: 28px;
+}
+
+.quick-response-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

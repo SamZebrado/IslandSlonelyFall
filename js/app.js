@@ -33,7 +33,7 @@ function $(selector) {
 window.quickStart = function(type) {
   switch(type) {
     case 'momentum':
-      navigate('habits');
+      render3MinuteTask();
       break;
     case 'priority':
       navigate('priority');
@@ -45,6 +45,75 @@ window.quickStart = function(type) {
       navigate('rating');
       break;
   }
+};
+
+const threeMinuteTasks = [
+  { zh: "打开论文文档，看标题3分钟", en: "Open the paper document, look at the title for 3 minutes" },
+  { zh: "打开课件第一页", en: "Open the first page of the slides" },
+  { zh: "只写一个小标题", en: "Write just one subtitle" },
+  { zh: "背3个单词", en: "Memorize 3 words" },
+  { zh: "把桌子收拾一下", en: "Tidy up the desk" },
+  { zh: "只是打开聊天框，不要求立刻回复", en: "Just open the chat, no need to reply yet" },
+  { zh: "做3个俯卧撑", en: "Do 3 push-ups" },
+  { zh: "喝一杯水", en: "Drink a glass of water" },
+  { zh: "打开音乐听一首歌", en: "Play one song" },
+];
+
+function render3MinuteTask() {
+  const lang = getCurrentLang();
+  const taskIndex = Math.floor(Math.random() * threeMinuteTasks.length);
+  const task = threeMinuteTasks[taskIndex];
+  
+  $('#app').innerHTML = `
+    <div class="page three-min-page">
+      <header class="page-header">
+        <h2>🌱 3分钟启动</h2>
+        <p>别让任务吓住自己，先做一点点</p>
+      </header>
+      
+      <div class="task-card">
+        <div class="task-icon">✨</div>
+        <div class="task-text">${lang === 'zh' ? task.zh : task.en}</div>
+        <div class="task-time">⏱️ 3分钟</div>
+      </div>
+      
+      <div class="task-actions">
+        <button class="btn btn-primary" onclick="complete3MinuteTask()">
+          ${lang === 'zh' ? '我做到了!' : 'I did it!'}
+        </button>
+        <button class="btn btn-secondary" onclick="another3MinuteTask()">
+          ${lang === 'zh' ? '换一个更小的' : 'Get another one'}
+        </button>
+        <button class="btn btn-secondary" onclick="navigate('habits')">
+          ${lang === 'zh' ? '去微习惯工坊' : 'Go to Micro-habits'}
+        </button>
+      </div>
+      
+      <div class="home-actions">
+        <button class="btn btn-secondary" onclick="navigate('home')">
+          ${lang === 'zh' ? '返回首页' : 'Go Home'}
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+window.complete3MinuteTask = function() {
+  const lang = getCurrentLang();
+  
+  state.momentumRecords = state.momentumRecords || [];
+  state.momentumRecords.push({
+    id: Date.now().toString(),
+    timestamp: new Date().toISOString()
+  });
+  saveState(state);
+  
+  alert(lang === 'zh' ? '太棒了！你真棒！' : 'Awesome! You did great!');
+  navigate('home');
+};
+
+window.another3MinuteTask = function() {
+  render3MinuteTask();
 };
 
 function renderHome() {
@@ -161,6 +230,17 @@ function renderEmpathy() {
         <h2>🏠 共情小屋</h2>
         <p>一个温柔的空间，陪伴你看见自己的感受</p>
       </header>
+      
+      <div class="procrastination-entrance">
+        <h3>💔 拖延后专用入口</h3>
+        <div class="entrance-buttons">
+          <button class="entrance-btn" onclick="enterProcrastination('hate')">我又拖了，很烦自己</button>
+          <button class="entrance-btn" onclick="enterProcrastination('afraid')">我怕做不好</button>
+          <button class="entrance-btn" onclick="enterProcrastination('where')">我不知道从哪开始</button>
+          <button class="entrance-btn" onclick="enterProcrastination('late')">已经晚了，更不想做</button>
+          <button class="entrance-btn" onclick="enterProcrastination('compare')">觉得别人都比我强</button>
+        </div>
+      </div>
       
       <div class="empathy-step" id="empathyStep1">
         <div class="step-indicator">步骤 1/5</div>
@@ -422,6 +502,66 @@ window.selectExpressionTone = function(btn) {
   window.empathyData.tone = btn.dataset.tone;
   window.empathyData.expressionTuner.tone = btn.dataset.tone;
   checkExpressionReady();
+};
+
+const procrastinationResponses = {
+  hate: {
+    feelings: ['烦躁', '自责', '无力'],
+    needs: ['自我接纳', '温和', '休息'],
+    message: '你现在可能不是不想努力，而是任务太大、压力太满，所以身体先刹车了。我们先不解决整件事，只找一个不会吓到你的下一步。'
+  },
+  afraid: {
+    feelings: ['紧张', '害怕', '担忧'],
+    needs: ['安全感', '耐心', '鼓励'],
+    message: '害怕做不好，其实是你对自己有要求。没关系，我们先不用做好，只用开始。把完美放在一边，我们先随便做一点点。'
+  },
+  where: {
+    feelings: ['迷茫', '混乱', '疲惫'],
+    needs: ['清晰', '简单', '方向'],
+    message: '不知道从哪开始，是因为选项太多。我们不用选最好的，只用选第一个能抓住的。哪怕只开个头，也是胜利。'
+  },
+  late: {
+    feelings: ['焦虑', '沮丧', '无望'],
+    needs: ['原谅', '重新开始', '希望'],
+    message: '已经晚了，反而可能是个信号：这个任务原来的方式不适合你。没关系，我们从剩下的时间里，拿最小的一部分来开始。'
+  },
+  compare: {
+    feelings: ['嫉妒', '自卑', '失落'],
+    needs: ['自我关怀', '看见自己', '平静'],
+    message: '别人和你是不同的时区。你不用和别人比速度，只用按照自己的节奏，慢慢走。你只需要做好你自己的部分。'
+  }
+};
+
+window.enterProcrastination = function(type) {
+  const resp = procrastinationResponses[type];
+  if (!resp) return;
+  
+  $('#app').innerHTML = `
+    <div class="page empathy-page">
+      ${renderBackButton('empathy')}
+      
+      <div class="procrastination-card">
+        <div class="procrastination-icon">💙</div>
+        <p class="procrastination-message">${resp.message}</p>
+        
+        <div class="quick-response-actions">
+          <button class="btn btn-primary" onclick="navigate('priority')">现在找一件事做</button>
+          <button class="btn btn-secondary" onclick="navigate('habits')">选个微习惯</button>
+          <button class="btn btn-text" onclick="navigate('home')">先回首页</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  state.empathyRecords.push({
+    id: `procrastination-${Date.now()}`,
+    timestamp: new Date().toISOString(),
+    situation: '拖延后状态',
+    feelings: resp.feelings,
+    needs: resp.needs,
+    type: 'procrastination'
+  });
+  saveState(state);
 };
 
 function checkExpressionReady() {
@@ -783,6 +923,18 @@ function renderHabits() {
         <span class="progress-text">今日完成 ${stats.completed}/${stats.total}</span>
       </div>
       
+      <div class="student-templates">
+        <h3>🔖 学生常用模板</h3>
+        <div class="templates-grid">
+          <button class="template-chip" onclick="applyStudentTemplate('review')">期末复习模板</button>
+          <button class="template-chip" onclick="applyStudentTemplate('paper')">论文拖延模板</button>
+          <button class="template-chip" onclick="applyStudentTemplate('word')">背单词模板</button>
+          <button class="template-chip" onclick="applyStudentTemplate('tidy')">收拾桌子模板</button>
+          <button class="template-chip" onclick="applyStudentTemplate('water')">喝水模板</button>
+          <button class="template-chip" onclick="applyStudentTemplate('exercise')">轻微运动模板</button>
+        </div>
+      </div>
+      
       <div class="habits-actions">
         <button class="btn btn-primary" onclick="showCreateHabit()">创建新习惯</button>
       </div>
@@ -874,6 +1026,59 @@ function renderHabitsList(habits, logs) {
     `;
   }).join('');
 }
+
+const studentTemplates = {
+  review: {
+    identity: '我是一个坚持复习的人',
+    action: '打开课件第一页',
+    trigger: '吃完晚饭',
+    reward: '看10分钟喜欢的内容'
+  },
+  paper: {
+    identity: '我是一个一步步写论文的人',
+    action: '只写一个小标题',
+    trigger: '打开电脑',
+    reward: '喝一杯奶茶'
+  },
+  word: {
+    identity: '我是一个每天背单词的人',
+    action: '背3个单词',
+    trigger: '刷牙时',
+    reward: '夸夸自己'
+  },
+  tidy: {
+    identity: '我是一个会保持整洁的人',
+    action: '把桌子收拾一下',
+    trigger: '写完作业',
+    reward: '放首歌听'
+  },
+  water: {
+    identity: '我是一个会照顾自己健康的人',
+    action: '喝一杯水',
+    trigger: '睡醒后',
+    reward: '给自己一个微笑'
+  },
+  exercise: {
+    identity: '我是一个会活动身体的人',
+    action: '做3个俯卧撑',
+    trigger: '久坐后',
+    reward: '休息5分钟'
+  }
+};
+
+window.applyStudentTemplate = function(templateKey) {
+  const template = studentTemplates[templateKey];
+  if (!template) return;
+  
+  $('#createHabitForm')?.classList.remove('hidden');
+  
+  setTimeout(() => {
+    if ($('#habitIdentity')) $('#habitIdentity').value = template.identity;
+    if ($('#habitAction')) $('#habitAction').value = template.action;
+    if ($('#habitTrigger')) $('#habitTrigger').value = template.trigger;
+    if ($('#habitReward')) $('#habitReward').value = template.reward;
+  }, 50);
+};
 
 window.showCreateHabit = function() {
   $('#createHabitForm')?.classList.remove('hidden');
