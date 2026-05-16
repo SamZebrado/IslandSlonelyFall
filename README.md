@@ -128,6 +128,7 @@ local-guide-game/
 
 - [用户使用指南](USER_GUIDE.md) - 如何使用各个模块
 - [帮助文档](HELP.md) - 常见问题解答
+- [更新日志](CHANGELOG.md) - 版本历史
 - [数据存储说明](docs/STORAGE.md) - 技术细节
 - [开发文档](docs/implementation_notes.md) - 实现笔记
 
