@@ -1,143 +1,155 @@
 # 慢慢倒 (IslandSlowlyFall)
 
-Help get you back on feet.
+🌐 **在线访问**: https://samzebrado.github.io/IslandSlonelyFall/
 
-慢慢倒是一个本地优先的日常记录与低能量决策工具，用来记录时间、觉察状态，并在事情太多或不想动的时候，帮你找到下一小步。
+---
 
-## 项目是什么
+## 📝 项目简介
 
-**慢慢倒**是一个纯前端的本地网页应用，帮助你：
+**慢慢倒**是一个本地优先的日常记录与低能量决策工具，用来记录时间、觉察状态，并在事情太多或不想动的时候，帮你找到下一小步。
 
-- **觉察状态** - 通过1-9分评分系统，觉察健康、工作、娱乐、爱四大维度的当下状态
-- **梳理情绪** - 通过共情小屋，用非暴力沟通的方式觉察自己的感受
-- **记录状态** - 通过状态观测台，了解今天的能量和压力
-- **养成习惯** - 通过微习惯工坊，把大目标缩小到今天能做的最小一步
-- **做决策** - 通过优先级决策岛，用五道门找到最合适的行动
-- **回顾整理** - 通过回顾花园，看看自己走过了什么路
+**IslandSlowlyFall** is a local-first daily reflection and low-energy decision-making tool. It helps you track your time, notice your state, and find the next tiny step forward when you have too many things to do or don't feel like doing anything.
 
-## 当前已实现内容
+### What it helps you with:
 
-### 核心模块
+- **今日评分** - 通过1-9分评分系统，觉察健康、工作、娱乐、爱四大维度
+- **共情小屋** - 用非暴力沟通的方式觉察自己的感受，还有拖延后专用入口
+- **状态观测台** - 了解今天的能量和压力
+- **微习惯工坊** - 把大目标缩小到今天能做的最小一步，还有学生常用模板
+- **优先级决策岛** - 用五道门帮你找到最合适的行动
+- **回顾花园** - 看看自己走过的路
 
-- **今日评分** - 基于人生设计课的健康/工作/娱乐/爱四维评分系统
-- **共情小屋** - 非暴力沟通(NVC)框架的情绪觉察
-- **状态观测台** - 能量与压力记录
-- **微习惯工坊** - 原子习惯理念的游戏化实践
-- **优先级决策岛** - 五道门决策模型（放下/简化/求助/稍后/专注）
-- **回顾花园** - 按时间分组的记录回顾
-- **原创BGM** - 轻柔的钢琴背景音乐
+---
 
-### 技术特性
+## 🚀 Quick Start
 
-- 纯前端架构（HTML/CSS/JavaScript）
-- localStorage 数据本地持久化
-- 中英双语支持
-- 多标签页状态同步感知
-- 无障碍支持（prefers-reduced-motion、键盘导航）
-- 响应式设计（支持移动端）
+### 方式一：在线使用
 
-## 本地运行方式
+直接访问：https://samzebrado.github.io/IslandSlonelyFall/
 
-### 方式一：直接打开
+### 方式二：本地运行
 
-直接在浏览器中打开 `index.html` 文件。
+#### 方法1：直接打开
 
-### 方式二：本地静态服务器
+用浏览器打开 `index.html` 文件。
+
+#### 方法2：本地服务器
 
 ```bash
 # 使用 Python
 python -m http.server 5173
 
-# 或使用 npx（需要 Node.js）
+# 或使用 Node.js
 npx serve .
 ```
 
-然后在浏览器中打开：`http://localhost:5173`
+然后访问：`http://localhost:5173`
 
-## 数据与隐私
+---
+
+## 🎯 核心功能
+
+### 首页快捷入口
+
+首页有四个快速入口：
+- 📊 **今日评分** - 觉察状态评分
+- 🌱 **我不想动** - 直接给你一个3分钟任务
+- ⚡ **事情太多** - 优先级决策
+- 🌊 **有点乱** - 共情整理
+
+### 今日评分 (Daily Rating)
+
+基于《人生设计课》的四维评分：
+- 📊 健康
+- 💼 工作
+- 🎮 娱乐
+- ❤️ 爱
+
+每个子项可以1-9分评分，保存后可以查看历史记录。
+
+### 共情小屋 (Empathy House)
+
+- 📝 记录你的状态，有专门的拖延后入口：
+  - 我又拖了，很烦自己
+  - 我怕做不好
+  - 我不知道从哪开始
+  - 已经晚了，更不想做
+  - 觉得别人都比我强
+
+### 微习惯工坊 (Micro-habit Workshop)
+
+- 学生常用模板：
+  - 期末复习
+  - 论文拖延
+  - 背单词
+  - 收拾桌子
+  - 喝水
+  - 轻微运动
+
+### 优先级决策岛 (Priority Decision Island)
+
+- 五道门决策模型，帮你筛选任务
+- 找到最适合现在做的那一件
+
+---
+
+## 📦 数据与隐私
 
 **重要：本应用是纯本地应用**
 
 - 所有数据默认保存在浏览器 localStorage 中
-- **无后端服务器**
-- **无账号系统**
-- **无云端同步**
-- 清空浏览器缓存/数据会导致本地记录丢失
-- 换浏览器或换设备不会自动同步数据
+- 无后端服务器
+- 无账号系统
+- 无云端同步
+- 定期导出备份很重要！
 
-### 数据备份
+**数据备份：
+- 可以导出/导入 JSON 备份
 
-支持导出/导入 JSON 备份：
-1. 进入"回顾花园"
-2. 点击"导出 JSON"保存备份文件
-3. 需要恢复时，点击"导入 JSON"
+---
 
-## 项目状态
-
-- **当前阶段**：prototype complete
-- **这是可运行的本地原型**，不是完整商业产品
-
-## 技术栈
-
-- HTML5 + CSS3 + JavaScript (ES6+)
-- 无框架依赖
-- Web Audio API（BGM）
-- Playwright（自动化测试）
-
-## 目录结构
-
-```
-├── index.html          # 入口页面
-├── css/
-│   └── style.css      # 样式
-├── js/
-│   ├── app.js         # 主应用逻辑
-│   ├── storage.js     # 数据存储层
-│   ├── empathy.js     # 共情模块
-│   ├── habits.js      # 习惯模块
-│   ├── priority.js    # 优先级决策
-│   ├── review.js      # 回顾模块
-│   ├── rating.js      # 评分模块
-│   ├── dashboard.js   # 状态观测台
-│   ├── i18n.js        # 国际化
-│   ├── audioController.js  # 音频控制
-│   └── expressionTuner.js # 表达调音台
-├── assets/
-│   └── audio/         # BGM音频文件
-├── tests/             # Playwright测试
-└── docs/              # 开发文档
-```
-
-## 参考资料
+## 📚 参考资料
 
 慢慢倒的设计理念来源于以下经典方法论：
 
 ### 非暴力沟通 (Nonviolent Communication)
-- **来源**：[CNVC - Center for Nonviolent Communication](https://www.cnvc.org/)
-- **应用**：共情小屋的四步框架（观察→感受→需要→请求）
-- 共情小屋帮助用户区分事实与评价，觉察感受与需要，提出温和具体的请求
+- **来源**：[CNVC](https://www.cnvc.org/)
+- **应用**：共情小屋的四步框架
+- 观察→感受→需要→请求
 
 ### 原子习惯 (Atomic Habits)
 - **来源**：[Atomic Habits by James Clear](https://jamesclear.com/atomic-habits)
-- **应用**：微习惯工坊的"两分钟规则"与身份认同设计
-- 将大目标缩小到两分钟内可完成的最小动作，建立"我是这样的人"的身份认同
+- **应用**：微习惯工坊
+- 两分钟规则，身份认同
 
 ### 人生设计课 (Designing Your Life)
 - **来源**：[Designing Your Life by Bill Burnett & Dave Evans](https://designingyour.life/)
-- **应用**：今日评分系统的四维健康观
-- 健康(Health)、工作(Work)、娱乐(Play)、爱(Love)的全方位觉察
+- **应用**：今日评分
+- 健康、工作、娱乐、爱
 
-### 五道门决策模型 (Five Gates Decision)
-- **来源**：结合《时间管理的奇迹》中的聚焦漏斗模型与多个决策理论
-- **应用**：优先级决策岛的决策流程
-- 通过五道门的筛选（必须做？值得做？能做吗？何时做？真正想做吗？），找到最合适的行动
+### 五道门决策模型
+- **来源**：《时间管理的奇迹》聚焦漏斗模型等
+- **应用**：优先级决策岛
 
-## 相关文档
+---
 
-- [用户使用指南](USER_GUIDE.md) - 如何使用各个模块
-- [帮助文档](HELP.md) - 常见问题解答
-- [更新日志](CHANGELOG.md) - 版本历史
+## 🛠️ 技术栈
 
-## License
+- HTML5 + CSS3 + JavaScript (ES6+)
+- 纯前端，无框架依赖
+- Web Audio API（BGM）
+- Playwright（自动化测试）
 
-MIT License - 详见 [LICENSE](LICENSE) 文件
+---
+
+## 📂 项目状态
+
+当前阶段：prototype complete
+
+这是一个可运行的本地原型，不是完整商业产品。
+
+---
+
+## 📄 License
+
+MIT License - 详见 [LICENSE](LICENSE)
