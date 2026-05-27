@@ -169,6 +169,19 @@ function renderHome() {
       rating: '今日状态',
       ratingHint: '觉察当下',
       safetyNotice: '这是一个自助觉察工具，不是心理治疗或医疗诊断。如有严重困扰，请寻求专业帮助。',
+      privacy: {
+        title: '隐私说明',
+        message: '你的所有数据默认只保存在当前浏览器的本地存储中，不会上传到任何服务器。卸载浏览器、清理缓存或更换设备可能导致数据丢失，建议通过"回顾花园"的导出功能备份数据。如果使用公共设备，请不要记录高度敏感内容，或使用后及时清理数据。注意：浏览器本地存储并不等同于加密存储。',
+        backupTip: '建议定期导出备份'
+      },
+      external: {
+        timeNotesUrl: 'https://samzebrado.github.io/LocalStopWatch/'
+      },
+      timeNotes: {
+        title: '时光小记',
+        hint: '牛马日记的配置展示页面',
+        link: '外部链接'
+      },
       startExplore: '开始今日探索',
       continueProgress: '继续上次进度',
       placesTitle: '四个地方',
@@ -207,6 +220,19 @@ function renderHome() {
       rating: "Today's Status",
       ratingHint: 'Check in with yourself',
       safetyNotice: 'This is a self-awareness tool, not psychotherapy or medical diagnosis. If you have serious concerns, please seek professional help.',
+      privacy: {
+        title: 'Privacy Note',
+        message: 'All your data is stored locally in your browser by default and never uploaded to any server. Uninstalling the browser, clearing cache, or changing devices may result in data loss. We recommend backing up your data through the export feature in Review Garden. If using a public device, do not record highly sensitive content, or clear data after use. Note: Browser local storage is not the same as encrypted storage.',
+        backupTip: 'Regular export backup recommended'
+      },
+      external: {
+        timeNotesUrl: 'https://samzebrado.github.io/LocalStopWatch/'
+      },
+      timeNotes: {
+        title: 'Time Notes',
+        hint: 'Configuration page for Work Diary',
+        link: 'External Link'
+      },
       startExplore: 'Start exploring today',
       continueProgress: 'Continue from last time',
       placesTitle: 'Four Places',
@@ -368,6 +394,41 @@ function renderBackButton(page) {
 
 
 function renderEmpathy() {
+  const lang = getCurrentLang();
+  
+  const i18n = {
+    zh: {
+      empathy: {
+        quickEntry: {
+          summary: '想要快速整理一下？点我看看',
+          labels: {
+            hate: '想整理一下刚才的状态',
+            afraid: '有点担心接下来的事',
+            where: '事情有点多，理不清',
+            late: '感觉有点晚了',
+            compare: '有点在意别人的进度'
+          }
+        }
+      }
+    },
+    en: {
+      empathy: {
+        quickEntry: {
+          summary: 'Want to quickly organize your thoughts? Click me',
+          labels: {
+            hate: 'Want to organize what just happened',
+            afraid: 'A bit worried about what\'s next',
+            where: 'Too many things, can\'t sort them out',
+            late: 'Feels a bit late',
+            compare: 'A bit concerned about others\' progress'
+          }
+        }
+      }
+    }
+  };
+  
+  const t = i18n[lang];
+  
   $('#app').innerHTML = `
     <div class="page empathy-page">
       ${renderBackButton('home')}
