@@ -110,6 +110,16 @@ export const i18n = {
       crisisResourcesContent: '这个工具用于日常自我觉察和整理，不能替代专业帮助。如果你正在经历严重困扰：'
     },
     
+    timeNotes: {
+      title: '时光小记',
+      hint: '轻轻记下今天的时间流向',
+      link: '去看看今天怎么过的'
+    },
+    
+    external: {
+      timeNotesUrl: 'https://samzebrado.github.io/LocalStopWatch/'
+    },
+    
     empathy: {
       title: '共情小屋',
       subtitle: '一个温柔的空间，陪伴你看见自己的感受',
@@ -146,6 +156,16 @@ export const i18n = {
       crisis: {
         title: '💙 安全提示',
         message: '我注意到这段内容里可能包含比较强烈的痛苦或安全风险。这个工具只能帮助你做简单整理，不能替代专业支持。如果你现在可能伤害自己或他人，请尽快联系身边可信任的人、当地紧急服务，或专业危机支持资源。你也可以先离开危险物品和危险环境，去一个更安全的地方。'
+      },
+      quickEntry: {
+        summary: '想要快速整理一下？点我看看',
+        labels: {
+          hate: '想整理一下刚才的状态',
+          afraid: '有点担心接下来的事',
+          where: '事情有点多，理不清',
+          late: '感觉有点晚了',
+          compare: '有点在意别人的进度'
+        }
       }
     },
     
@@ -261,6 +281,12 @@ export const i18n = {
       message: '这是一个自助觉察工具，不是心理治疗或医疗诊断。如有严重困扰，请寻求专业帮助。'
     },
     
+    privacy: {
+      title: '隐私说明',
+      message: '你的所有数据默认只保存在当前浏览器的本地存储中，不会上传到任何服务器。卸载浏览器、清理缓存或更换设备可能导致数据丢失，建议通过“回顾花园”的导出功能备份数据。如果使用公共设备，请不要记录高度敏感内容，或使用后及时清理数据。注意：浏览器本地存储并不等同于加密存储。',
+      backupTip: '建议定期导出备份'
+    },
+    
     common: {
       back: '返回',
       copy: '复制',
@@ -296,6 +322,17 @@ export const i18n = {
       priorityHint: '1 min sort',
       empathy: "I'm a bit messy",
       empathyHint: '2 min organize'
+    },
+    
+    safety: {
+      title: 'Safety Note',
+      message: 'This is a self-awareness tool, not psychotherapy or medical diagnosis. Please seek professional help if you have serious concerns.'
+    },
+    
+    privacy: {
+      title: 'Privacy Note',
+      message: 'All your data is stored locally in your browser by default and never uploaded to any server. Uninstalling the browser, clearing cache, or changing devices may result in data loss. We recommend backing up your data through the export feature in Review Garden. If using a public device, do not record highly sensitive content, or clear data after use. Note: Browser local storage is not the same as encrypted storage.',
+      backupTip: 'Regular export backup recommended'
     },
     
     rating: {
@@ -381,31 +418,41 @@ export const i18n = {
       crisisResourcesContent: 'This tool is for daily self-awareness and organization, not a substitute for professional help. If you are experiencing serious distress:'
     },
     
+    timeNotes: {
+      title: 'Time Notes',
+      hint: 'Gently note where your time went today',
+      link: 'See how your day went'
+    },
+    
+    external: {
+      timeNotesUrl: 'https://samzebrado.github.io/LocalStopWatch/'
+    },
+    
     empathy: {
       title: 'Empathy House',
-      subtitle: 'A gentle space to help you see your feelings',
-      step1: "What's happening?",
-      step1Hint: 'Try to describe the situation, distinguish facts from judgments',
-      step2: "What am I feeling?",
-      step2Hint: 'Choose the closest one, or write your own feelings',
-      step3: 'What needs might I have?',
-      step3Hint: 'Behind these feelings, what needs might not be met?',
-      step4: 'What request can I make?',
-      step4Hint: 'What is gentle, specific, and executable for yourself or others?',
-      step5: 'Expression Tuner',
-      step5Hint: "The content you整理 doesn't have to be sent to others. Choose an expression style that fits your current state.",
+      subtitle: 'A gentle space to notice what you’re feeling',
+      step1: "What happened?",
+      step1Hint: 'Try describing the situation while separating facts from judgments.',
+      step2: "What am I feeling right now?",
+      step2Hint: 'Choose what feels closest, or write your own words.',
+      step3: 'What might I need?',
+      step3Hint: 'What unmet needs might be behind these feelings?',
+      step4: 'What could I ask for?',
+      step4Hint: 'For yourself or someone else, what would be kind, specific, and doable?',
+      step5: 'Expression Dial',
+      step5Hint: "What you sort out here doesn’t have to be sent to anyone. You can simply choose a way to express it that fits your current state.",
       skip: 'Skip',
       next: 'Next',
-      generate: 'Generate Expression',
-      result: 'You can say this',
-      again: 'Try Again',
+      generate: 'Create a wording suggestion',
+      result: 'A possible way to say it',
+      again: 'Try again',
       backHome: 'Back to Home',
-      selfExpression: 'Words to yourself',
-      expressionFor: 'Expression suggestion',
+      selfExpression: 'Something to say to yourself',
+      expressionFor: 'wording suggestion',
       careSelf: 'Take care of yourself',
       nextChoice: 'What would you like to do next?',
-      careOption: 'I want to take care of myself first',
-      actionOption: 'I want to turn it into a small action',
+      careOption: 'Take care of myself first',
+      actionOption: 'Turn this into a small action',
       careActions: {
         water: 'Drink a glass of water',
         breathe: 'Take a few deep breaths',
@@ -417,6 +464,16 @@ export const i18n = {
       crisis: {
         title: '💙 Safety Notice',
         message: "I notice this content may contain strong pain or safety risks. This tool can only help you do simple organization and cannot replace professional support. If you may harm yourself or others, please contact trusted people nearby, local emergency services, or professional crisis support resources as soon as possible."
+      },
+      quickEntry: {
+        summary: 'Want to quickly organize your thoughts? Click me',
+        labels: {
+          hate: 'Want to organize what just happened',
+          afraid: 'A bit worried about what\'s next',
+          where: 'Too many things, can\'t sort them out',
+          late: 'Feels a bit late',
+          compare: 'A bit concerned about others\' progress'
+        }
       }
     },
     

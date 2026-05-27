@@ -25,3 +25,6 @@ build/
 # Backup files
 *.bak
 *.backup
+
+# TMP文件夹（临时文件，不要提交到git）
+/TMP/

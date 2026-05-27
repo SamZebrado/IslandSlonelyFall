@@ -116,175 +116,243 @@ window.another3MinuteTask = function() {
   render3MinuteTask();
 };
 
-function renderSaveMePage() {
+window.renderSaveMePage = function() {
+  const lang = getCurrentLang();
   $('#app').innerHTML = `
     <div class="page save-me-page">
       ${renderBackButton('home')}
       <header class="page-header">
-        <h2>🆘 不知道点哪个，直接救我</h2>
-        <p>现在更像哪一种？</p>
+        <h2>🆘 ${lang === 'zh' ? '不知道点哪个，直接救我' : "Not sure where to start?"}</h2>
+        <p>${lang === 'zh' ? '现在更像哪一种？' : 'Which one sounds most like you right now?'}</p>
       </header>
       
       <div class="save-me-actions">
         <button class="btn btn-primary btn-large" onclick="quickStart('momentum')">
-          我不想动
+          ${lang === 'zh' ? '我不想动' : "I can't get started"}
         </button>
         <button class="btn btn-primary btn-large" onclick="quickStart('priority')">
-          事情太多
+          ${lang === 'zh' ? '事情太多' : "There's too much to do"}
         </button>
         <button class="btn btn-primary btn-large" onclick="navigate('empathy')">
-          我有点乱
+          ${lang === 'zh' ? '我有点乱' : "I'm feeling overwhelmed"}
         </button>
         <button class="btn btn-primary btn-large" onclick="renderProcrastinationQuick('hate')">
-          我又拖了，很烦自己
+          ${lang === 'zh' ? '我又拖了，很烦自己' : "I'm frustrated with myself for procrastinating again"}
         </button>
         <button class="btn btn-primary btn-large" onclick="renderProcrastinationQuick('afraid')">
-          我怕做不好
+          ${lang === 'zh' ? '我怕做不好' : "I'm afraid I'll mess it up"}
         </button>
         <button class="btn btn-primary btn-large" onclick="renderProcrastinationQuick('late')">
-          已经晚了
+          ${lang === 'zh' ? '已经晚了' : "It already feels too late"}
         </button>
       </div>
     </div>
   `;
-}
-
-window.renderProcrastinationQuick = function(type) {
-  const resp = procrastinationResponses[type];
-  if (!resp) {
-    navigate('empathy');
-    return;
-  }
-  
-  $('#app').innerHTML = `
-    <div class="page empathy-page">
-      ${renderBackButton('home')}
-      
-      <div class="procrastination-card">
-        <div class="procrastination-icon">💙</div>
-        <p class="procrastination-message">${resp.message}</p>
-        
-        <div class="quick-response-actions">
-          <button class="btn btn-primary" onclick="navigate('priority')">现在找一件事做</button>
-          <button class="btn btn-secondary" onclick="navigate('habits')">选个微习惯</button>
-          <button class="btn btn-secondary" onclick="navigate('home')">先回首页</button>
-        </div>
-      </div>
-    </div>
-  `;
-  
-  state.empathyRecords.push({
-    id: `procrastination-${Date.now()}`,
-    timestamp: new Date().toISOString(),
-    situation: '拖延后状态',
-    feelings: resp.feelings,
-    needs: resp.needs,
-    type: 'procrastination'
-  });
-  saveState(state);
 };
 
 function renderHome() {
+  const lang = getCurrentLang();
   const hasData = hasExistingData();
+  
+  const i18n = {
+    zh: {
+      appName: '慢慢倒',
+      subtitle: '带你慢慢走，每一步都是探索',
+      saveMe: '不知道点哪个，直接救我',
+      saveMeHint: '最省事的入口',
+      momentum: '我不想动',
+      momentumHint: '3分钟启动',
+      priority: '事情太多',
+      priorityHint: '1分钟排序',
+      empathy: '有点乱',
+      empathyHint: '2分钟整理',
+      rating: '今日状态',
+      ratingHint: '觉察当下',
+      safetyNotice: '这是一个自助觉察工具，不是心理治疗或医疗诊断。如有严重困扰，请寻求专业帮助。',
+      startExplore: '开始今日探索',
+      continueProgress: '继续上次进度',
+      placesTitle: '四个地方',
+      empathyBadge: '小屋',
+      empathyTitle: '共情小屋',
+      empathyDesc: '先把感受说清楚，再决定下一步。',
+      empathyTag: '适合先停一下',
+      statusBadge: '观测台',
+      statusTitle: '状态观测台',
+      statusDesc: '看看今天的状态能量。',
+      statusTag: '适合了解自己',
+      habitsBadge: '工坊',
+      habitsTitle: '微习惯工坊',
+      habitsDesc: '把目标缩小到今天能做的一步。',
+      habitsTag: '适合立刻动手',
+      priorityBadge: '岛屿',
+      priorityTitle: '优先级决策岛',
+      priorityDesc: '经过五道门，找到最合适的行动。',
+      priorityTag: '适合决定方向',
+      reviewBadge: '花园',
+      reviewTitle: '回顾花园',
+      reviewDesc: '看看最近留下了什么痕迹。',
+      reviewTag: '适合静静回顾'
+    },
+    en: {
+      appName: 'IslandSlowlyFall',
+      subtitle: 'Take it slow, one step at a time',
+      saveMe: 'Not sure where to start? Start here',
+      saveMeHint: 'The easiest place to start',
+      momentum: "I can't get started",
+      momentumHint: 'A 3-minute start',
+      priority: 'Too much to do',
+      priorityHint: 'A 1-minute sort',
+      empathy: 'Feeling scattered',
+      empathyHint: 'A 2-minute reset',
+      rating: "Today's Status",
+      ratingHint: 'Check in with yourself',
+      safetyNotice: 'This is a self-awareness tool, not psychotherapy or medical diagnosis. If you have serious concerns, please seek professional help.',
+      startExplore: 'Start exploring today',
+      continueProgress: 'Continue from last time',
+      placesTitle: 'Four Places',
+      empathyBadge: 'House',
+      empathyTitle: 'Empathy House',
+      empathyDesc: 'Clarify your feelings first, then decide next steps.',
+      empathyTag: 'Good for pausing',
+      statusBadge: 'Observatory',
+      statusTitle: 'Status Observatory',
+      statusDesc: 'Check your energy today.',
+      statusTag: 'Good for understanding yourself',
+      habitsBadge: 'Workshop',
+      habitsTitle: 'Micro-habit Workshop',
+      habitsDesc: 'Shrink your goal to one step you can do today.',
+      habitsTag: 'Good for taking action',
+      priorityBadge: 'Island',
+      priorityTitle: 'Priority Decision Island',
+      priorityDesc: 'Go through five gates to find the most suitable action.',
+      priorityTag: 'Good for deciding direction',
+      reviewBadge: 'Garden',
+      reviewTitle: 'Review Garden',
+      reviewDesc: 'See what traces you left recently.',
+      reviewTag: 'Good for quiet reflection'
+    }
+  };
+  
+  const t = i18n[lang];
   
   $('#app').innerHTML = `
     <div class="page home-page">
       <header class="home-header">
-        <h1>本地指南</h1>
-        <p class="subtitle">带你慢慢走，每一步都是探索</p>
+        <h1>${t.appName}</h1>
+        <p class="subtitle">${t.subtitle}</p>
       </header>
       
       <div class="quick-actions">
         <button class="quick-action-btn quick-action-save-me" onclick="renderSaveMePage()">
           <span class="quick-action-icon">🆘</span>
-          <span class="quick-action-text">不知道点哪个，直接救我</span>
-          <span class="quick-action-hint">最省事的入口</span>
+          <span class="quick-action-text">${t.saveMe}</span>
+          <span class="quick-action-hint">${t.saveMeHint}</span>
         </button>
         <button class="quick-action-btn quick-action-momentum" onclick="quickStart('momentum')">
           <span class="quick-action-icon">🌱</span>
-          <span class="quick-action-text">我不想动</span>
-          <span class="quick-action-hint">3分钟启动</span>
+          <span class="quick-action-text">${t.momentum}</span>
+          <span class="quick-action-hint">${t.momentumHint}</span>
         </button>
         <button class="quick-action-btn quick-action-priority" onclick="quickStart('priority')">
           <span class="quick-action-icon">⚡</span>
-          <span class="quick-action-text">事情太多</span>
-          <span class="quick-action-hint">1分钟排序</span>
+          <span class="quick-action-text">${t.priority}</span>
+          <span class="quick-action-hint">${t.priorityHint}</span>
         </button>
         <button class="quick-action-btn quick-action-empathy" onclick="quickStart('empathy')">
           <span class="quick-action-icon">🌊</span>
-          <span class="quick-action-text">有点乱</span>
-          <span class="quick-action-hint">2分钟整理</span>
+          <span class="quick-action-text">${t.empathy}</span>
+          <span class="quick-action-hint">${t.empathyHint}</span>
         </button>
         <button class="quick-action-btn quick-action-rating" onclick="quickStart('rating')">
           <span class="quick-action-icon">📊</span>
-          <span class="quick-action-text">今日状态</span>
-          <span class="quick-action-hint">觉察当下</span>
+          <span class="quick-action-text">${t.rating}</span>
+          <span class="quick-action-hint">${t.ratingHint}</span>
         </button>
       </div>
       
       <div class="safety-notice">
         <span class="notice-icon">💡</span>
-        <p>这是一个自助觉察工具，不是心理治疗或医疗诊断。如有严重困扰，请寻求专业帮助。</p>
+        <p>${t.safetyNotice}</p>
+      </div>
+      
+      <div class="privacy-notice" style="background: rgba(59,130,246,0.06); border-left: 3px solid rgba(59,130,246,0.4); padding: 12px 16px; border-radius: 8px; margin-top: 16px;">
+        <div style="display: flex; align-items: flex-start; gap: 10px;">
+          <span style="font-size: 18px;">🔒</span>
+          <div style="flex: 1;">
+            <h4 style="margin: 0 0 6px 0; font-size: 14px; color: #2563eb;">${t.privacy.title}</h4>
+            <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.6;">${t.privacy.message}</p>
+            <p style="margin: 8px 0 0 0; font-size: 12px; color: #64748b; font-style: italic;">💾 ${t.privacy.backupTip}</p>
+          </div>
+        </div>
       </div>
       
       <div class="main-actions">
         <button class="btn btn-primary btn-large" onclick="navigate('empathy')">
-          开始今日探索
+          ${t.startExplore}
         </button>
         ${hasData ? `
           <button class="btn btn-secondary" onclick="navigate('review')">
-            继续上次进度
+            ${t.continueProgress}
           </button>
         ` : ''}
       </div>
       
       <section class="places-section">
-        <h2 class="places-title">四个地方</h2>
+        <h2 class="places-title">${t.placesTitle}</h2>
         <div class="place-grid">
           <button class="place-card place-empathy" onclick="navigate('empathy')">
-            <div class="place-badge">小屋</div>
-            <h3>共情小屋</h3>
-            <p class="place-desc">先把感受说清楚，再决定下一步。</p>
+            <div class="place-badge">${t.empathyBadge}</div>
+            <h3>${t.empathyTitle}</h3>
+            <p class="place-desc">${t.empathyDesc}</p>
             <div class="place-meta">
-              <span class="place-tag">适合先停一下</span>
+              <span class="place-tag">${t.empathyTag}</span>
             </div>
           </button>
           
           <button class="place-card place-status" onclick="navigate('status')">
-            <div class="place-badge">观测台</div>
-            <h3>状态观测台</h3>
-            <p class="place-desc">看看今天的状态能量。</p>
+            <div class="place-badge">${t.statusBadge}</div>
+            <h3>${t.statusTitle}</h3>
+            <p class="place-desc">${t.statusDesc}</p>
             <div class="place-meta">
-              <span class="place-tag">适合了解自己</span>
+              <span class="place-tag">${t.statusTag}</span>
             </div>
           </button>
           
           <button class="place-card place-habit" onclick="navigate('habits')">
-            <div class="place-badge">工坊</div>
-            <h3>微习惯工坊</h3>
-            <p class="place-desc">把目标缩小到今天能做的一步。</p>
+            <div class="place-badge">${t.habitsBadge}</div>
+            <h3>${t.habitsTitle}</h3>
+            <p class="place-desc">${t.habitsDesc}</p>
             <div class="place-meta">
-              <span class="place-tag">适合立刻动手</span>
+              <span class="place-tag">${t.habitsTag}</span>
             </div>
           </button>
           
           <button class="place-card place-priority" onclick="navigate('priority')">
-            <div class="place-badge">岛屿</div>
-            <h3>优先级决策岛</h3>
-            <p class="place-desc">经过五道门，找到最合适的行动。</p>
+            <div class="place-badge">${t.priorityBadge}</div>
+            <h3>${t.priorityTitle}</h3>
+            <p class="place-desc">${t.priorityDesc}</p>
             <div class="place-meta">
-              <span class="place-tag">适合决定方向</span>
+              <span class="place-tag">${t.priorityTag}</span>
             </div>
           </button>
           
           <button class="place-card place-review" onclick="navigate('review')">
-            <div class="place-badge">花园</div>
-            <h3>回顾花园</h3>
-            <p class="place-desc">看看最近留下了什么痕迹。</p>
+            <div class="place-badge">${t.reviewBadge}</div>
+            <h3>${t.reviewTitle}</h3>
+            <p class="place-desc">${t.reviewDesc}</p>
             <div class="place-meta">
-              <span class="place-tag">适合静静回顾</span>
+              <span class="place-tag">${t.reviewTag}</span>
             </div>
           </button>
+          
+          <a class="place-card place-time-notes" href="${t.external.timeNotesUrl}" target="_blank" rel="noopener noreferrer">
+            <div class="place-badge">${lang === 'zh' ? '⏱️' : '⏱️'}</div>
+            <h3>${t.timeNotes.title}</h3>
+            <p class="place-desc">${t.timeNotes.hint}</p>
+            <div class="place-meta">
+              <span class="place-tag">${t.timeNotes.link}</span>
+            </div>
+          </a>
         </div>
       </section>
     </div>
@@ -292,8 +360,12 @@ function renderHome() {
 }
 
 function renderBackButton(page) {
-  return `<button class="btn btn-back" onclick="navigate('${page}')">← 返回</button>`;
+  const lang = getCurrentLang();
+  const text = lang === 'zh' ? '← 返回' : '← Back';
+  return `<button class="btn btn-back" onclick="navigate('${page}')">${text}</button>`;
 }
+
+
 
 function renderEmpathy() {
   $('#app').innerHTML = `
@@ -303,17 +375,6 @@ function renderEmpathy() {
         <h2>🏠 共情小屋</h2>
         <p>一个温柔的空间，陪伴你看见自己的感受</p>
       </header>
-      
-      <div class="procrastination-entrance">
-        <h3>💔 拖延后专用入口</h3>
-        <div class="entrance-buttons">
-          <button class="entrance-btn" onclick="enterProcrastination('hate')">我又拖了，很烦自己</button>
-          <button class="entrance-btn" onclick="enterProcrastination('afraid')">我怕做不好</button>
-          <button class="entrance-btn" onclick="enterProcrastination('where')">我不知道从哪开始</button>
-          <button class="entrance-btn" onclick="enterProcrastination('late')">已经晚了，更不想做</button>
-          <button class="entrance-btn" onclick="enterProcrastination('compare')">觉得别人都比我强</button>
-        </div>
-      </div>
       
       <div class="empathy-step" id="empathyStep1">
         <div class="step-indicator">步骤 1/5</div>
@@ -418,6 +479,21 @@ function renderEmpathy() {
           <button class="btn btn-secondary" onclick="navigate('empathy')">再来一次</button>
           <button class="btn btn-primary" onclick="navigate('home')">返回首页</button>
         </div>
+      </div>
+      
+      <div class="quick-empathy-section" style="margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--color-border);">
+        <details style="margin-bottom: 16px;">
+          <summary style="cursor: pointer; color: var(--color-text-light); font-size: 14px; padding: 8px 0;">
+            💡 ${t.empathy.quickEntry.summary}
+          </summary>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
+            <button class="entrance-btn" onclick="enterProcrastination('hate')">${t.empathy.quickEntry.labels.hate}</button>
+            <button class="entrance-btn" onclick="enterProcrastination('afraid')">${t.empathy.quickEntry.labels.afraid}</button>
+            <button class="entrance-btn" onclick="enterProcrastination('where')">${t.empathy.quickEntry.labels.where}</button>
+            <button class="entrance-btn" onclick="enterProcrastination('late')">${t.empathy.quickEntry.labels.late}</button>
+            <button class="entrance-btn" onclick="enterProcrastination('compare')">${t.empathy.quickEntry.labels.compare}</button>
+          </div>
+        </details>
       </div>
     </div>
   `;
@@ -579,33 +655,79 @@ window.selectExpressionTone = function(btn) {
 
 const procrastinationResponses = {
   hate: {
-    feelings: ['烦躁', '自责', '无力'],
-    needs: ['自我接纳', '温和', '休息'],
-    message: '你现在可能不是不想努力，而是任务太大、压力太满，所以身体先刹车了。我们先不解决整件事，只找一个不会吓到你的下一步。'
+    feelings: {
+      zh: ['烦躁', '自责', '无力'],
+      en: ['frustrated', 'self-critical', 'powerless']
+    },
+    needs: {
+      zh: ['自我接纳', '温和', '休息'],
+      en: ['self-acceptance', 'gentleness', 'rest']
+    },
+    message: {
+      zh: '你现在可能不是不想努力，而是任务太大、压力太满，所以身体先刹车了。我们先不解决整件事，只找一个不会吓到你的下一步。',
+      en: 'undefined'
+    }
   },
   afraid: {
-    feelings: ['紧张', '害怕', '担忧'],
-    needs: ['安全感', '耐心', '鼓励'],
-    message: '害怕做不好，其实是你对自己有要求。没关系，我们先不用做好，只用开始。把完美放在一边，我们先随便做一点点。'
+    feelings: {
+      zh: ['紧张', '害怕', '担忧'],
+      en: ['nervous', 'afraid', 'worried']
+    },
+    needs: {
+      zh: ['安全感', '耐心', '鼓励'],
+      en: ['safety', 'patience', 'encouragement']
+    },
+    message: {
+      zh: '害怕做不好，其实是你对自己有要求。没关系，我们先不用做好，只用开始。把完美放在一边，我们先随便做一点点。',
+      en: 'undefined'
+    }
   },
   where: {
-    feelings: ['迷茫', '混乱', '疲惫'],
-    needs: ['清晰', '简单', '方向'],
-    message: '不知道从哪开始，是因为选项太多。我们不用选最好的，只用选第一个能抓住的。哪怕只开个头，也是胜利。'
+    feelings: {
+      zh: ['迷茫', '混乱', '疲惫'],
+      en: ['lost', 'scattered', 'tired']
+    },
+    needs: {
+      zh: ['清晰', '简单', '方向'],
+      en: ['clarity', 'simplicity', 'direction']
+    },
+    message: {
+      zh: '不知道从哪开始，是因为选项太多。我们不用选最好的，只用选第一个能抓住的。哪怕只开个头，也是胜利。',
+      en: 'undefined'
+    }
   },
   late: {
-    feelings: ['焦虑', '沮丧', '无望'],
-    needs: ['原谅', '重新开始', '希望'],
-    message: '已经晚了，反而可能是个信号：这个任务原来的方式不适合你。没关系，我们从剩下的时间里，拿最小的一部分来开始。'
+    feelings: {
+      zh: ['焦虑', '沮丧', '无望'],
+      en: ['anxious', 'discouraged', 'hopeless']
+    },
+    needs: {
+      zh: ['原谅', '重新开始', '希望'],
+      en: ['forgiveness', 'a fresh start', 'hope']
+    },
+    message: {
+      zh: '已经晚了，反而可能是个信号：这个任务原来的方式不适合你。没关系，我们从剩下的时间里，拿最小的一部分来开始。',
+      en: 'undefined'
+    }
   },
   compare: {
-    feelings: ['嫉妒', '自卑', '失落'],
-    needs: ['自我关怀', '看见自己', '平静'],
-    message: '别人和你是不同的时区。你不用和别人比速度，只用按照自己的节奏，慢慢走。你只需要做好你自己的部分。'
+    feelings: {
+      zh: ['嫉妒', '自卑', '失落'],
+      en: ['jealous', 'inadequate', 'disappointed']
+    },
+    needs: {
+      zh: ['自我关怀', '看见自己', '平静'],
+      en: ['self-compassion', 'being seen', 'peace']
+    },
+    message: {
+      zh: '别人和你是不同的时区。你不用和别人比速度，只用按照自己的节奏，慢慢走。你只需要做好你自己的部分。',
+      en: 'undefined'
+    }
   }
 };
 
 window.enterProcrastination = function(type) {
+  const lang = getCurrentLang();
   const resp = procrastinationResponses[type];
   if (!resp) return;
   
@@ -615,12 +737,12 @@ window.enterProcrastination = function(type) {
       
       <div class="procrastination-card">
         <div class="procrastination-icon">💙</div>
-        <p class="procrastination-message">${resp.message}</p>
+        <p class="procrastination-message">${resp.message[lang]}</p>
         
         <div class="quick-response-actions">
-          <button class="btn btn-primary" onclick="navigate('priority')">现在找一件事做</button>
-          <button class="btn btn-secondary" onclick="navigate('habits')">选个微习惯</button>
-          <button class="btn btn-text" onclick="navigate('home')">先回首页</button>
+          <button class="btn btn-primary" onclick="navigate('priority')">${lang === 'zh' ? '现在找一件事做' : 'Pick one thing to do'}</button>
+          <button class="btn btn-secondary" onclick="navigate('habits')">${lang === 'zh' ? '选个微习惯' : 'Pick a micro-habit'}</button>
+          <button class="btn btn-text" onclick="navigate('home')">${lang === 'zh' ? '先回首页' : 'Go home'}</button>
         </div>
       </div>
     </div>
@@ -629,10 +751,46 @@ window.enterProcrastination = function(type) {
   state.empathyRecords.push({
     id: `procrastination-${Date.now()}`,
     timestamp: new Date().toISOString(),
-    situation: '拖延后状态',
-    feelings: resp.feelings,
-    needs: resp.needs,
-    type: 'procrastination'
+    situation: lang === 'zh' ? '整理状态' : 'Organizing state',
+    feelings: resp.feelings[lang],
+    needs: resp.needs[lang],
+    type: 'empathy'
+  });
+  saveState(state);
+};
+
+window.renderProcrastinationQuick = function(type) {
+  const lang = getCurrentLang();
+  const resp = procrastinationResponses[type];
+  if (!resp) {
+    navigate('empathy');
+    return;
+  }
+  
+  $('#app').innerHTML = `
+    <div class="page empathy-page">
+      ${renderBackButton('home')}
+      
+      <div class="procrastination-card">
+        <div class="procrastination-icon">💙</div>
+        <p class="procrastination-message">${resp.message[lang]}</p>
+        
+        <div class="quick-response-actions">
+          <button class="btn btn-primary" onclick="navigate('priority')">${lang === 'zh' ? '现在找一件事做' : 'Pick one thing to do'}</button>
+          <button class="btn btn-secondary" onclick="navigate('habits')">${lang === 'zh' ? '选个微习惯' : 'Pick a micro-habit'}</button>
+          <button class="btn btn-text" onclick="navigate('home')">${lang === 'zh' ? '先回首页' : 'Go home'}</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  state.empathyRecords.push({
+    id: `procrastination-${Date.now()}`,
+    timestamp: new Date().toISOString(),
+    situation: lang === 'zh' ? '整理状态' : 'Organizing state',
+    feelings: resp.feelings[lang],
+    needs: resp.needs[lang],
+    type: 'empathy'
   });
   saveState(state);
 };
@@ -1000,7 +1158,7 @@ function renderHabits() {
         <h3>🔖 学生常用模板</h3>
         <div class="templates-grid">
           <button class="template-chip" onclick="applyStudentTemplate('review')">期末复习模板</button>
-          <button class="template-chip" onclick="applyStudentTemplate('paper')">论文拖延模板</button>
+          <button class="template-chip" onclick="applyStudentTemplate('paper')">论文推进模板</button>
           <button class="template-chip" onclick="applyStudentTemplate('word')">背单词模板</button>
           <button class="template-chip" onclick="applyStudentTemplate('tidy')">收拾桌子模板</button>
           <button class="template-chip" onclick="applyStudentTemplate('water')">喝水模板</button>
@@ -1291,7 +1449,7 @@ function renderPriority() {
   
   const quickTemplates = [
     { label: '期末复习', icon: '📚' },
-    { label: '论文拖延', icon: '📝' },
+    { label: '论文推进', icon: '📝' },
     { label: '任务太多', icon: '📋' },
     { label: '不知道先做哪个', icon: '🤔' },
     { label: '项目优先级', icon: '🎯' }
@@ -2007,13 +2165,25 @@ function renderRating() {
     
     cat.subItems.forEach(subItem => {
       const currentScore = window.ratingData[catId]?.[subItem.id] || 5;
+      const scoreOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+      const mainScores = [1, 3, 5, 7, 9];
       categoriesHtml += `
         <div class="rating-subitem">
           <div class="rating-subitem-name">${subItem.name[lang] || subItem.name.zh}</div>
-          <div class="rating-score-row">
-            <button class="rating-btn rating-dec" onclick="adjustRating('${catId}', '${subItem.id}', -1)">−</button>
-            <span class="rating-score" id="score_${catId}_${subItem.id}">${currentScore}</span>
-            <button class="rating-btn rating-inc" onclick="adjustRating('${catId}', '${subItem.id}', 1)">+</button>
+          <div class="rating-grid-container">
+            <div class="rating-grid" id="grid_${catId}_${subItem.id}">
+              ${scoreOptions.map(score => `
+                <button class="rating-grid-cell ${score === currentScore ? 'selected' : ''} ${mainScores.includes(score) ? 'main-score' : ''}" 
+                        data-score="${score}"
+                        onclick="selectRatingScore('${catId}', '${subItem.id}', ${score})">
+                  ${score}
+                </button>
+              `).join('')}
+            </div>
+            <div class="rating-grid-labels">
+              <span>${lang === 'zh' ? '很低' : 'Very Low'}</span>
+              <span>${lang === 'zh' ? '很高' : 'Very High'}</span>
+            </div>
           </div>
         </div>
       `;
@@ -2049,7 +2219,7 @@ function renderRating() {
       ${renderBackButton('home')}
       <header class="page-header">
         <h2>📊 ${lang === 'zh' ? '今日状态' : "Today's Status"}</h2>
-        <p>${lang === 'zh' ? '觉察当下，从评分开始' : 'Be aware of the present'}</p>
+        <p>${lang === 'zh' ? '觉察当下，从评分开始' : 'A quick check-in with where you are right now'}</p>
       </header>
       
       <div class="rating-explanation">
@@ -2057,7 +2227,7 @@ function renderRating() {
           ${lang === 'zh' ? '💡 小贴士：' : '💡 Tip:'}
         </p>
         <p style="font-size: 13px; color: var(--color-text-light);">
-          ${lang === 'zh' ? '这里的「爱」不只是恋爱，也包括家人、朋友、被支持、照顾自己；「工作」也可以是学业。' : '"Love" includes family, friends, and self-care; "Work" can be studies.'}
+          ${lang === 'zh' ? '这里的「爱」不只是恋爱，也包括家人、朋友、被支持、照顾自己；「工作」也可以是学业。' : '"Love" can include family, friends, and how you care for yourself. "Work" can include school, study, or paid work.'}
         </p>
       </div>
       
@@ -2082,6 +2252,23 @@ function renderRating() {
     </div>
   `;
 }
+
+window.selectRatingScore = function(catId, subItemId, score) {
+  if (!window.ratingData[catId]) {
+    window.ratingData[catId] = {};
+  }
+  window.ratingData[catId][subItemId] = score;
+  
+  const grid = document.getElementById(`grid_${catId}_${subItemId}`);
+  if (grid) {
+    grid.querySelectorAll('.rating-grid-cell').forEach(cell => {
+      cell.classList.remove('selected');
+      if (parseInt(cell.dataset.score) === score) {
+        cell.classList.add('selected');
+      }
+    });
+  }
+};
 
 window.adjustRating = function(catId, subItemId, delta) {
   if (!window.ratingData[catId]) {
@@ -2119,6 +2306,7 @@ window.toggleLanguage = function() {
   const btn = document.getElementById('langToggleBtn');
   if (btn) {
     btn.textContent = newLang === 'zh' ? 'EN' : '中文';
+    btn.setAttribute('aria-label', newLang === 'zh' ? 'Switch to English' : '切换到中文');
   }
   
   navigate(currentPage);
@@ -2129,6 +2317,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btn = document.getElementById('langToggleBtn');
   if (btn) {
     btn.textContent = lang === 'zh' ? 'EN' : '中文';
+    btn.setAttribute('aria-label', lang === 'zh' ? 'Switch to English' : '切换到中文');
   }
   
   navigate('home');
