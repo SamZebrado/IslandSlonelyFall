@@ -64,35 +64,57 @@ function render3MinuteTask() {
   const lang = getCurrentLang();
   const taskIndex = Math.floor(Math.random() * threeMinuteTasks.length);
   const task = threeMinuteTasks[taskIndex];
+
+  const i18n = {
+    zh: {
+      header: '🌱 3分钟启动',
+      headerSub: '别让任务吓住自己，先做一点点',
+      timeLabel: '⏱️ 3分钟',
+      didIt: '我做到了!',
+      another: '换一个更小的',
+      goHabits: '去微习惯工坊',
+      goHome: '返回首页'
+    },
+    en: {
+      header: '🌱 3-Minute Start',
+      headerSub: "Don't let the task overwhelm you — just start small",
+      timeLabel: '⏱️ 3 minutes',
+      didIt: 'I did it!',
+      another: 'Get another one',
+      goHabits: 'Go to Micro-habits',
+      goHome: 'Go Home'
+    }
+  };
+  const t = i18n[lang] || i18n.zh;
   
   $('#app').innerHTML = `
     <div class="page three-min-page">
       <header class="page-header">
-        <h2>🌱 3分钟启动</h2>
-        <p>别让任务吓住自己，先做一点点</p>
+        <h2>${t.header}</h2>
+        <p>${t.headerSub}</p>
       </header>
       
       <div class="task-card">
         <div class="task-icon">✨</div>
         <div class="task-text">${lang === 'zh' ? task.zh : task.en}</div>
-        <div class="task-time">⏱️ 3分钟</div>
+        <div class="task-time">${t.timeLabel}</div>
       </div>
       
       <div class="task-actions">
         <button class="btn btn-primary" onclick="complete3MinuteTask()">
-          ${lang === 'zh' ? '我做到了!' : 'I did it!'}
+          ${t.didIt}
         </button>
         <button class="btn btn-secondary" onclick="another3MinuteTask()">
-          ${lang === 'zh' ? '换一个更小的' : 'Get another one'}
+          ${t.another}
         </button>
         <button class="btn btn-secondary" onclick="navigate('habits')">
-          ${lang === 'zh' ? '去微习惯工坊' : 'Go to Micro-habits'}
+          ${t.goHabits}
         </button>
       </div>
       
       <div class="home-actions">
         <button class="btn btn-secondary" onclick="navigate('home')">
-          ${lang === 'zh' ? '返回首页' : 'Go Home'}
+          ${t.goHome}
         </button>
       </div>
     </div>
@@ -1354,21 +1376,100 @@ function renderHabits() {
   const todayLogs = getHabitLogsForToday(state.habitLogs);
   const stats = getHabitCompletionStats(state.habits, state.habitLogs);
   const gentleStats = getTodayHabitStats(state.habitLogs);
-  
+  const lang = getCurrentLang();
+
+  const i18n = {
+    zh: {
+      header: '🌱 微习惯工坊',
+      headerSub: '创建小而简单的习惯，慢慢来',
+      gentleTitle: '今天的小灯',
+      completed: '已点亮',
+      pending: '待照看',
+      skipped: '先放过',
+      progress: '今日完成',
+      templates: '🔖 学生常用模板',
+      templateReview: '期末复习模板',
+      templatePaper: '论文推进模板',
+      templateWord: '背单词模板',
+      templateTidy: '收拾桌子模板',
+      templateWater: '喝水模板',
+      templateExercise: '轻微运动模板',
+      createBtn: '创建新习惯',
+      createTitle: '创建微习惯',
+      identityLabel: '身份句（你想成为什么样的人）：',
+      identityPlaceholder: '例如：我是一个会照顾自己的人',
+      actionLabel: '很小的行动：',
+      actionPlaceholder: '例如：喝一杯水',
+      triggerLabel: '触发提示：',
+      triggerPlaceholder: '或输入自定义触发条件',
+      rewardLabel: '完成后的轻奖励：',
+      cancelBtn: '取消',
+      saveBtn: '保存',
+      empty: '还没有微习惯，创建一个开始吧',
+      triggerPrefix: '触发：',
+      triggerAnytime: '随时',
+      lightBtn: '点亮',
+      skipBtn: '跳过',
+      completedLabel: '已完成',
+      skippedLabel: '先放过',
+      editBtn: '编辑',
+      deleteBtn: '删除',
+      selectOrCustom: '选择或自定义'
+    },
+    en: {
+      header: '🌱 Micro Habits Workshop',
+      headerSub: 'Create tiny, simple habits, take it slow',
+      gentleTitle: "Today's little lights",
+      completed: 'Completed',
+      pending: 'To tend to',
+      skipped: 'Let go',
+      progress: 'Today completed',
+      templates: '🔖 Student Templates',
+      templateReview: 'Final Exam Review',
+      templatePaper: 'Paper Progress',
+      templateWord: 'Vocabulary',
+      templateTidy: 'Tidy Desk',
+      templateWater: 'Drink Water',
+      templateExercise: 'Light Exercise',
+      createBtn: 'Create New Habit',
+      createTitle: 'Create Micro Habit',
+      identityLabel: 'Identity sentence (who do you want to be):',
+      identityPlaceholder: "e.g.: I'm someone who takes care of themselves",
+      actionLabel: 'Tiny action:',
+      actionPlaceholder: 'e.g.: Drink a glass of water',
+      triggerLabel: 'Trigger cue:',
+      triggerPlaceholder: 'Or type a custom trigger',
+      rewardLabel: 'Light reward after completion:',
+      cancelBtn: 'Cancel',
+      saveBtn: 'Save',
+      empty: 'No micro habits yet, create one to start',
+      triggerPrefix: 'Trigger: ',
+      triggerAnytime: 'Anytime',
+      lightBtn: 'Light it',
+      skipBtn: 'Skip',
+      completedLabel: 'Completed',
+      skippedLabel: 'Let go',
+      editBtn: 'Edit',
+      deleteBtn: 'Delete',
+      selectOrCustom: 'Select or custom'
+    }
+  };
+  const t = i18n[lang] || i18n.zh;
+
   $('#app').innerHTML = `
     <div class="page habits-page">
       ${renderBackButton('home')}
       <header class="page-header">
-        <h2>🌱 微习惯工坊</h2>
-        <p>创建小而简单的习惯，慢慢来</p>
+        <h2>${t.header}</h2>
+        <p>${t.headerSub}</p>
       </header>
       
       <div class="habits-gentle-stats" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 16px; text-align: center; box-shadow: var(--shadow-sm);">
-        <div style="font-size: 14px; color: #92400e; margin-bottom: 8px;">今天的小灯</div>
+        <div style="font-size: 14px; color: #92400e; margin-bottom: 8px;">${t.gentleTitle}</div>
         <div style="display: flex; justify-content: center; gap: 24px; font-size: 13px;">
-          <div><span style="color: #059669; font-weight: 600;">${gentleStats.completed}</span> 已点亮</div>
-          <div><span style="color: #0891b2; font-weight: 600;">${gentleStats.total - gentleStats.completed - gentleStats.skipped}</span> 待照看</div>
-          <div><span style="color: #6b7280; font-weight: 600;">${gentleStats.skipped}</span> 先放过</div>
+          <div><span style="color: #059669; font-weight: 600;">${gentleStats.completed}</span> ${t.completed}</div>
+          <div><span style="color: #0891b2; font-weight: 600;">${gentleStats.total - gentleStats.completed - gentleStats.skipped}</span> ${t.pending}</div>
+          <div><span style="color: #6b7280; font-weight: 600;">${gentleStats.skipped}</span> ${t.skipped}</div>
         </div>
       </div>
       
@@ -1376,69 +1477,76 @@ function renderHabits() {
         <div class="progress-bar">
           <div class="progress-fill" style="width: ${stats.percentage}%"></div>
         </div>
-        <span class="progress-text">今日完成 ${stats.completed}/${stats.total}</span>
+        <span class="progress-text">${t.progress} ${stats.completed}/${stats.total}</span>
       </div>
       
       <div class="student-templates">
-        <h3>🔖 学生常用模板</h3>
+        <h3>${t.templates}</h3>
         <div class="templates-grid">
-          <button class="template-chip" onclick="applyStudentTemplate('review')">期末复习模板</button>
-          <button class="template-chip" onclick="applyStudentTemplate('paper')">论文推进模板</button>
-          <button class="template-chip" onclick="applyStudentTemplate('word')">背单词模板</button>
-          <button class="template-chip" onclick="applyStudentTemplate('tidy')">收拾桌子模板</button>
-          <button class="template-chip" onclick="applyStudentTemplate('water')">喝水模板</button>
-          <button class="template-chip" onclick="applyStudentTemplate('exercise')">轻微运动模板</button>
+          <button class="template-chip" onclick="applyStudentTemplate('review')">${t.templateReview}</button>
+          <button class="template-chip" onclick="applyStudentTemplate('paper')">${t.templatePaper}</button>
+          <button class="template-chip" onclick="applyStudentTemplate('word')">${t.templateWord}</button>
+          <button class="template-chip" onclick="applyStudentTemplate('tidy')">${t.templateTidy}</button>
+          <button class="template-chip" onclick="applyStudentTemplate('water')">${t.templateWater}</button>
+          <button class="template-chip" onclick="applyStudentTemplate('exercise')">${t.templateExercise}</button>
         </div>
       </div>
       
       <div class="habits-actions">
-        <button class="btn btn-primary" onclick="showCreateHabit()">创建新习惯</button>
+        <button class="btn btn-primary" onclick="showCreateHabit()">${t.createBtn}</button>
       </div>
       
       <div class="habits-list" id="habitsList">
-        ${renderHabitsList(todayHabits, todayLogs)}
+        ${renderHabitsList(todayHabits, todayLogs, lang)}
       </div>
       
       <div id="habitFeedbackToast" class="habit-feedback-toast hidden" style="position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); padding: 12px 20px; border-radius: 20px; box-shadow: var(--shadow-lg); z-index: 100; max-width: 280px; text-align: center;"></div>
       
       <div class="create-habit-form hidden" id="createHabitForm">
-        <h3>创建微习惯</h3>
+        <h3>${t.createTitle}</h3>
         <div class="form-group">
-          <label>身份句（你想成为什么样的人）：</label>
-          <input type="text" id="habitIdentity" placeholder="例如：我是一个会照顾自己的人">
+          <label>${t.identityLabel}</label>
+          <input type="text" id="habitIdentity" placeholder="${t.identityPlaceholder}">
         </div>
         <div class="form-group">
-          <label>很小的行动：</label>
-          <input type="text" id="habitAction" placeholder="例如：喝一杯水">
+          <label>${t.actionLabel}</label>
+          <input type="text" id="habitAction" placeholder="${t.actionPlaceholder}">
         </div>
         <div class="form-group">
-          <label>触发提示：</label>
+          <label>${t.triggerLabel}</label>
           <select id="habitTrigger">
-            <option value="">选择或自定义</option>
-            ${DEFAULT_TRIGGERS.map(t => `<option value="${t}">${t}</option>`).join('')}
+            <option value="">${t.selectOrCustom}</option>
+            ${DEFAULT_TRIGGERS.map(trigger => `<option value="${trigger}">${trigger}</option>`).join('')}
           </select>
-          <input type="text" id="habitTriggerCustom" placeholder="或输入自定义触发条件">
+          <input type="text" id="habitTriggerCustom" placeholder="${t.triggerPlaceholder}">
         </div>
         <div class="form-group">
-          <label>完成后的轻奖励：</label>
+          <label>${t.rewardLabel}</label>
           <select id="habitReward">
             ${DEFAULT_REWARDS.map(r => `<option value="${r}">${r}</option>`).join('')}
           </select>
         </div>
         <div class="step-actions">
-          <button class="btn btn-text" onclick="hideCreateHabit()">取消</button>
-          <button class="btn btn-primary" onclick="saveNewHabit()">保存</button>
+          <button class="btn btn-text" onclick="hideCreateHabit()">${t.cancelBtn}</button>
+          <button class="btn btn-primary" onclick="saveNewHabit()">${t.saveBtn}</button>
         </div>
       </div>
     </div>
   `;
 }
 
-function renderHabitsList(habits, logs) {
+function renderHabitsList(habits, logs, lang = 'zh') {
   if (habits.length === 0) {
-    return '<p class="empty-note">还没有微习惯，创建一个开始吧</p>';
+    const empty = lang === 'en' ? 'No micro habits yet, create one to start' : '还没有微习惯，创建一个开始吧';
+    return `<p class="empty-note">${empty}</p>`;
   }
-  
+
+  const labels = {
+    zh: { triggerPrefix: '触发：', anytime: '随时', lightBtn: '点亮', skipBtn: '跳过', completed: '已完成', skipped: '先放过', edit: '编辑', delete: '删除' },
+    en: { triggerPrefix: 'Trigger: ', anytime: 'Anytime', lightBtn: 'Light it', skipBtn: 'Skip', completed: 'Completed', skipped: 'Let go', edit: 'Edit', delete: 'Delete' }
+  };
+  const lbl = labels[lang] || labels.zh;
+
   return habits.map(habit => {
     const log = logs.find(l => l.habitId === habit.id);
     const isCompleted = log?.status === 'completed';
@@ -1451,11 +1559,11 @@ function renderHabitsList(habits, logs) {
     if (isCompleted) {
       iconClass = 'seed-icon completed';
       statusIcon = '🌿';
-      statusLabel = habit.reward || '已完成';
+      statusLabel = habit.reward || lbl.completed;
     } else if (isSkipped) {
       iconClass = 'seed-icon skipped';
       statusIcon = '🌰';
-      statusLabel = '先放过';
+      statusLabel = lbl.skipped;
     }
     
     return `
@@ -1464,19 +1572,19 @@ function renderHabitsList(habits, logs) {
         <div class="habit-content" style="flex: 1;">
           <div class="habit-identity">${habit.identity}</div>
           <div class="habit-action">${habit.action}</div>
-          <div class="habit-trigger">触发：${habit.trigger || habit.triggerCustom || '随时'}</div>
+          <div class="habit-trigger">${lbl.triggerPrefix}${habit.trigger || habit.triggerCustom || lbl.anytime}</div>
         </div>
         <div class="habit-actions">
           ${!isCompleted && !isSkipped ? `
-            <button class="btn btn-small btn-success" onclick="doHabit('${habit.id}')">点亮</button>
-            <button class="btn btn-small btn-text" onclick="skipHabitRecord('${habit.id}')">跳过</button>
+            <button class="btn btn-small btn-success" onclick="doHabit('${habit.id}')">${lbl.lightBtn}</button>
+            <button class="btn btn-small btn-text" onclick="skipHabitRecord('${habit.id}')">${lbl.skipBtn}</button>
           ` : isCompleted ? `
             <span class="habit-badge" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">✓ ${statusLabel}</span>
           ` : isSkipped ? `
             <span class="habit-badge skipped">${statusIcon} ${statusLabel}</span>
           ` : ''}
-          <button class="btn btn-small btn-text" onclick="editHabit('${habit.id}')">编辑</button>
-          <button class="btn btn-small btn-text danger" onclick="deleteHabit('${habit.id}')">删除</button>
+          <button class="btn btn-small btn-text" onclick="editHabit('${habit.id}')">${lbl.edit}</button>
+          <button class="btn btn-small btn-text danger" onclick="deleteHabit('${habit.id}')">${lbl.delete}</button>
         </div>
       </div>
     `;
@@ -1552,7 +1660,7 @@ window.saveNewHabit = function() {
   const reward = $('#habitReward')?.value || DEFAULT_REWARDS[0];
   
   if (!action) {
-    alert('请输入微习惯的行动');
+    alert(getCurrentLang() === 'zh' ? '请输入微习惯的行动' : 'Please enter the habit action');
     return;
   }
   
@@ -1671,26 +1779,119 @@ function renderPriority() {
     suggestedTimeBlock: '',
     simpleMode: false
   };
-  
+
+  const lang = getCurrentLang();
+  const i18n = {
+    zh: {
+      header: '🚪 优先级决策岛',
+      headerSub: '经过五道门，找到最合适的行动',
+      fullMode: '完整模式',
+      simpleMode: '极简模式 ⚡',
+      taskLabel: '有什么事情需要决定？',
+      taskPlaceholder: '例如：完成季度报告',
+      startBtn: '开始穿越五道门',
+      resultTitle: '✨ 决策结果',
+      againBtn: '再来一次',
+      homeBtn: '返回首页',
+      templates: {
+        finalReview: '期末复习',
+        paper: '论文推进',
+        tooMany: '任务太多',
+        whichFirst: '不知道先做哪个',
+        project: '项目优先级'
+      },
+      quickDecision: '快速决策',
+      quickDesc: '回答三个问题，找到行动方向',
+      q1: '1. 这件事必须做吗？',
+      q1Yes: '必须做',
+      q1No: '可以不做',
+      q2: '2. 今天能做一点点吗？',
+      q2Yes: '可以',
+      q2No: '不行',
+      q3: '3. 最小下一步是什么？',
+      minStepPlaceholder: '描述一个最小的动作...',
+      confirmBtn: '确定',
+      alertEmptyTask: '请输入需要决定的事情',
+      alertEmptyStep: '请描述最小的一步',
+      actionLabel: '📋 立即行动',
+      taskLabel2: '我要做的事：',
+      nextStepLabel: '下一步：',
+      timeLabel: '预计时间：',
+      standardLabel: '完成标准：',
+      standardText: '不是做好，只是开始',
+      copyBtn: '复制行动',
+      pathSummarySimple: '🛤️ 极简模式',
+      t2min: '2分钟',
+      t5min: '5分钟',
+      t10min: '10分钟',
+      pathSummary: '🛤️ 决策路径'
+    },
+    en: {
+      header: '🚪 Priority Decision Island',
+      headerSub: 'Pass through five gates to find the best action',
+      fullMode: 'Full Mode',
+      simpleMode: 'Simple Mode ⚡',
+      taskLabel: 'What needs to be decided?',
+      taskPlaceholder: 'e.g.: Finish quarterly report',
+      startBtn: 'Start the Five Gates',
+      resultTitle: '✨ Decision Result',
+      againBtn: 'Try Again',
+      homeBtn: 'Back to Home',
+      templates: {
+        finalReview: 'Final Exam Review',
+        paper: 'Paper Progress',
+        tooMany: 'Too Many Tasks',
+        whichFirst: 'Not Sure Where to Start',
+        project: 'Project Priority'
+      },
+      quickDecision: 'Quick Decision',
+      quickDesc: 'Answer three questions to find your direction',
+      q1: '1. Does this have to be done?',
+      q1Yes: 'Must do',
+      q1No: 'Can skip',
+      q2: "2. Can you do a little today?",
+      q2Yes: 'Yes',
+      q2No: 'No',
+      q3: '3. What is the smallest next step?',
+      minStepPlaceholder: 'Describe a tiny action...',
+      confirmBtn: 'Confirm',
+      alertEmptyTask: 'Please enter the task to decide on',
+      alertEmptyStep: 'Please describe the smallest step',
+      actionLabel: '📋 Action Now',
+      taskLabel2: 'Task:',
+      nextStepLabel: 'Next step:',
+      timeLabel: 'Estimated time:',
+      standardLabel: 'Standard:',
+      standardText: 'Not perfect, just started',
+      copyBtn: 'Copy Action',
+      pathSummarySimple: '🛤️ Simple Mode',
+      t2min: '2 min',
+      t5min: '5 min',
+      t10min: '10 min',
+      pathSummary: '🛤️ Decision Path'
+    }
+  };
+  const t = i18n[lang] || i18n.zh;
+
   const quickTemplates = [
-    { label: '期末复习', icon: '📚' },
-    { label: '论文推进', icon: '📝' },
-    { label: '任务太多', icon: '📋' },
-    { label: '不知道先做哪个', icon: '🤔' },
-    { label: '项目优先级', icon: '🎯' }
+    { label: t.templates.finalReview, icon: '📚' },
+    { label: t.templates.paper, icon: '📝' },
+    { label: t.templates.tooMany, icon: '📋' },
+    { label: t.templates.whichFirst, icon: '🤔' },
+    { label: t.templates.project, icon: '🎯' }
   ];
   
   $('#app').innerHTML = `
     <div class="page priority-page">
       ${renderBackButton('home')}
       <header class="page-header">
-        <h2>🚪 优先级决策岛</h2>
-        <p>经过五道门，找到最合适的行动</p>
+        <h2>${t.header}</h2>
+        <p>${t.headerSub}</p>
       </header>
       
       <div class="mode-toggle">
-        <button class="mode-btn ${window.prioritySession.simpleMode ? '' : 'active'}" onclick="setPriorityMode(false)">完整模式</button>
-        <button class="mode-btn ${window.prioritySession.simpleMode ? 'active' : ''}" onclick="setPriorityMode(true)">极简模式 ⚡</button>
+        <button class="mode-btn ${window.prioritySession.simpleMode ? '' : 'active'}" onclick="setPriorityMode(false)">${t.fullMode}</button>
+        <button class="mode-btn ${window.prioritySession.simpleMode ? 'active' : ''}" onclick="setPriorityMode(true)">${t.simpleMode}</button>
       </div>
       
       <div class="priority-form">
@@ -1705,15 +1906,15 @@ function renderPriority() {
         
         <div class="task-input-section" id="taskInputSection">
           <div class="quick-templates" id="quickTemplates">
-            ${quickTemplates.map(t => `
-              <button class="template-chip" onclick="applyTemplate('${t.label}')">${t.icon} ${t.label}</button>
+            ${quickTemplates.map(tpl => `
+              <button class="template-chip" onclick="applyTemplate('${tpl.label}')">${tpl.icon} ${tpl.label}</button>
             `).join('')}
           </div>
           <div class="form-group">
-            <label>有什么事情需要决定？</label>
-            <textarea id="priorityTask" rows="2" placeholder="例如：完成季度报告"></textarea>
+            <label>${t.taskLabel}</label>
+            <textarea id="priorityTask" rows="2" placeholder="${t.taskPlaceholder}"></textarea>
           </div>
-          <button class="btn btn-primary" onclick="startPriorityGates()">开始穿越五道门</button>
+          <button class="btn btn-primary" onclick="startPriorityGates()">${t.startBtn}</button>
         </div>
         
         <div class="gate-card hidden" id="gateCard">
@@ -1722,12 +1923,12 @@ function renderPriority() {
         </div>
         
         <div class="priority-result hidden" id="priorityResult">
-          <h3>✨ 决策结果</h3>
+          <h3>${t.resultTitle}</h3>
           <div class="result-card" id="resultCard"></div>
           <div class="priority-path-summary" id="pathSummary"></div>
           <div class="step-actions">
-            <button class="btn btn-secondary" onclick="resetPriority()">再来一次</button>
-            <button class="btn btn-primary" onclick="navigate('home')">返回首页</button>
+            <button class="btn btn-secondary" onclick="resetPriority()">${t.againBtn}</button>
+            <button class="btn btn-primary" onclick="navigate('home')">${t.homeBtn}</button>
           </div>
         </div>
       </div>
@@ -1737,8 +1938,9 @@ function renderPriority() {
 
 window.startPriorityGates = function() {
   const taskText = $('#priorityTask')?.value?.trim();
+  const t = getPriorityI18n();
   if (!taskText) {
-    alert('请输入需要决定的事情');
+    alert(t.alertEmptyTask);
     return;
   }
   
@@ -1753,37 +1955,129 @@ window.startPriorityGates = function() {
   }
 };
 
+function getPriorityI18n() {
+  const lang = getCurrentLang();
+  const i18n = {
+    zh: {
+      quickDecision: '快速决策',
+      quickDesc: '回答三个问题，找到行动方向',
+      q1: '1. 这件事必须做吗？',
+      q1Yes: '必须做',
+      q1No: '可以不做',
+      q2: '2. 今天能做一点点吗？',
+      q2Yes: '可以',
+      q2No: '不行',
+      q3: '3. 最小下一步是什么？',
+      minStepPlaceholder: '描述一个最小的动作...',
+      confirmBtn: '确定',
+      alertEmptyTask: '请输入需要决定的事情',
+      alertEmptyStep: '请描述最小的一步',
+      actionLabel: '📋 立即行动',
+      taskLabel2: '我要做的事：',
+      nextStepLabel: '下一步：',
+      timeLabel: '预计时间：',
+      standardLabel: '完成标准：',
+      standardText: '不是做好，只是开始',
+      copyBtn: '复制行动',
+      pathSummarySimple: '🛤️ 极简模式',
+      t2min: '2分钟',
+      t5min: '5分钟',
+      t10min: '10分钟',
+      pathSummary: '🛤️ 决策路径',
+      gateName: '专注门',
+      gateShortLabel: '专注',
+      gateDesc: '确定今天的最小下一步。',
+      gateQuestion: '如果今天只推进一点点，最小下一步是什么？',
+      gateFeedback: '最小下一步已经足够成为入口。',
+      focusMinStepPlaceholder: '描述最小的一步...',
+      focusConfirmBtn: '确定最小下一步',
+      remindDelete: '能放下的事情，也是在保护精力。',
+      remindDefer: '有意识地延后，也是一种决策。',
+      remindStart: '先开始，就已经迈出了第一步。',
+      remindRecover: '有时候放下也是一种选择。',
+      remindSimplify: '不是所有事都必须做。',
+      remindDelegate: '不必事事亲力亲为。',
+      remindNotNow: '不是所有事都需要现在做。',
+      remindMinStep: '现在就处理一点点，哪怕只是一分钟。'
+    },
+    en: {
+      quickDecision: 'Quick Decision',
+      quickDesc: 'Answer three questions to find your direction',
+      q1: '1. Does this have to be done?',
+      q1Yes: 'Must do',
+      q1No: 'Can skip',
+      q2: "2. Can you do a little today?",
+      q2Yes: 'Yes',
+      q2No: 'No',
+      q3: '3. What is the smallest next step?',
+      minStepPlaceholder: 'Describe a tiny action...',
+      confirmBtn: 'Confirm',
+      alertEmptyTask: 'Please enter the task to decide on',
+      alertEmptyStep: 'Please describe the smallest step',
+      actionLabel: '📋 Action Now',
+      taskLabel2: 'Task:',
+      nextStepLabel: 'Next step:',
+      timeLabel: 'Estimated time:',
+      standardLabel: 'Standard:',
+      standardText: 'Not perfect, just started',
+      copyBtn: 'Copy Action',
+      pathSummarySimple: '🛤️ Simple Mode',
+      t2min: '2 min',
+      t5min: '5 min',
+      t10min: '10 min',
+      pathSummary: '🛤️ Decision Path',
+      gateName: 'Focus Gate',
+      gateShortLabel: 'Focus',
+      gateDesc: 'Identify the smallest step for today.',
+      gateQuestion: "If you only advance a little today, what's the smallest next step?",
+      gateFeedback: 'The smallest next step is enough of an entry point.',
+      focusMinStepPlaceholder: 'Describe the smallest step...',
+      focusConfirmBtn: 'Confirm smallest step',
+      remindDelete: 'Letting things go is also protecting your energy.',
+      remindDefer: 'Deliberately postponing is also a decision.',
+      remindStart: 'Just starting is already taking the first step.',
+      remindRecover: 'Sometimes letting go is also a choice.',
+      remindSimplify: 'Not everything has to be done.',
+      remindDelegate: "You don't have to do everything yourself.",
+      remindNotNow: "Not everything needs to be done now.",
+      remindMinStep: 'Do just a little now, even just one minute.'
+    }
+  };
+  return i18n[lang] || i18n.zh;
+}
+
 function renderSimpleGate() {
+  const t = getPriorityI18n();
   $('#gateContent').innerHTML = `
     <div class="gate-header">
       <div class="gate-icon-large">⚡</div>
-      <h3>快速决策</h3>
-      <p class="gate-description">回答三个问题，找到行动方向</p>
+      <h3>${t.quickDecision}</h3>
+      <p class="gate-description">${t.quickDesc}</p>
     </div>
     <div class="simple-questions">
       <div class="simple-question">
-        <label>1. 这件事必须做吗？</label>
+        <label>${t.q1}</label>
         <div class="simple-options">
-          <button class="btn btn-option" onclick="answerSimple(1, 'yes')">必须做</button>
-          <button class="btn btn-option" onclick="answerSimple(1, 'no')">可以不做</button>
+          <button class="btn btn-option" onclick="answerSimple(1, 'yes')">${t.q1Yes}</button>
+          <button class="btn btn-option" onclick="answerSimple(1, 'no')">${t.q1No}</button>
         </div>
       </div>
       <div class="simple-question hidden" id="simpleQ2">
-        <label>2. 今天能做一点点吗？</label>
+        <label>${t.q2}</label>
         <div class="simple-options">
-          <button class="btn btn-option" onclick="answerSimple(2, 'yes')">可以</button>
-          <button class="btn btn-option" onclick="answerSimple(2, 'no')">不行</button>
+          <button class="btn btn-option" onclick="answerSimple(2, 'yes')">${t.q2Yes}</button>
+          <button class="btn btn-option" onclick="answerSimple(2, 'no')">${t.q2No}</button>
         </div>
       </div>
       <div class="simple-question hidden" id="simpleQ3">
-        <label>3. 最小下一步是什么？</label>
-        <input type="text" id="simpleMinStep" placeholder="描述一个最小的动作..." style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 12px;">
+        <label>${t.q3}</label>
+        <input type="text" id="simpleMinStep" placeholder="${t.minStepPlaceholder}" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 12px;">
         <div class="time-block-select" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
-          <button class="btn btn-option" data-time="2分钟" onclick="selectSimpleTime('2分钟')">2分钟</button>
-          <button class="btn btn-option" data-time="5分钟" onclick="selectSimpleTime('5分钟')">5分钟</button>
-          <button class="btn btn-option" data-time="10分钟" onclick="selectSimpleTime('10分钟')">10分钟</button>
+          <button class="btn btn-option" data-time="2分钟" onclick="selectSimpleTime('2分钟')">${t.t2min}</button>
+          <button class="btn btn-option" data-time="5分钟" onclick="selectSimpleTime('5分钟')">${t.t5min}</button>
+          <button class="btn btn-option" data-time="10分钟" onclick="selectSimpleTime('10分钟')">${t.t10min}</button>
         </div>
-        <button class="btn btn-primary" onclick="finishSimpleGate()">确定</button>
+        <button class="btn btn-primary" onclick="finishSimpleGate()">${t.confirmBtn}</button>
       </div>
     </div>
   `;
@@ -1807,8 +2101,9 @@ window.selectSimpleTime = function(time) {
 
 window.finishSimpleGate = function() {
   const minStep = $('#simpleMinStep')?.value?.trim();
+  const t = getPriorityI18n();
   if (!minStep) {
-    alert('请描述最小的一步');
+    alert(t.alertEmptyStep);
     return;
   }
   
@@ -1816,14 +2111,14 @@ window.finishSimpleGate = function() {
   const answers = window.simpleAnswers;
   
   let category = 'TODAY';
-  let reminder = '先开始，就已经迈出了第一步。';
+  let reminder = t.remindStart;
   
   if (answers.q1 === 'no') {
     category = 'DELETE';
-    reminder = '能放下的事情，也是在保护精力。';
+    reminder = t.remindDelete;
   } else if (answers.q2 === 'no') {
     category = 'DEFER';
-    reminder = '有意识地延后，也是一种决策。';
+    reminder = t.remindDefer;
   }
   
   const record = {
@@ -1848,10 +2143,10 @@ window.finishSimpleGate = function() {
   $('#priorityResult')?.classList.remove('hidden');
   
   const categoryInfo = PRIORITY_CATEGORIES[category];
-  const actionText = `我现在要做的事：${session.taskText}
-下一步：${minStep}
-预计时间：${answers.time}
-完成标准：不是做好，只是开始`;
+  const actionText = `${t.taskLabel2}${session.taskText}
+${t.nextStepLabel}${minStep}
+${t.timeLabel}${answers.time}
+${t.standardLabel}${t.standardText}`;
   
   $('#resultCard').innerHTML = `
     <div class="result-category" style="background: ${categoryInfo.color}20; border-left: 4px solid ${categoryInfo.color}; padding: 16px; border-radius: 8px;">
@@ -1859,19 +2154,19 @@ window.finishSimpleGate = function() {
       <span style="font-size: 18px; font-weight: 600; margin-left: 8px;">${categoryInfo.label}</span>
     </div>
     <div class="result-action-box">
-      <div class="result-action-label">📋 立即行动</div>
-      <div class="result-action-item"><strong>我要做的事：</strong>${session.taskText}</div>
-      <div class="result-action-item"><strong>下一步：</strong>${minStep}</div>
-      <div class="result-action-item"><strong>预计时间：</strong>${answers.time}</div>
-      <div class="result-action-item"><strong>完成标准：</strong>不是做好，只是开始</div>
-      <button class="btn btn-small btn-copy-action" onclick="copyPriorityAction(this)" data-action="${actionText.replace(/"/g, '&quot;')}">复制行动</button>
+      <div class="result-action-label">${t.actionLabel}</div>
+      <div class="result-action-item"><strong>${t.taskLabel2}</strong>${session.taskText}</div>
+      <div class="result-action-item"><strong>${t.nextStepLabel}</strong>${minStep}</div>
+      <div class="result-action-item"><strong>${t.timeLabel}</strong>${answers.time}</div>
+      <div class="result-action-item"><strong>${t.standardLabel}</strong>${t.standardText}</div>
+      <button class="btn btn-small btn-copy-action" onclick="copyPriorityAction(this)" data-action="${actionText.replace(/"/g, '&quot;')}">${t.copyBtn}</button>
     </div>
     <div class="result-section gentle" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); padding: 16px; border-radius: 12px; border-left: 4px solid #10b981;">
       <p>💬 ${reminder}</p>
     </div>
   `;
   
-  $('#pathSummary').innerHTML = '<div class="path-summary-title">🛤️ 极简模式</div>';
+  $('#pathSummary').innerHTML = `<div class="path-summary-title">${t.pathSummarySimple}</div>`;
 };
 
 function renderCurrentGate() {
@@ -1962,7 +2257,7 @@ window.finishFocusGate = function() {
   const nextStep = $('#focusNextStep')?.value?.trim();
   
   if (!nextStep && session.suggestedTimeBlock !== '今天不安排，只记录') {
-    alert('请描述最小的一步');
+    alert(getCurrentLang() === 'zh' ? '请描述最小的一步' : 'Please describe the smallest step');
     return;
   }
   
@@ -2109,18 +2404,30 @@ function groupRecordsByTime(records) {
   return groups;
 }
 
-function renderRecordItem(record, type) {
+function renderRecordItem(record, type, lang = 'zh') {
   const date = new Date(record.timestamp);
   const timeStr = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-  
+
+  const labels = {
+    zh: { empathy: '共情', status: '状态', habit: '习惯', priority: '决策', record: '记录',
+           habitLog: '习惯记录', priorityDecision: '优先级决策',
+           energy: '能量', pressure: '压力',
+           cat: { DELETE: '删除', DEFER: '延后', SIMPLIFY: '简化', DELEGATE: '委托', TODAY: '今天', NOW: '立即' } },
+    en: { empathy: 'Empathy', status: 'Status', habit: 'Habit', priority: 'Priority', record: 'Record',
+           habitLog: 'Habit log', priorityDecision: 'Priority decision',
+           energy: 'Energy', pressure: 'Pressure',
+           cat: { DELETE: 'Delete', DEFER: 'Defer', SIMPLIFY: 'Simplify', DELEGATE: 'Delegate', TODAY: 'Today', NOW: 'Now' } }
+  };
+  const L = labels[lang] || labels.zh;
+
   const typeLabels = {
-    empathy: { label: '共情', color: '#e8d4b8' },
-    status: { label: '状态', color: '#c8d8f5' },
-    habit: { label: '习惯', color: '#c8f0d8' },
-    priority: { label: '决策', color: '#f5dcc8' }
+    empathy: { label: L.empathy, color: '#e8d4b8' },
+    status: { label: L.status, color: '#c8d8f5' },
+    habit: { label: L.habit, color: '#c8f0d8' },
+    priority: { label: L.priority, color: '#f5dcc8' }
   };
   
-  const typeInfo = typeLabels[type] || { label: '记录', color: '#e0e0e0' };
+  const typeInfo = typeLabels[type] || { label: L.record, color: '#e0e0e0' };
   
   let content = '';
   let extra = '';
@@ -2134,27 +2441,19 @@ function renderRecordItem(record, type) {
       }
       break;
     case 'status':
-      content = `能量 ${record.energy || '?'}/10 · 压力 ${record.pressure || '?'}/10`;
+      content = `${L.energy} ${record.energy || '?'}/10 · ${L.pressure} ${record.pressure || '?'}/10`;
       break;
     case 'habit':
-      content = record.habitName || record.action || '习惯记录';
+      content = record.habitName || record.action || L.habitLog;
       break;
     case 'priority':
-      content = record.task || record.content || '优先级决策';
+      content = record.task || record.content || L.priorityDecision;
       if (record.result?.category) {
-        const catLabels = {
-          DELETE: '删除',
-          DEFER: '延后',
-          SIMPLIFY: '简化',
-          DELEGATE: '委托',
-          TODAY: '今天',
-          NOW: '立即'
-        };
-        extra = `<span class="record-badge" style="background: #f5dcc8;">${catLabels[record.result.category] || record.result.category}</span>`;
+        extra = `<span class="record-badge" style="background: #f5dcc8;">${L.cat[record.result.category] || record.result.category}</span>`;
       }
       break;
     default:
-      content = record.content || record.text || record.title || '记录';
+      content = record.content || record.text || record.title || L.record;
   }
   
   return `
@@ -2173,20 +2472,89 @@ function renderReview() {
   const feed = getCombinedFeed(state, 10);
   const totalRecords = state.empathyRecords.length + state.statusRecords.length + 
                        (state.habitLogs?.length || 0) + state.priorityRecords.length;
+
+  const lang = getCurrentLang();
+  const i18n = {
+    zh: {
+      header: '🌸 回顾花园',
+      headerSub: '看看你走过的路',
+      summary: (total, pCount, hCount) => {
+        let s = `共 ${total} 条记录，`;
+        if (pCount > 0) s += `${pCount} 条优先级决策，`;
+        if (hCount > 0) s += `${hCount} 条微习惯`;
+        s += '留在了这里。';
+        return s;
+      },
+      empty1: '花园里还没有记录。',
+      empty2: '去各个地方走走，留下一些痕迹吧。',
+      dataTitle: '你的数据在这里',
+      dataDesc: '所有记录保存在你浏览器的本地存储中，不会发送到任何服务器。如果清除浏览器数据，这些记录也会消失。建议定期导出备份。',
+      dataManage: '数据管理',
+      exportJson: '导出 JSON',
+      importJson: '导入 JSON',
+      clearAll: '清空全部数据',
+      crisisTitle: '🆘 需要更多支持？',
+      crisisToggle: '点击展开',
+      crisisDesc: '这个工具用于日常自我觉察和整理，不能替代专业帮助。如果你正在经历严重困扰：',
+      crisis1: '找一个信任的人聊聊',
+      crisis2: '拨打心理援助热线',
+      crisis3: '寻求专业心理咨询',
+      crisisNote: '记住：寻求帮助是勇敢的表现，不是软弱。'
+    },
+    en: {
+      header: '🌸 Review Garden',
+      headerSub: "Look at the path you've walked",
+      summary: (total, pCount, hCount) => {
+        let s = `${total} records total, `;
+        if (pCount > 0) s += `${pCount} priority decisions, `;
+        if (hCount > 0) s += `${hCount} micro habits `;
+        s += 'have settled here.';
+        return s;
+      },
+      empty1: 'No records in the garden yet.',
+      empty2: 'Walk around and leave some traces.',
+      dataTitle: 'Your data is here',
+      dataDesc: 'All records are stored locally in your browser and never sent to any server. If you clear browser data, these records will also be gone. Consider exporting backups regularly.',
+      dataManage: 'Data Management',
+      exportJson: 'Export JSON',
+      importJson: 'Import JSON',
+      clearAll: 'Clear All Data',
+      crisisTitle: '🆘 Need more support?',
+      crisisToggle: 'Click to expand',
+      crisisDesc: 'This tool is for daily self-awareness and reflection, and cannot replace professional help. If you are experiencing severe distress:',
+      crisis1: 'Talk to someone you trust',
+      crisis2: 'Call a mental health hotline',
+      crisis3: 'Seek professional counseling',
+      crisisNote: 'Remember: asking for help is a sign of courage, not weakness.'
+    }
+  };
+  const t = i18n[lang] || i18n.zh;
+
+  const timeGroupLabels = {
+    zh: { today: '今天', yesterday: '昨天', recent: '近三天', older: '更早' },
+    en: { today: 'Today', yesterday: 'Yesterday', recent: 'Last 3 days', older: 'Earlier' }
+  };
+  const tg = timeGroupLabels[lang] || timeGroupLabels.zh;
   
   const groupedFeed = groupRecordsByTime(feed);
   
   const sections = [];
-  ['今天', '昨天', '近三天', '更早'].forEach(timeGroup => {
-    if (groupedFeed[timeGroup].length > 0) {
+  const groupOrder = [
+    { key: '今天', label: tg.today },
+    { key: '昨天', label: tg.yesterday },
+    { key: '近三天', label: tg.recent },
+    { key: '更早', label: tg.older }
+  ];
+  groupOrder.forEach(({ key, label }) => {
+    if (groupedFeed[key] && groupedFeed[key].length > 0) {
       let recordsHtml = '';
-      groupedFeed[timeGroup].forEach(item => {
-        recordsHtml += renderRecordItem(item, item.type);
+      groupedFeed[key].forEach(item => {
+        recordsHtml += renderRecordItem(item, item.type, lang);
       });
       
       sections.push(`
         <section class="garden-section">
-          <h3 class="garden-date">${timeGroup}</h3>
+          <h3 class="garden-date">${label}</h3>
           <div class="garden-records">
             ${recordsHtml}
           </div>
@@ -2211,56 +2579,56 @@ function renderReview() {
     <div class="page review-page">
       ${renderBackButton('home')}
       <header class="page-header">
-        <h2>🌸 回顾花园</h2>
-        <p>看看你走过的路</p>
+        <h2>${t.header}</h2>
+        <p>${t.headerSub}</p>
       </header>
       
       ${totalRecords > 0 ? `
         <div class="garden-summary">
           <div class="garden-summary-icon">✦</div>
           <div class="garden-summary-text">
-            共 ${totalRecords} 条记录，其中 ${priorityTodayCount > 0 ? `${priorityTodayCount} 条优先级决策，` : ''}${habitCount > 0 ? `${habitCount} 条微习惯` : ''}留在了这里。
+            ${t.summary(totalRecords, priorityTodayCount, habitCount)}
           </div>
         </div>
       ` : ''}
       
       ${sections.length > 0 ? sections.join('') : `
         <div class="garden-empty">
-          <p>花园里还没有记录。</p>
-          <p>去各个地方走走，留下一些痕迹吧。</p>
+          <p>${t.empty1}</p>
+          <p>${t.empty2}</p>
         </div>
       `}
       
       <div class="data-notice">
         <div class="data-notice-icon">🔒</div>
         <div class="data-notice-content">
-          <strong>你的数据在这里</strong>
-          <p>所有记录保存在你浏览器的本地存储中，不会发送到任何服务器。如果清除浏览器数据，这些记录也会消失。建议定期导出备份。</p>
+          <strong>${t.dataTitle}</strong>
+          <p>${t.dataDesc}</p>
         </div>
       </div>
       
       <div class="crisis-resources">
         <div class="crisis-resources-header" onclick="toggleCrisisResources()">
-          <span>🆘 需要更多支持？</span>
-          <span class="crisis-toggle" id="crisisToggle">点击展开</span>
+          <span>${t.crisisTitle}</span>
+          <span class="crisis-toggle" id="crisisToggle">${t.crisisToggle}</span>
         </div>
         <div class="crisis-resources-content hidden" id="crisisResourcesContent">
-          <p>这个工具用于日常自我觉察和整理，不能替代专业帮助。如果你正在经历严重困扰：</p>
+          <p>${t.crisisDesc}</p>
           <ul>
-            <li>🗣️ 找一个信任的人聊聊</li>
-            <li>📞 拨打心理援助热线</li>
-            <li>🩺 寻求专业心理咨询</li>
+            <li>🗣️ ${t.crisis1}</li>
+            <li>📞 ${t.crisis2}</li>
+            <li>🩺 ${t.crisis3}</li>
           </ul>
-          <p class="crisis-note">记住：寻求帮助是勇敢的表现，不是软弱。</p>
+          <p class="crisis-note">${t.crisisNote}</p>
         </div>
       </div>
       
       <div class="review-actions">
-        <h3>数据管理</h3>
+        <h3>${t.dataManage}</h3>
         <div class="action-buttons">
-          <button class="btn btn-secondary" onclick="exportAllData()">导出 JSON</button>
-          <button class="btn btn-secondary" onclick="importAllData()">导入 JSON</button>
-          <button class="btn btn-danger" onclick="clearAllRecords()">清空全部数据</button>
+          <button class="btn btn-secondary" onclick="exportAllData()">${t.exportJson}</button>
+          <button class="btn btn-secondary" onclick="importAllData()">${t.importJson}</button>
+          <button class="btn btn-danger" onclick="clearAllRecords()">${t.clearAll}</button>
         </div>
         <input type="file" id="importFile" accept=".json" class="hidden" onchange="handleImport(this)">
       </div>
@@ -2290,23 +2658,25 @@ window.handleImport = function(input) {
   const reader = new FileReader();
   reader.onload = (e) => {
     const result = importData(e.target.result);
+    const lang = getCurrentLang();
     if (result.success) {
       state = result.data;
-      alert('数据导入成功！');
+      alert(lang === 'zh' ? '数据导入成功！' : 'Data imported successfully!');
       renderReview();
     } else {
-      alert('导入失败：' + result.error);
+      alert((lang === 'zh' ? '导入失败：' : 'Import failed: ') + result.error);
     }
   };
   reader.readAsText(file);
 };
 
 window.clearAllRecords = function() {
-  if (confirm('确定要清空所有数据吗？此操作不可恢复。')) {
-    if (confirm('这是最后一次确认，确定要继续吗？')) {
+  const lang = getCurrentLang();
+  if (confirm(lang === 'zh' ? '确定要清空所有数据吗？此操作不可恢复。' : 'Are you sure you want to clear all data? This cannot be undone.')) {
+    if (confirm(lang === 'zh' ? '这是最后一次确认，确定要继续吗？' : 'This is your final confirmation. Are you sure you want to continue?')) {
       clearAllData();
       state = loadState();
-      alert('所有数据已清空。');
+      alert(lang === 'zh' ? '所有数据已清空。' : 'All data has been cleared.');
       renderReview();
     }
   }
@@ -2315,9 +2685,12 @@ window.clearAllRecords = function() {
 window.toggleCrisisResources = function() {
   const content = $('#crisisResourcesContent');
   const toggle = $('#crisisToggle');
+  const lang = getCurrentLang();
   if (content && toggle) {
     content.classList.toggle('hidden');
-    toggle.textContent = content.classList.contains('hidden') ? '点击展开' : '点击收起';
+    toggle.textContent = content.classList.contains('hidden')
+      ? (lang === 'zh' ? '点击展开' : 'Click to expand')
+      : (lang === 'zh' ? '点击收起' : 'Click to collapse');
   }
 };
 
@@ -2436,7 +2809,7 @@ function renderRating() {
       `;
     });
   } else {
-    historyHtml = '<p class="empty-note">还没有评分记录</p>';
+    historyHtml = `<p class="empty-note">${lang === 'zh' ? '还没有评分记录' : 'No rating records yet'}</p>`;
   }
   
   $('#app').innerHTML = `
