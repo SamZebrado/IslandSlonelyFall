@@ -777,39 +777,50 @@ window.nextEmpathyStep = function(step) {
   if (step === 2) {
     const situation = $('#empathySituation')?.value || '';
     window.empathyData.situation = situation;
-    
+
     if (detectCrisis(situation)) {
       window.showCrisisNotice();
     }
-    
+
+    $('#empathyStep1')?.classList.add('hidden');
+    $('#empathyStep2')?.classList.remove('hidden');
+    renderFeelingsGrid();
+  } else if (step === 3) {
     const customFeeling = $('#customFeeling')?.value || '';
     if (customFeeling && !window.empathyData.feelings.includes(customFeeling)) {
       window.empathyData.feelings.push(customFeeling);
     }
-    $('#empathyStep1')?.classList.add('hidden');
-    $('#empathyStep2')?.classList.remove('hidden');
-  } else if (step === 3) {
+    $('#empathyStep2')?.classList.add('hidden');
+    $('#empathyStep3')?.classList.remove('hidden');
+    renderNeedsGrid();
+  } else if (step === 4) {
     const customNeed = $('#customNeed')?.value || '';
     if (customNeed && !window.empathyData.needs.includes(customNeed)) {
       window.empathyData.needs.push(customNeed);
     }
-    $('#empathyStep2')?.classList.add('hidden');
-    $('#empathyStep3')?.classList.remove('hidden');
-  } else if (step === 4) {
-    window.empathyData.request = $('#empathyRequest')?.value || '';
     $('#empathyStep3')?.classList.add('hidden');
     $('#empathyStep3b')?.classList.remove('hidden');
   } else if (step === 5) {
+    window.empathyData.request = $('#empathyRequest')?.value || '';
     $('#empathyStep3b')?.classList.add('hidden');
     $('#empathyStep4')?.classList.remove('hidden');
   }
 };
 
 window.skipEmpathyStep = function(field) {
-  if (field === 'situation') window.empathyData.situation = '';
-  else if (field === 'feelings') window.empathyData.feelings = [];
-  else if (field === 'needs') window.empathyData.needs = [];
-  else if (field === 'request') window.empathyData.request = '';
+  if (field === 'situation') {
+    window.empathyData.situation = '';
+    window.nextEmpathyStep(2);
+  } else if (field === 'feelings') {
+    window.empathyData.feelings = [];
+    window.nextEmpathyStep(3);
+  } else if (field === 'needs') {
+    window.empathyData.needs = [];
+    window.nextEmpathyStep(4);
+  } else if (field === 'request') {
+    window.empathyData.request = '';
+    window.nextEmpathyStep(5);
+  }
 };
 
 window.selectTarget = function(btn) {
@@ -1881,11 +1892,87 @@ function renderPriority() {
       t10min: '10分钟',
       pathSummary: '🛤️ 决策路径',
       gateLabels: {
-        letgo: '放下',
+        release: '放下',
         simplify: '简化',
         delegate: '求助',
         defer: '稍后',
         focus: '专注'
+      },
+      gates: {
+        release: {
+          name: '放下门',
+          description: '先看看它是否真的需要占用你的精力。',
+          question: '这件事真的需要你处理吗？',
+          options: [
+            { value: 'delete', label: '可以删除', feedback: '能放下的事情，也是在保护精力。' },
+            { value: 'keep', label: '需要处理', feedback: '那我们继续把它拆清楚一点。' },
+            { value: 'unsure', label: '还不确定', feedback: '不确定也可以，先继续往前看。' }
+          ]
+        },
+        simplify: {
+          name: '简化门',
+          description: '看看它能否被缩小一点。',
+          question: '如果不追求完整版本，它能被缩小到什么程度？',
+          options: [
+            { value: 'simplify', label: '可以缩小', feedback: '缩小任务不是偷懒，是给行动留入口。' },
+            { value: 'full', label: '不能缩小', feedback: '完整版也有它的价值。' },
+            { value: 'think', label: '需要先想想', feedback: '想一下也可以，不急。' }
+          ]
+        },
+        delegate: {
+          name: '求助门',
+          description: '看看有没有可以借助的力量。',
+          question: '这件事有没有一部分可以借助别人、工具或模板？',
+          options: [
+            { value: 'people', label: '可以求助', feedback: '不一定要一个人把整件事扛完。' },
+            { value: 'tools', label: '可以用工具', feedback: '好的工具可以省很多力气。' },
+            { value: 'alone', label: '只能自己做', feedback: '自己来也是一种能力。' }
+          ]
+        },
+        defer: {
+          name: '稍后门',
+          description: '看看时机是否合适。',
+          question: '这件事适合现在处理，还是适合稍后处理？',
+          options: [
+            { value: 'now', label: '现在适合', feedback: '好，那我们就专注处理它。' },
+            { value: 'later', label: '稍后更合适', feedback: '有意识地延后，也是一种决策。' },
+            { value: 'bay', label: '放进稍后海湾', feedback: '稍后海湾会为它留一个位置。' }
+          ]
+        },
+        focus: {
+          name: '专注门',
+          description: '确定今天的最小下一步。',
+          question: '如果今天只推进一点点，最小下一步是什么？',
+          nextStepPlaceholder: '描述最小的一步...',
+          timeOptions: [
+            { value: '2min', label: '2分钟' },
+            { value: '5min', label: '5分钟' },
+            { value: '10min', label: '10分钟' },
+            { value: '25min', label: '25分钟' },
+            { value: 'none', label: '今天不安排，只记录' }
+          ],
+          confirmBtn: '确定最小下一步',
+          feedback: '最小下一步已经足够成为入口。'
+        }
+      },
+      resultLabels: {
+        actionLabel: '📋 立即行动',
+        taskLabel: '我要做的事：',
+        nextStepLabel: '下一步：',
+        timeLabel: '预计时间：',
+        standardLabel: '完成标准：',
+        standardText: '不是做好，只是开始',
+        copyBtn: '复制行动',
+        noTimeBlock: '自行安排',
+        pathTitle: '🛤️ 经过的路径'
+      },
+      categories: {
+        DELETE: '删除',
+        DEFER: '延后',
+        SIMPLIFY: '简化',
+        DELEGATE: '交给别人',
+        TODAY: '今天推进',
+        NOW: '立即处理'
       }
     },
     en: {
@@ -1932,11 +2019,87 @@ function renderPriority() {
       t10min: '10 min',
       pathSummary: '🛤️ Decision Path',
       gateLabels: {
-        letgo: 'Let Go',
+        release: 'Let Go',
         simplify: 'Simplify',
         delegate: 'Delegate',
         defer: 'Defer',
         focus: 'Focus'
+      },
+      gates: {
+        release: {
+          name: 'Release Gate',
+          description: 'First, check if this really needs your energy.',
+          question: 'Does this really need to be handled by you?',
+          options: [
+            { value: 'delete', label: 'Can let go', feedback: 'Letting things go is also protecting your energy.' },
+            { value: 'keep', label: 'Needs handling', feedback: 'Then let\'s continue to break it down.' },
+            { value: 'unsure', label: 'Not sure yet', feedback: 'It\'s okay to be unsure. Let\'s keep going.' }
+          ]
+        },
+        simplify: {
+          name: 'Simplify Gate',
+          description: 'See if it can be scaled down a bit.',
+          question: 'If you don\'t aim for the full version, how small can it get?',
+          options: [
+            { value: 'simplify', label: 'Can scale down', feedback: 'Scaling down isn\'t laziness—it\'s creating an entry point for action.' },
+            { value: 'full', label: 'Can\'t scale down', feedback: 'The full version has its own value.' },
+            { value: 'think', label: 'Need to think first', feedback: 'It\'s okay to think about it. No rush.' }
+          ]
+        },
+        delegate: {
+          name: 'Delegate Gate',
+          description: 'See if there\'s help you can leverage.',
+          question: 'Is there any part of this you can get help with—from people, tools, or templates?',
+          options: [
+            { value: 'people', label: 'Can ask for help', feedback: 'You don\'t have to carry the whole thing alone.' },
+            { value: 'tools', label: 'Can use tools', feedback: 'Good tools save a lot of effort.' },
+            { value: 'alone', label: 'Have to do it myself', feedback: 'Doing it yourself is also a skill.' }
+          ]
+        },
+        defer: {
+          name: 'Defer Gate',
+          description: 'Check if the timing is right.',
+          question: 'Is this better handled now, or later?',
+          options: [
+            { value: 'now', label: 'Good now', feedback: 'Okay, let\'s focus on it.' },
+            { value: 'later', label: 'Better later', feedback: 'Consciously deferring is also a decision.' },
+            { value: 'bay', label: 'Put in later bay', feedback: 'The later bay will save a spot for it.' }
+          ]
+        },
+        focus: {
+          name: 'Focus Gate',
+          description: 'Define the smallest next step for today.',
+          question: 'If you only make a tiny bit of progress today, what\'s the smallest next step?',
+          nextStepPlaceholder: 'Describe the smallest step...',
+          timeOptions: [
+            { value: '2min', label: '2 min' },
+            { value: '5min', label: '5 min' },
+            { value: '10min', label: '10 min' },
+            { value: '25min', label: '25 min' },
+            { value: 'none', label: 'Just log it, no time today' }
+          ],
+          confirmBtn: 'Confirm Smallest Step',
+          feedback: 'The smallest next step is enough of an entry point.'
+        }
+      },
+      resultLabels: {
+        actionLabel: '📋 Action Now',
+        taskLabel: 'Task:',
+        nextStepLabel: 'Next step:',
+        timeLabel: 'Estimated time:',
+        standardLabel: 'Standard:',
+        standardText: 'Not perfect, just started',
+        copyBtn: 'Copy Action',
+        noTimeBlock: 'Self-paced',
+        pathTitle: '🛤️ Path Taken'
+      },
+      categories: {
+        DELETE: 'Delete',
+        DEFER: 'Defer',
+        SIMPLIFY: 'Simplify',
+        DELEGATE: 'Delegate',
+        TODAY: 'Today',
+        NOW: 'Now'
       }
     }
   };
@@ -2067,7 +2230,83 @@ function getPriorityI18n() {
       remindSimplify: '不是所有事都必须做。',
       remindDelegate: '不必事事亲力亲为。',
       remindNotNow: '不是所有事都需要现在做。',
-      remindMinStep: '现在就处理一点点，哪怕只是一分钟。'
+      remindMinStep: '现在就处理一点点，哪怕只是一分钟。',
+      gates: {
+        release: {
+          name: '放下门',
+          description: '先看看它是否真的需要占用你的精力。',
+          question: '这件事真的需要你处理吗？',
+          options: [
+            { value: 'delete', label: '可以删除', feedback: '能放下的事情，也是在保护精力。' },
+            { value: 'keep', label: '需要处理', feedback: '那我们继续把它拆清楚一点。' },
+            { value: 'unsure', label: '还不确定', feedback: '不确定也可以，先继续往前看。' }
+          ]
+        },
+        simplify: {
+          name: '简化门',
+          description: '看看它能否被缩小一点。',
+          question: '如果不追求完整版本，它能被缩小到什么程度？',
+          options: [
+            { value: 'simplify', label: '可以缩小', feedback: '缩小任务不是偷懒，是给行动留入口。' },
+            { value: 'full', label: '不能缩小', feedback: '完整版也有它的价值。' },
+            { value: 'think', label: '需要先想想', feedback: '想一下也可以，不急。' }
+          ]
+        },
+        delegate: {
+          name: '求助门',
+          description: '看看有没有可以借助的力量。',
+          question: '这件事有没有一部分可以借助别人、工具或模板？',
+          options: [
+            { value: 'people', label: '可以求助', feedback: '不一定要一个人把整件事扛完。' },
+            { value: 'tools', label: '可以用工具', feedback: '好的工具可以省很多力气。' },
+            { value: 'alone', label: '只能自己做', feedback: '自己来也是一种能力。' }
+          ]
+        },
+        defer: {
+          name: '稍后门',
+          description: '看看时机是否合适。',
+          question: '这件事适合现在处理，还是适合稍后处理？',
+          options: [
+            { value: 'now', label: '现在适合', feedback: '好，那我们就专注处理它。' },
+            { value: 'later', label: '稍后更合适', feedback: '有意识地延后，也是一种决策。' },
+            { value: 'bay', label: '放进稍后海湾', feedback: '稍后海湾会为它留一个位置。' }
+          ]
+        },
+        focus: {
+          name: '专注门',
+          description: '确定今天的最小下一步。',
+          question: '如果今天只推进一点点，最小下一步是什么？',
+          nextStepPlaceholder: '描述最小的一步...',
+          timeOptions: [
+            { value: '2min', label: '2分钟' },
+            { value: '5min', label: '5分钟' },
+            { value: '10min', label: '10分钟' },
+            { value: '25min', label: '25分钟' },
+            { value: 'none', label: '今天不安排，只记录' }
+          ],
+          confirmBtn: '确定最小下一步',
+          feedback: '最小下一步已经足够成为入口。'
+        }
+      },
+      gateLabels: {
+        release: '放下',
+        simplify: '简化',
+        delegate: '求助',
+        defer: '稍后',
+        focus: '专注'
+      },
+      resultLabels: {
+        noTimeBlock: '自行安排',
+        pathTitle: '🛤️ 经过的路径'
+      },
+      categories: {
+        DELETE: '删除',
+        DEFER: '延后',
+        SIMPLIFY: '简化',
+        DELEGATE: '交给别人',
+        TODAY: '今天推进',
+        NOW: '立即处理'
+      }
     },
     en: {
       quickDecision: 'Quick Decision',
@@ -2109,7 +2348,83 @@ function getPriorityI18n() {
       remindSimplify: 'Not everything has to be done.',
       remindDelegate: "You don't have to do everything yourself.",
       remindNotNow: "Not everything needs to be done now.",
-      remindMinStep: 'Do just a little now, even just one minute.'
+      remindMinStep: 'Do just a little now, even just one minute.',
+      gates: {
+        release: {
+          name: 'Release Gate',
+          description: 'First, check if this really needs your energy.',
+          question: 'Does this really need to be handled by you?',
+          options: [
+            { value: 'delete', label: 'Can let go', feedback: 'Letting things go is also protecting your energy.' },
+            { value: 'keep', label: 'Needs handling', feedback: 'Then let\'s continue to break it down.' },
+            { value: 'unsure', label: 'Not sure yet', feedback: 'It\'s okay to be unsure. Let\'s keep going.' }
+          ]
+        },
+        simplify: {
+          name: 'Simplify Gate',
+          description: 'See if it can be scaled down a bit.',
+          question: 'If you don\'t aim for the full version, how small can it get?',
+          options: [
+            { value: 'simplify', label: 'Can scale down', feedback: 'Scaling down isn\'t laziness—it\'s creating an entry point for action.' },
+            { value: 'full', label: 'Can\'t scale down', feedback: 'The full version has its own value.' },
+            { value: 'think', label: 'Need to think first', feedback: 'It\'s okay to think about it. No rush.' }
+          ]
+        },
+        delegate: {
+          name: 'Delegate Gate',
+          description: 'See if there\'s help you can leverage.',
+          question: 'Is there any part of this you can get help with—from people, tools, or templates?',
+          options: [
+            { value: 'people', label: 'Can ask for help', feedback: 'You don\'t have to carry the whole thing alone.' },
+            { value: 'tools', label: 'Can use tools', feedback: 'Good tools save a lot of effort.' },
+            { value: 'alone', label: 'Have to do it myself', feedback: 'Doing it yourself is also a skill.' }
+          ]
+        },
+        defer: {
+          name: 'Defer Gate',
+          description: 'Check if the timing is right.',
+          question: 'Is this better handled now, or later?',
+          options: [
+            { value: 'now', label: 'Good now', feedback: 'Okay, let\'s focus on it.' },
+            { value: 'later', label: 'Better later', feedback: 'Consciously deferring is also a decision.' },
+            { value: 'bay', label: 'Put in later bay', feedback: 'The later bay will save a spot for it.' }
+          ]
+        },
+        focus: {
+          name: 'Focus Gate',
+          description: 'Define the smallest next step for today.',
+          question: 'If you only make a tiny bit of progress today, what\'s the smallest next step?',
+          nextStepPlaceholder: 'Describe the smallest step...',
+          timeOptions: [
+            { value: '2min', label: '2 min' },
+            { value: '5min', label: '5 min' },
+            { value: '10min', label: '10 min' },
+            { value: '25min', label: '25 min' },
+            { value: 'none', label: 'Just log it, no time today' }
+          ],
+          confirmBtn: 'Confirm Smallest Step',
+          feedback: 'The smallest next step is enough of an entry point.'
+        }
+      },
+      gateLabels: {
+        release: 'Let Go',
+        simplify: 'Simplify',
+        delegate: 'Delegate',
+        defer: 'Defer',
+        focus: 'Focus'
+      },
+      resultLabels: {
+        noTimeBlock: 'Self-paced',
+        pathTitle: '🛤️ Path Taken'
+      },
+      categories: {
+        DELETE: 'Delete',
+        DEFER: 'Defer',
+        SIMPLIFY: 'Simplify',
+        DELEGATE: 'Delegate',
+        TODAY: 'Today',
+        NOW: 'Now'
+      }
     }
   };
   return i18n[lang] || i18n.zh;
@@ -2240,36 +2555,45 @@ ${t.standardLabel}${t.standardText}`;
 
 function renderCurrentGate() {
   const session = window.prioritySession;
-  const gate = PRIORITY_GATES[session.currentGateIndex];
-  if (!gate) {
+  const gateData = PRIORITY_GATES[session.currentGateIndex];
+  if (!gateData) {
     showPriorityResult();
     return;
   }
+  
+  const t = getPriorityI18n();
+  const gateI18n = t.gates[gateData.id] || {};
   
   updateGatePath();
   
   let html = `
     <div class="gate-header">
-      <div class="gate-icon-large">${gate.icon}</div>
-      <h3>${gate.name}</h3>
-      <p class="gate-description">${gate.description}</p>
+      <div class="gate-icon-large">${gateData.icon}</div>
+      <h3>${gateI18n.name || gateData.name}</h3>
+      <p class="gate-description">${gateI18n.description || gateData.description}</p>
     </div>
-    <div class="gate-question">${gate.question}</div>
+    <div class="gate-question">${gateI18n.question || gateData.question}</div>
     <div class="gate-options">
   `;
   
-  if (gate.options) {
-    gate.options.forEach(opt => {
-      html += `<button class="btn btn-option" data-value="${opt.value}" onclick="selectGateOption('${opt.value}', '${gate.id}')">${opt.label}</button>`;
+  if (gateI18n.options && gateI18n.options.length > 0) {
+    gateI18n.options.forEach(opt => {
+      html += `<button class="btn btn-option" data-value="${opt.value}" onclick="selectGateOption('${opt.value}', '${gateData.id}')">${opt.label}</button>`;
     });
-  } else if (gate.id === 'focus') {
-    html += `<input type="text" id="focusNextStep" placeholder="描述最小的一步..." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 12px;">`;
+  } else if (gateData.options) {
+    gateData.options.forEach(opt => {
+      html += `<button class="btn btn-option" data-value="${opt.value}" onclick="selectGateOption('${opt.value}', '${gateData.id}')">${opt.label}</button>`;
+    });
+  } else if (gateData.id === 'focus') {
+    const focusI18n = gateI18n;
+    html += `<input type="text" id="focusNextStep" placeholder="${focusI18n.nextStepPlaceholder || '描述最小的一步...'}" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 12px;">`;
     html += `<div class="time-block-select" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">`;
-    gate.timeOptions?.forEach(t => {
-      html += `<button class="btn btn-option" data-time="${t.value}" onclick="selectTimeBlock('${t.value}')">${t.label}</button>`;
+    const timeOptions = focusI18n.timeOptions || gateData.timeOptions || [];
+    timeOptions.forEach(tOpt => {
+      html += `<button class="btn btn-option" data-time="${tOpt.value}" onclick="selectTimeBlock('${tOpt.value}')">${tOpt.label}</button>`;
     });
     html += `</div>`;
-    html += `<button class="btn btn-primary" onclick="finishFocusGate()">确定最小下一步</button>`;
+    html += `<button class="btn btn-primary" onclick="finishFocusGate()">${focusI18n.confirmBtn || '确定最小下一步'}</button>`;
   }
   
   html += `</div>`;
@@ -2279,15 +2603,19 @@ function renderCurrentGate() {
 
 window.selectGateOption = function(value, gateId) {
   const session = window.prioritySession;
-  const gate = PRIORITY_GATES.find(g => g.id === gateId);
-  const option = gate?.options?.find(o => o.value === value);
+  const gateData = PRIORITY_GATES.find(g => g.id === gateId);
+  const t = getPriorityI18n();
+  const gateI18n = t.gates[gateId] || {};
+  const optionI18n = gateI18n.options?.find(o => o.value === value);
+  const optionOrig = gateData?.options?.find(o => o.value === value);
+  const option = optionI18n || optionOrig;
   
   if (!option) return;
   
   session.gatePath.push({
     gateId,
-    gateName: gate.name,
-    question: gate.question,
+    gateName: gateI18n.name || gateData?.name || '',
+    question: gateI18n.question || gateData?.question || '',
     answer: value,
     feedback: option.feedback
   });
@@ -2311,8 +2639,9 @@ window.selectGateOption = function(value, gateId) {
 
 window.selectTimeBlock = function(value) {
   const session = window.prioritySession;
-  const gate = PRIORITY_GATES.find(g => g.id === 'focus');
-  const timeOpt = gate?.timeOptions?.find(t => t.value === value);
+  const t = getPriorityI18n();
+  const focusI18n = t.gates.focus || {};
+  const timeOpt = focusI18n.timeOptions?.find(tOpt => tOpt.value === value);
   
   document.querySelectorAll('.time-block-select .btn-option').forEach(b => b.classList.remove('selected'));
   const btn = document.querySelector(`.time-block-select [data-time="${value}"]`);
@@ -2324,26 +2653,27 @@ window.selectTimeBlock = function(value) {
 window.finishFocusGate = function() {
   const session = window.prioritySession;
   const nextStep = $('#focusNextStep')?.value?.trim();
+  const t = getPriorityI18n();
+  const focusI18n = t.gates.focus || {};
   
-  if (!nextStep && session.suggestedTimeBlock !== '今天不安排，只记录') {
-    alert(getCurrentLang() === 'zh' ? '请描述最小的一步' : 'Please describe the smallest step');
+  const noneLabel = focusI18n.timeOptions?.find(tOpt => tOpt.value === 'none')?.label || '今天不安排，只记录';
+  if (!nextStep && session.suggestedTimeBlock !== noneLabel) {
+    alert(t.alertEmptyStep || (getCurrentLang() === 'zh' ? '请描述最小的一步' : 'Please describe the smallest step'));
     return;
   }
   
-  const gate = PRIORITY_GATES.find(g => g.id === 'focus');
-  
-  session.nextStep = nextStep || '只记录，暂不安排时间';
+  session.nextStep = nextStep || (getCurrentLang() === 'zh' ? '只记录，暂不安排时间' : 'Just log it, no time scheduled');
   session.gatePath.push({
     gateId: 'focus',
-    gateName: gate.name,
-    question: gate.question,
+    gateName: focusI18n.name || '专注门',
+    question: focusI18n.question || '如果今天只推进一点点，最小下一步是什么？',
     answer: nextStep,
     nextStep: session.nextStep,
     timeBlock: session.suggestedTimeBlock,
-    feedback: gate.feedback
+    feedback: focusI18n.feedback || '最小下一步已经足够成为入口。'
   });
   
-  $('#gateFeedback').textContent = gate.feedback;
+  $('#gateFeedback').textContent = focusI18n.feedback || '最小下一步已经足够成为入口。';
   $('#gateFeedback').classList.remove('hidden');
   
   setTimeout(() => {
@@ -2369,12 +2699,14 @@ function updateGatePath() {
 
 function showPriorityResult() {
   const session = window.prioritySession;
+  const t = getPriorityI18n();
   
   $('#gateCard')?.classList.add('hidden');
   $('#priorityResult')?.classList.remove('hidden');
   
   const result = derivePriorityDecision(session.gatePath);
   const categoryInfo = PRIORITY_CATEGORIES[result.category];
+  const categoryLabel = t.categories?.[result.category] || categoryInfo?.label || result.category;
   
   const record = {
     id: Date.now().toString(),
@@ -2388,23 +2720,24 @@ function showPriorityResult() {
   state.priorityRecords.push(record);
   saveState(state);
   
-  const actionText = `我现在要做的事：${session.taskText}
-下一步：${result.minStep}
-预计时间：${result.timeBlock || '自行安排'}
-完成标准：不是做好，只是开始`;
+  const noTimeBlock = t.resultLabels?.noTimeBlock || '自行安排';
+  const actionText = `${t.taskLabel2}${session.taskText}
+${t.nextStepLabel}${result.minStep}
+${t.timeLabel}${result.timeBlock || noTimeBlock}
+${t.standardLabel}${t.standardText}`;
   
   let html = `
     <div class="result-category" style="background: ${categoryInfo.color}20; border-left: 4px solid ${categoryInfo.color}; padding: 16px; border-radius: 8px;">
       <span style="font-size: 24px;">${categoryInfo.icon}</span>
-      <span style="font-size: 18px; font-weight: 600; margin-left: 8px;">${categoryInfo.label}</span>
+      <span style="font-size: 18px; font-weight: 600; margin-left: 8px;">${categoryLabel}</span>
     </div>
     <div class="result-action-box">
-      <div class="result-action-label">📋 立即行动</div>
-      <div class="result-action-item"><strong>我要做的事：</strong>${record.task}</div>
-      <div class="result-action-item"><strong>下一步：</strong>${result.minStep}</div>
-      ${result.timeBlock ? `<div class="result-action-item"><strong>预计时间：</strong>${result.timeBlock}</div>` : ''}
-      <div class="result-action-item"><strong>完成标准：</strong>不是做好，只是开始</div>
-      <button class="btn btn-small btn-copy-action" onclick="copyPriorityAction(this)" data-action="${actionText.replace(/"/g, '&quot;')}">复制行动</button>
+      <div class="result-action-label">${t.actionLabel}</div>
+      <div class="result-action-item"><strong>${t.taskLabel2}</strong>${record.task}</div>
+      <div class="result-action-item"><strong>${t.nextStepLabel}</strong>${result.minStep}</div>
+      ${result.timeBlock ? `<div class="result-action-item"><strong>${t.timeLabel}</strong>${result.timeBlock}</div>` : ''}
+      <div class="result-action-item"><strong>${t.standardLabel}</strong>${t.standardText}</div>
+      <button class="btn btn-small btn-copy-action" onclick="copyPriorityAction(this)" data-action="${actionText.replace(/"/g, '&quot;')}">${t.copyBtn}</button>
     </div>
     <div class="result-section gentle" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); padding: 16px; border-radius: 12px; border-left: 4px solid #10b981;">
       <p>💬 ${result.reminder}</p>
@@ -2413,23 +2746,29 @@ function showPriorityResult() {
   
   $('#resultCard').innerHTML = html;
   
-  let pathHtml = '<div class="path-summary-title">🛤️ 经过的路径</div><div class="path-steps">';
+  const pathTitle = t.resultLabels?.pathTitle || '🛤️ 经过的路径';
+  let pathHtml = `<div class="path-summary-title">${pathTitle}</div><div class="path-steps">`;
   session.gatePath.forEach(item => {
     pathHtml += `<span class="path-step" style="background: #e0e7ff; padding: 4px 12px; border-radius: 16px; margin: 4px; display: inline-block; font-size: 13px;">${item.gateName}</span>`;
   });
   pathHtml += '</div>';
   $('#pathSummary').innerHTML = pathHtml;
   
+  const nextStopLabel = getCurrentLang() === 'zh' ? '下一站' : 'Next Stop';
+  const nextStopTitle = getCurrentLang() === 'zh' ? '去微习惯工坊' : 'Go to Micro-habit Workshop';
+  const nextStopDesc = getCurrentLang() === 'zh' ? '方向已经明确，把它缩成今天的一小步。' : 'Direction is clear. Shrink it into a tiny step for today.';
+  const nextStopBtn = getCurrentLang() === 'zh' ? '前往' : 'Go';
+  
   const nextStopSection = document.createElement('div');
   nextStopSection.className = 'next-stop';
   nextStopSection.innerHTML = `
-    <div class="next-stop-label">下一站</div>
+    <div class="next-stop-label">${nextStopLabel}</div>
     <div class="next-stop-content">
       <div>
-        <strong>去微习惯工坊</strong>
-        <p>方向已经明确，把它缩成今天的一小步。</p>
+        <strong>${nextStopTitle}</strong>
+        <p>${nextStopDesc}</p>
       </div>
-      <button class="btn btn-small" onclick="navigate('habits')">前往</button>
+      <button class="btn btn-small" onclick="navigate('habits')">${nextStopBtn}</button>
     </div>
   `;
   document.getElementById('priorityResult')?.appendChild(nextStopSection);
