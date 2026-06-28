@@ -208,7 +208,32 @@ export const i18n = {
       edit: '编辑',
       delete: '删除',
       completedLabel: '已完成',
-      skippedLabel: '先放过'
+      skippedLabel: '先放过',
+      defaultTriggers: [
+        '起床后', '吃完早饭后', '到公司后', '打开电脑后',
+        '午休后', '下班后', '睡前洗漱后', '到家后'
+      ],
+      defaultRewards: [
+        '打个勾', '伸个懒腰', '听一首歌', '喝杯水', '深呼吸三次',
+        '看看窗外', '微笑一下', '说一句鼓励自己的话'
+      ],
+      feedback: {
+        complete: [
+          '这一步很小，但它已经算数。',
+          '你刚刚给今天点了一盏小灯。',
+          '不用很用力，能做一点就很好。',
+          '这颗种子今天被照看了一下。',
+          '今天又多了一盏亮着的小灯。',
+          '很温柔地完成了呢。'
+        ],
+        skip: [
+          '这次先放过也可以，记录下来就够了。',
+          '今天不做，不代表这件事失败了。',
+          '先保留这颗种子，等合适的时候再照看。',
+          '跳过也是一种选择，不扣分。',
+          '这颗种子还在，明天见。'
+        ]
+      }
     },
     
     priority: {
@@ -218,6 +243,13 @@ export const i18n = {
       simpleMode: '极简模式',
       taskPlaceholder: '例如：完成季度报告',
       startGates: '开始穿越五道门',
+      gateLabels: {
+        letGo: '放下',
+        simplify: '简化',
+        delegate: '求助',
+        defer: '稍后',
+        focus: '专注'
+      },
       quickTemplates: {
         exam: '期末复习',
         thesis: '论文拖延',
@@ -516,7 +548,32 @@ export const i18n = {
       edit: 'Edit',
       delete: 'Delete',
       completedLabel: 'Completed',
-      skippedLabel: 'Skipped'
+      skippedLabel: 'Skipped',
+      defaultTriggers: [
+        'After waking up', 'After breakfast', 'After arriving at work', 'After turning on computer',
+        'After lunch break', 'After work', 'After getting ready for bed', 'After arriving home'
+      ],
+      defaultRewards: [
+        'Check it off', 'Stretch a little', 'Play a song', 'Drink some water', 'Take three deep breaths',
+        'Look out the window', 'Smile', 'Say something kind to yourself'
+      ],
+      feedback: {
+        complete: [
+          'This is a small step, but it counts.',
+          'You just lit a small light for today.',
+          'No need to push hard — doing a little is already great.',
+          'This seed was tended to today.',
+          'One more light is on today.',
+          'Completed gently.'
+        ],
+        skip: [
+          'It\'s okay to let it go this time — recording it is enough.',
+          'Not doing it today doesn\'t mean you\'ve failed.',
+          'Keep the seed for now, tend to it when the time is right.',
+          'Skipping is also a choice — no points off.',
+          'The seed is still here. See you tomorrow.'
+        ]
+      }
     },
     
     priority: {
@@ -526,6 +583,13 @@ export const i18n = {
       simpleMode: 'Simple Mode',
       taskPlaceholder: 'E.g.: Complete quarterly report',
       startGates: 'Start Five Gates',
+      gateLabels: {
+        letGo: 'Let Go',
+        simplify: 'Simplify',
+        delegate: 'Delegate',
+        defer: 'Defer',
+        focus: 'Focus'
+      },
       quickTemplates: {
         exam: 'Final Exam Prep',
         thesis: 'Thesis Procrastination',

@@ -1415,7 +1415,15 @@ function renderHabits() {
       skippedLabel: '先放过',
       editBtn: '编辑',
       deleteBtn: '删除',
-      selectOrCustom: '选择或自定义'
+      selectOrCustom: '选择或自定义',
+      defaultTriggers: [
+        '起床后', '吃完早饭后', '到公司后', '打开电脑后',
+        '午休后', '下班后', '睡前洗漱后', '到家后'
+      ],
+      defaultRewards: [
+        '打个勾', '伸个懒腰', '听一首歌', '喝杯水', '深呼吸三次',
+        '看看窗外', '微笑一下', '说一句鼓励自己的话'
+      ]
     },
     en: {
       header: '🌱 Micro Habits Workshop',
@@ -1452,7 +1460,15 @@ function renderHabits() {
       skippedLabel: 'Let go',
       editBtn: 'Edit',
       deleteBtn: 'Delete',
-      selectOrCustom: 'Select or custom'
+      selectOrCustom: 'Select or custom',
+      defaultTriggers: [
+        'After waking up', 'After breakfast', 'After arriving at work', 'After turning on computer',
+        'After lunch break', 'After work', 'After getting ready for bed', 'After arriving home'
+      ],
+      defaultRewards: [
+        'Check it off', 'Stretch a little', 'Play a song', 'Drink some water', 'Take three deep breaths',
+        'Look out the window', 'Smile', 'Say something kind to yourself'
+      ]
     }
   };
   const t = i18n[lang] || i18n.zh;
@@ -1517,14 +1533,14 @@ function renderHabits() {
           <label>${t.triggerLabel}</label>
           <select id="habitTrigger">
             <option value="">${t.selectOrCustom}</option>
-            ${DEFAULT_TRIGGERS.map(trigger => `<option value="${trigger}">${trigger}</option>`).join('')}
+            ${t.defaultTriggers.map(trigger => `<option value="${trigger}">${trigger}</option>`).join('')}
           </select>
           <input type="text" id="habitTriggerCustom" placeholder="${t.triggerPlaceholder}">
         </div>
         <div class="form-group">
           <label>${t.rewardLabel}</label>
           <select id="habitReward">
-            ${DEFAULT_REWARDS.map(r => `<option value="${r}">${r}</option>`).join('')}
+            ${t.defaultRewards.map(r => `<option value="${r}">${r}</option>`).join('')}
           </select>
         </div>
         <div class="step-actions">
@@ -1658,7 +1674,7 @@ window.saveNewHabit = function() {
   const action = $('#habitAction')?.value || '';
   const triggerSelect = $('#habitTrigger')?.value || '';
   const triggerCustom = $('#habitTriggerCustom')?.value || '';
-  const reward = $('#habitReward')?.value || DEFAULT_REWARDS[0];
+  const reward = $('#habitReward')?.value || (getCurrentLang() === 'en' ? 'Check it off' : '打个勾');
   
   if (!action) {
     alert(getCurrentLang() === 'zh' ? '请输入微习惯的行动' : 'Please enter the habit action');
@@ -1693,8 +1709,46 @@ window.skipHabitRecord = function(habitId) {
 };
 
 function showHabitFeedback(action) {
-  const feedback = pickHabitFeedback(action);
-  if (!feedback) return;
+  const lang = getCurrentLang();
+  const feedbackPools = {
+    zh: {
+      complete: [
+        '这一步很小，但它已经算数。',
+        '你刚刚给今天点了一盏小灯。',
+        '不用很用力，能做一点就很好。',
+        '这颗种子今天被照看了一下。',
+        '今天又多了一盏亮着的小灯。',
+        '很温柔地完成了呢。'
+      ],
+      skip: [
+        '这次先放过也可以，记录下来就够了。',
+        '今天不做，不代表这件事失败了。',
+        '先保留这颗种子，等合适的时候再照看。',
+        '跳过也是一种选择，不扣分。',
+        '这颗种子还在，明天见。'
+      ]
+    },
+    en: {
+      complete: [
+        'This is a small step, but it counts.',
+        'You just lit a small light for today.',
+        'No need to push hard — doing a little is already great.',
+        'This seed was tended to today.',
+        'One more light is on today.',
+        'Completed gently.'
+      ],
+      skip: [
+        "It's okay to let it go this time — recording it is enough.",
+        "Not doing it today doesn't mean you've failed.",
+        'Keep the seed for now, tend to it when the time is right.',
+        'Skipping is also a choice — no points off.',
+        'The seed is still here. See you tomorrow.'
+      ]
+    }
+  };
+  const pool = (feedbackPools[lang] && feedbackPools[lang][action]) || [];
+  if (!pool.length) return;
+  const feedback = pool[Math.floor(Math.random() * pool.length)];
   
   const toast = $('#habitFeedbackToast');
   if (!toast) return;
@@ -1756,7 +1810,7 @@ window.setPriorityMode = function(simple) {
       gatePath.innerHTML = PRIORITY_GATES.map((gate, idx) => `
         <div class="gate-node ${idx === 0 ? 'active' : 'pending'}" data-gate="${gate.id}" data-index="${idx}">
           <div class="gate-icon">🚪</div>
-          <div class="gate-short-label">${gate.shortLabel}</div>
+          <div class="gate-short-label">${t.gateLabels[gate.id] || gate.shortLabel}</div>
         </div>
       `).join('<div class="gate-connector"></div>');
     }
@@ -1825,7 +1879,14 @@ function renderPriority() {
       t2min: '2分钟',
       t5min: '5分钟',
       t10min: '10分钟',
-      pathSummary: '🛤️ 决策路径'
+      pathSummary: '🛤️ 决策路径',
+      gateLabels: {
+        letgo: '放下',
+        simplify: '简化',
+        delegate: '求助',
+        defer: '稍后',
+        focus: '专注'
+      }
     },
     en: {
       header: '🚪 Priority Decision Island',
@@ -1869,7 +1930,14 @@ function renderPriority() {
       t2min: '2 min',
       t5min: '5 min',
       t10min: '10 min',
-      pathSummary: '🛤️ Decision Path'
+      pathSummary: '🛤️ Decision Path',
+      gateLabels: {
+        letgo: 'Let Go',
+        simplify: 'Simplify',
+        delegate: 'Delegate',
+        defer: 'Defer',
+        focus: 'Focus'
+      }
     }
   };
   const t = i18n[lang] || i18n.zh;
@@ -1900,7 +1968,7 @@ function renderPriority() {
           ${PRIORITY_GATES.map((gate, idx) => `
             <div class="gate-node ${idx === 0 ? 'active' : 'pending'}" data-gate="${gate.id}" data-index="${idx}">
               <div class="gate-icon">🚪</div>
-              <div class="gate-short-label">${gate.shortLabel}</div>
+              <div class="gate-short-label">${t.gateLabels[gate.id] || gate.shortLabel}</div>
             </div>
           `).join('<div class="gate-connector"></div>')}
         </div>
