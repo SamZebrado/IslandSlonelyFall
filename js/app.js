@@ -687,9 +687,10 @@ function renderEmpathy() {
     </div>
   `;
   
+  // 在 innerHTML 赋值之后渲染 feelings/needs grids（此时 DOM 元素已存在）
   renderFeelingsGrid();
   renderNeedsGrid();
-  
+
   window.empathyData = { 
     situation: '', 
     feelings: [], 
