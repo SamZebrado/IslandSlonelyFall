@@ -7,6 +7,7 @@ import { PRIORITY_CATEGORIES, PRIORITY_GATES, analyzePriority, formatPriorityRec
 import { formatEmpathyRecord, getRecentRecords, getCombinedFeed } from './review.js';
 import { RATING_CATEGORIES, createRatingRecord, getRecentRatings, formatRatingDate, calculateCategoryAverage, getOverallAverage } from './rating.js';
 import { t, getCurrentLang, setCurrentLang } from './i18n.js';
+import { getRandomEncouragement } from './encouragements.js';
 
 let state = loadState();
 let currentPage = 'home';
@@ -311,6 +312,10 @@ function renderHome() {
           </div>
         </div>
       </div>
+
+      <div class="encouragement-banner" id="encouragementBanner" style="margin-top: 16px; padding: 14px 16px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <div id="encouragementText" style="font-size: 15px; color: #78350f; font-weight: 500; line-height: 1.6;"></div>
+      </div>
       
       <div class="main-actions">
         <button class="btn btn-primary btn-large" onclick="navigate('empathy')">
@@ -383,6 +388,12 @@ function renderHome() {
       </section>
     </div>
   `;
+  // 更新鼓励文案
+  const enc = getRandomEncouragement();
+  const encText = document.getElementById('encouragementText');
+  if (encText) {
+    encText.textContent = enc.zh;
+  }
 }
 
 function renderBackButton(page) {
