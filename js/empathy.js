@@ -1,7 +1,7 @@
 const FEELINGS = {
   exhausted: ['疲惫', '精疲力竭', '无力', '困倦', '昏沉'],
   anxious: ['焦虑', '紧张', '不安', '担忧', '恐慌', '忐忑'],
-  sad: ['悲伤', '难过', '失落', '沮丧', '灰心', '沮丧'],
+  sad: ['悲伤', '难过', '失落', '沮丧', '灰心'],
   angry: ['生气', '恼火', '愤怒', '烦躁', '挫败', '不满'],
   confused: ['困惑', '迷茫', '混乱', '不知所措', '犹豫'],
   lonely: ['孤独', '寂寞', '疏离', '被遗忘'],
@@ -9,6 +9,19 @@ const FEELINGS = {
   peaceful: ['平静', '安心', '放松', '宁静', '舒适'],
   happy: ['开心', '愉悦', '满足', '欣慰', '喜悦'],
   excited: ['兴奋', '期待', '激动', '热情', '充满活力']
+};
+
+const FEELINGS_EN = {
+  exhausted: ['Exhausted', 'Burned out', 'Drained', 'Sleepy', 'Foggy'],
+  anxious: ['Anxious', 'Nervous', 'Uneasy', 'Worried', 'Panicked', 'Restless'],
+  sad: ['Sad', 'Down', 'Lost', 'Frustrated', 'Disheartened'],
+  angry: ['Angry', 'Annoyed', 'Furious', 'Irritated', 'Frustrated', 'Resentful'],
+  confused: ['Confused', 'Lost', 'Chaotic', 'At a loss', 'Hesitant'],
+  lonely: ['Lonely', 'Isolated', 'Disconnected', 'Forgotten'],
+  embarrassed: ['Awkward', 'Ashamed', 'Self-conscious', 'Embarrassed'],
+  peaceful: ['Peaceful', 'Relieved', 'Relaxed', 'Calm', 'Comfortable'],
+  happy: ['Happy', 'Pleasant', 'Satisfied', 'Grateful', 'Joyful'],
+  excited: ['Excited', 'Anticipating', 'Thrilled', 'Passionate', 'Energized']
 };
 
 const NEEDS = {
@@ -24,8 +37,23 @@ const NEEDS = {
   clarity: ['清晰', '理解', '方向', '答案']
 };
 
+const NEEDS_EN = {
+  rest: ['Rest', 'Relaxation', 'Sleep', 'Solitude', 'Quiet'],
+  safety: ['Safety', 'Stability', 'Security', 'Relief'],
+  understanding: ['Understanding', 'Being heard', 'Recognition', 'Empathy'],
+  respect: ['Respect', 'Acceptance', 'Appreciation', 'Dignity'],
+  connection: ['Companionship', 'Belonging', 'Connection', 'Intimacy', 'Support'],
+  autonomy: ['Autonomy', 'Freedom', 'Independence', 'Control'],
+  growth: ['Growth', 'Learning', 'Progress', 'Meaning', 'Purpose'],
+  physical: ['Food', 'Exercise', 'Health', 'Comfort', 'Cleanliness'],
+  creativity: ['Creation', 'Expression', 'Beauty', 'Entertainment', 'Fun'],
+  clarity: ['Clarity', 'Understanding', 'Direction', 'Answers']
+};
+
 const TARGETS = ['自己', '朋友', '上司/同事', '伴侣/亲人'];
+const TARGETS_EN = ['Myself', 'Friend', 'Boss/Colleague', 'Partner/Family'];
 const TONES = ['轻松', '温和', '清晰', '边界'];
+const TONES_EN = ['Light', 'Gentle', 'Clear', 'Boundaries'];
 
 const EXPRESSIONS = {
   '自己': {
@@ -118,7 +146,7 @@ const EXPRESSIONS = {
   }
 };
 
-export { FEELINGS, NEEDS, TARGETS, TONES, EXPRESSIONS };
+export { FEELINGS, FEELINGS_EN, NEEDS, NEEDS_EN, TARGETS, TARGETS_EN, TONES, TONES_EN, EXPRESSIONS };
 
 export function generateEmpathyResponse(data) {
   const { situation, feelings, needs, requests, target, tone } = data;

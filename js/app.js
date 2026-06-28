@@ -1,7 +1,7 @@
 import { loadState, saveState, exportData, importData, clearAllData, hasExistingData } from './storage.js';
-import { FEELINGS, NEEDS, TARGETS, TONES, EXPRESSIONS, generateEmpathyResponse } from './empathy.js';
+import { FEELINGS, FEELINGS_EN, NEEDS, NEEDS_EN, TARGETS, TARGETS_EN, TONES_EN, EXPRESSIONS, generateEmpathyResponse } from './empathy.js';
 import { buildExpressionOptions, buildActionTips } from './expressionTuner.js';
-import { ENERGY_LEVELS, PRESSURE_LEVELS, CLARITY_LEVELS, STATUS_OPTIONS, DIRECTIONS, formatStatusRecord, getStatusFeedback } from './dashboard.js';
+import { ENERGY_LEVELS_EN, PRESSURE_LEVELS_EN, CLARITY_LEVELS_EN, STATUS_OPTIONS_EN, DIRECTIONS_EN, ENERGY_LEVELS, PRESSURE_LEVELS, CLARITY_LEVELS, STATUS_OPTIONS, DIRECTIONS, formatStatusRecord, getStatusFeedback } from './dashboard.js';
 import { createHabit, getTodayHabits, getHabitLogsForToday, completeHabit, skipHabit, getHabitCompletionStats, getTodayHabitStats, pickHabitFeedback, DEFAULT_REWARDS, DEFAULT_TRIGGERS } from './habits.js';
 import { PRIORITY_CATEGORIES, PRIORITY_GATES, analyzePriority, formatPriorityRecord, derivePriorityDecision } from './priority.js';
 import { formatEmpathyRecord, getRecentRecords, getCombinedFeed } from './review.js';
@@ -314,7 +314,7 @@ function renderHome() {
       </div>
 
       <div class="encouragement-banner" id="encouragementBanner" style="margin-top: 16px; padding: 14px 16px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-        <div id="encouragementText" style="font-size: 15px; color: #78350f; font-weight: 500; line-height: 1.6;"></div>
+        <div id="encouragementText" style="font-size: 15px; color: #78350f; font-weight: 500; line-height: 1.6; overflow-wrap: anywhere; max-width: 100%;"></div>
       </div>
       
       <div class="main-actions">
@@ -389,10 +389,9 @@ function renderHome() {
     </div>
   `;
   // 更新鼓励文案
-  const enc = getRandomEncouragement();
   const encText = document.getElementById('encouragementText');
   if (encText) {
-    encText.textContent = enc.zh;
+    encText.textContent = getRandomEncouragement(getCurrentLang());
   }
 }
 
@@ -410,6 +409,8 @@ function renderEmpathy() {
   const i18n = {
     zh: {
       empathy: {
+        header: '🏠 共情小屋',
+        headerSub: '一个温柔的空间，陪伴你看见自己的感受',
         quickEntry: {
           summary: '想要快速整理一下？点我看看',
           labels: {
@@ -419,11 +420,59 @@ function renderEmpathy() {
             late: '感觉有点晚了',
             compare: '有点在意别人的进度'
           }
-        }
+        },
+        step1: '发生了什么？',
+        step1Hint: '试着描述这个场景，尽量区分事实和评价',
+        step1Placeholder: '例如：今天会议上老板对我的方案提出了质疑……',
+        step2: '我现在有什么感受？',
+        step2Hint: '选择最贴近的，或者写下你自己的感受',
+        step2CustomPlaceholder: '或写下其他感受……',
+        step3: '我可能有什么需要？',
+        step3Hint: '这些感受背后，可能有什么需要没有被满足？',
+        step3CustomPlaceholder: '或写下其他需要……',
+        step4: '我可以提出什么请求？',
+        step4Hint: '对自己或他人，什么是温和、具体、可执行的？',
+        step4Placeholder: '例如：我希望给自己一点休息时间……',
+        step5: '🎛️ 表达调音台',
+        step5Hint: '整理出来的内容不一定要发给别人。你可以先选择一个更适合当下状态的表达方式。',
+        audienceLabel: '沟通对象：',
+        modeLabel: '表达方式：',
+        toneLabel: '语气强度：',
+        modes: {
+          journal: '只记录',
+          message: '发消息',
+          faceToFace: '当面说',
+          schedule: '先约时间',
+          boundary: '只设边界'
+        },
+        tones: {
+          light: '很轻',
+          gentle: '温和',
+          clear: '清楚',
+          firm: '坚定',
+          boundary: '边界明确'
+        },
+        audiences: {
+          self: '自己',
+          partnerFriend: '伴侣/朋友',
+          coworker: '同事',
+          supervisor: '导师/上级',
+          family: '家人',
+          unsafePerson: '暂不适合沟通'
+        },
+        generateBtn: '生成表达建议',
+        resultTitle: '✨ 你可以这样说',
+        skip: '跳过',
+        next: '下一步',
+        again: '再来一次',
+        backHome: '返回首页',
+        crisisNotice: '我注意到这段内容里可能包含比较强烈的痛苦或安全风险。这个工具只能帮助你做简单整理，不能替代专业支持。如果你现在可能伤害自己或他人，请尽快联系身边可信任的人、当地紧急服务，或专业危机支持资源。你也可以先离开危险物品和危险环境，去一个更安全的地方。'
       }
     },
     en: {
       empathy: {
+        header: '🏠 Empathy House',
+        headerSub: 'A gentle space to notice what you\'re feeling',
         quickEntry: {
           summary: 'Want to quickly organize your thoughts? Click me',
           labels: {
@@ -433,7 +482,53 @@ function renderEmpathy() {
             late: 'Feels a bit late',
             compare: 'A bit concerned about others\' progress'
           }
-        }
+        },
+        step1: 'What happened?',
+        step1Hint: 'Try describing the situation while separating facts from judgments.',
+        step1Placeholder: 'E.g.: My boss questioned my proposal in the meeting today...',
+        step2: 'What am I feeling right now?',
+        step2Hint: 'Choose what feels closest, or write your own words.',
+        step2CustomPlaceholder: 'Or write another feeling...',
+        step3: 'What might I need?',
+        step3Hint: 'What unmet needs might be behind these feelings?',
+        step3CustomPlaceholder: 'Or write another need...',
+        step4: 'What could I ask for?',
+        step4Hint: 'For yourself or someone else, what would be kind, specific, and doable?',
+        step4Placeholder: 'E.g.: I want to give myself some time to rest...',
+        step5: '🎛️ Expression Dial',
+        step5Hint: "What you sort out here doesn't have to be sent to anyone. You can simply choose a way to express it that fits your current state.",
+        audienceLabel: 'Audience:',
+        modeLabel: 'Expression method:',
+        toneLabel: 'Tone intensity:',
+        modes: {
+          journal: 'Journal only',
+          message: 'Send a message',
+          faceToFace: 'Talk in person',
+          schedule: 'Schedule first',
+          boundary: 'Set boundary only'
+        },
+        tones: {
+          light: 'Very light',
+          gentle: 'Gentle',
+          clear: 'Clear',
+          firm: 'Firm',
+          boundary: 'Clear boundary'
+        },
+        audiences: {
+          self: 'Myself',
+          partnerFriend: 'Partner/Friend',
+          coworker: 'Coworker',
+          supervisor: 'Supervisor',
+          family: 'Family',
+          unsafePerson: 'Not ready to communicate'
+        },
+        generateBtn: 'Generate wording suggestion',
+        resultTitle: '✨ A possible way to say it',
+        skip: 'Skip',
+        next: 'Next',
+        again: 'Try again',
+        backHome: 'Back to Home',
+        crisisNotice: "I notice this content may contain strong pain or safety risks. This tool can only help you do simple organization and cannot replace professional support. If you may harm yourself or others, please contact trusted people nearby, local emergency services, or professional crisis support resources as soon as possible."
       }
     }
   };
@@ -444,112 +539,112 @@ function renderEmpathy() {
     <div class="page empathy-page">
       ${renderBackButton('home')}
       <header class="page-header">
-        <h2>🏠 共情小屋</h2>
-        <p>一个温柔的空间，陪伴你看见自己的感受</p>
+        <h2>${t.empathy.header}</h2>
+        <p>${t.empathy.headerSub}</p>
       </header>
-      
+
       <div class="empathy-step" id="empathyStep1">
-        <div class="step-indicator">步骤 1/5</div>
-        <h3>发生了什么？</h3>
-        <p class="step-hint">试着描述这个场景，尽量区分事实和评价</p>
-        <textarea id="empathySituation" placeholder="例如：今天会议上老板对我的方案提出了质疑……" rows="4"></textarea>
+        <div class="step-indicator">${lang === 'zh' ? '步骤' : 'Step'} 1/5</div>
+        <h3>${t.empathy.step1}</h3>
+        <p class="step-hint">${t.empathy.step1Hint}</p>
+        <textarea id="empathySituation" placeholder="${t.empathy.step1Placeholder}" rows="4"></textarea>
         <div class="safety-notice hidden" id="crisisNotice">
           <span class="notice-icon">💙</span>
-          <p>我注意到这段内容里可能包含比较强烈的痛苦或安全风险。这个工具只能帮助你做简单整理，不能替代专业支持。如果你现在可能伤害自己或他人，请尽快联系身边可信任的人、当地紧急服务，或专业危机支持资源。你也可以先离开危险物品和危险环境，去一个更安全的地方。</p>
+          <p>${t.empathy.crisisNotice}</p>
         </div>
         <div class="step-actions">
-          <button class="btn btn-text" onclick="skipEmpathyStep('situation')">跳过</button>
-          <button class="btn btn-primary" onclick="nextEmpathyStep(2)">下一步</button>
+          <button class="btn btn-text" onclick="skipEmpathyStep('situation')">${t.empathy.skip}</button>
+          <button class="btn btn-primary" onclick="nextEmpathyStep(2)">${t.empathy.next}</button>
         </div>
       </div>
-      
+
       <div class="empathy-step hidden" id="empathyStep2">
-        <div class="step-indicator">步骤 2/5</div>
-        <h3>我现在有什么感受？</h3>
-        <p class="step-hint">选择最贴近的，或者写下你自己的感受</p>
+        <div class="step-indicator">${lang === 'zh' ? '步骤' : 'Step'} 2/5</div>
+        <h3>${t.empathy.step2}</h3>
+        <p class="step-hint">${t.empathy.step2Hint}</p>
         <div class="feelings-grid" id="feelingsGrid"></div>
-        <input type="text" id="customFeeling" placeholder="或写下其他感受……" class="custom-input">
+        <input type="text" id="customFeeling" placeholder="${t.empathy.step2CustomPlaceholder}" class="custom-input">
         <div class="step-actions">
-          <button class="btn btn-text" onclick="skipEmpathyStep('feelings')">跳过</button>
-          <button class="btn btn-primary" onclick="nextEmpathyStep(3)">下一步</button>
+          <button class="btn btn-text" onclick="skipEmpathyStep('feelings')">${t.empathy.skip}</button>
+          <button class="btn btn-primary" onclick="nextEmpathyStep(3)">${t.empathy.next}</button>
         </div>
       </div>
-      
+
       <div class="empathy-step hidden" id="empathyStep3">
-        <div class="step-indicator">步骤 3/5</div>
-        <h3>我可能有什么需要？</h3>
-        <p class="step-hint">这些感受背后，可能有什么需要没有被满足？</p>
+        <div class="step-indicator">${lang === 'zh' ? '步骤' : 'Step'} 3/5</div>
+        <h3>${t.empathy.step3}</h3>
+        <p class="step-hint">${t.empathy.step3Hint}</p>
         <div class="needs-grid" id="needsGrid"></div>
-        <input type="text" id="customNeed" placeholder="或写下其他需要……" class="custom-input">
+        <input type="text" id="customNeed" placeholder="${t.empathy.step3CustomPlaceholder}" class="custom-input">
         <div class="step-actions">
-          <button class="btn btn-text" onclick="skipEmpathyStep('needs')">跳过</button>
-          <button class="btn btn-primary" onclick="nextEmpathyStep(4)">下一步</button>
+          <button class="btn btn-text" onclick="skipEmpathyStep('needs')">${t.empathy.skip}</button>
+          <button class="btn btn-primary" onclick="nextEmpathyStep(4)">${t.empathy.next}</button>
         </div>
       </div>
-      
+
       <div class="empathy-step hidden" id="empathyStep3b">
-        <div class="step-indicator">步骤 4/5</div>
-        <h3>我可以提出什么请求？</h3>
-        <p class="step-hint">对自己或他人，什么是温和、具体、可执行的？</p>
-        <textarea id="empathyRequest" placeholder="例如：我希望给自己一点休息时间……" rows="3"></textarea>
+        <div class="step-indicator">${lang === 'zh' ? '步骤' : 'Step'} 4/5</div>
+        <h3>${t.empathy.step4}</h3>
+        <p class="step-hint">${t.empathy.step4Hint}</p>
+        <textarea id="empathyRequest" placeholder="${t.empathy.step4Placeholder}" rows="3"></textarea>
         <div class="step-actions">
-          <button class="btn btn-text" onclick="skipEmpathyStep('request')">跳过</button>
-          <button class="btn btn-primary" onclick="nextEmpathyStep(5)">下一步</button>
+          <button class="btn btn-text" onclick="skipEmpathyStep('request')">${t.empathy.skip}</button>
+          <button class="btn btn-primary" onclick="nextEmpathyStep(5)">${t.empathy.next}</button>
         </div>
       </div>
-      
+
       <div class="empathy-step hidden" id="empathyStep4">
-        <div class="step-indicator">步骤 5/5</div>
-        <h3>🎛️ 表达调音台</h3>
-        <p class="step-hint">整理出来的内容不一定要发给别人。你可以先选择一个更适合当下状态的表达方式。</p>
-        
+        <div class="step-indicator">${lang === 'zh' ? '步骤' : 'Step'} 5/5</div>
+        <h3>${t.empathy.step5}</h3>
+        <p class="step-hint">${t.empathy.step5Hint}</p>
+
         <div class="expression-tuner-card" style="background: rgba(255,255,255,0.8); border-radius: 12px; padding: 20px; margin-bottom: 16px;">
           <div class="form-group">
-            <label style="font-weight: 500; margin-bottom: 8px; display: block;">沟通对象：</label>
+            <label style="font-weight: 500; margin-bottom: 8px; display: block;">${t.empathy.audienceLabel}</label>
             <div class="audience-select" style="display: flex; flex-wrap: wrap; gap: 8px;">
-              <button class="btn btn-option" data-audience="self" onclick="selectAudience(this)">自己</button>
-              <button class="btn btn-option" data-audience="partnerFriend" onclick="selectAudience(this)">伴侣/朋友</button>
-              <button class="btn btn-option" data-audience="coworker" onclick="selectAudience(this)">同事</button>
-              <button class="btn btn-option" data-audience="supervisor" onclick="selectAudience(this)">导师/上级</button>
-              <button class="btn btn-option" data-audience="family" onclick="selectAudience(this)">家人</button>
-              <button class="btn btn-option" data-audience="unsafePerson" onclick="selectAudience(this)">暂不适合沟通</button>
+              <button class="btn btn-option" data-audience="self" onclick="selectAudience(this)">${t.empathy.audiences.self}</button>
+              <button class="btn btn-option" data-audience="partnerFriend" onclick="selectAudience(this)">${t.empathy.audiences.partnerFriend}</button>
+              <button class="btn btn-option" data-audience="coworker" onclick="selectAudience(this)">${t.empathy.audiences.coworker}</button>
+              <button class="btn btn-option" data-audience="supervisor" onclick="selectAudience(this)">${t.empathy.audiences.supervisor}</button>
+              <button class="btn btn-option" data-audience="family" onclick="selectAudience(this)">${t.empathy.audiences.family}</button>
+              <button class="btn btn-option" data-audience="unsafePerson" onclick="selectAudience(this)">${t.empathy.audiences.unsafePerson}</button>
             </div>
           </div>
-          
+
           <div class="form-group" style="margin-top: 16px;">
-            <label style="font-weight: 500; margin-bottom: 8px; display: block;">表达方式：</label>
+            <label style="font-weight: 500; margin-bottom: 8px; display: block;">${t.empathy.modeLabel}</label>
             <div class="mode-select" style="display: flex; flex-wrap: wrap; gap: 8px;">
-              <button class="btn btn-option" data-mode="journal" onclick="selectMode(this)">只记录</button>
-              <button class="btn btn-option" data-mode="message" onclick="selectMode(this)">发消息</button>
-              <button class="btn btn-option" data-mode="faceToFace" onclick="selectMode(this)">当面说</button>
-              <button class="btn btn-option" data-mode="schedule" onclick="selectMode(this)">先约时间</button>
-              <button class="btn btn-option" data-mode="boundary" onclick="selectMode(this)">只设边界</button>
+              <button class="btn btn-option" data-mode="journal" onclick="selectMode(this)">${t.empathy.modes.journal}</button>
+              <button class="btn btn-option" data-mode="message" onclick="selectMode(this)">${t.empathy.modes.message}</button>
+              <button class="btn btn-option" data-mode="faceToFace" onclick="selectMode(this)">${t.empathy.modes.faceToFace}</button>
+              <button class="btn btn-option" data-mode="schedule" onclick="selectMode(this)">${t.empathy.modes.schedule}</button>
+              <button class="btn btn-option" data-mode="boundary" onclick="selectMode(this)">${t.empathy.modes.boundary}</button>
             </div>
           </div>
-          
+
           <div class="form-group" style="margin-top: 16px;">
-            <label style="font-weight: 500; margin-bottom: 8px; display: block;">语气强度：</label>
+            <label style="font-weight: 500; margin-bottom: 8px; display: block;">${t.empathy.toneLabel}</label>
             <div class="tone-select" style="display: flex; flex-wrap: wrap; gap: 8px;">
-              <button class="btn btn-option" data-tone="light" onclick="selectExpressionTone(this)">很轻</button>
-              <button class="btn btn-option" data-tone="gentle" onclick="selectExpressionTone(this)">温和</button>
-              <button class="btn btn-option" data-tone="clear" onclick="selectExpressionTone(this)">清楚</button>
-              <button class="btn btn-option" data-tone="firm" onclick="selectExpressionTone(this)">坚定</button>
-              <button class="btn btn-option" data-tone="boundary" onclick="selectExpressionTone(this)">边界明确</button>
+              <button class="btn btn-option" data-tone="light" onclick="selectExpressionTone(this)">${t.empathy.tones.light}</button>
+              <button class="btn btn-option" data-tone="gentle" onclick="selectExpressionTone(this)">${t.empathy.tones.gentle}</button>
+              <button class="btn btn-option" data-tone="clear" onclick="selectExpressionTone(this)">${t.empathy.tones.clear}</button>
+              <button class="btn btn-option" data-tone="firm" onclick="selectExpressionTone(this)">${t.empathy.tones.firm}</button>
+              <button class="btn btn-option" data-tone="boundary" onclick="selectExpressionTone(this)">${t.empathy.tones.boundary}</button>
             </div>
           </div>
         </div>
-        
+
         <div class="step-actions">
-          <button class="btn btn-primary" id="generateExpressionBtn" onclick="finishEmpathy()" disabled style="opacity: 0.5;">生成表达建议</button>
+          <button class="btn btn-primary" id="generateExpressionBtn" onclick="finishEmpathy()" disabled style="opacity: 0.5;">${t.empathy.generateBtn}</button>
         </div>
       </div>
-      
+
       <div class="empathy-result hidden" id="empathyResult">
-        <h3>✨ 你可以这样说</h3>
+        <h3>${t.empathy.resultTitle}</h3>
         <div class="result-card" id="resultCard"></div>
         <div class="step-actions">
-          <button class="btn btn-secondary" onclick="navigate('empathy')">再来一次</button>
-          <button class="btn btn-primary" onclick="navigate('home')">返回首页</button>
+          <button class="btn btn-secondary" onclick="navigate('empathy')">${t.empathy.again}</button>
+          <button class="btn btn-primary" onclick="navigate('home')">${t.empathy.backHome}</button>
         </div>
       </div>
       
@@ -594,9 +689,12 @@ function renderEmpathy() {
 function renderFeelingsGrid() {
   const grid = $('#feelingsGrid');
   if (!grid) return;
-  
+
+  const lang = getCurrentLang();
+  const feelings = lang === 'en' ? FEELINGS_EN : FEELINGS;
+
   let html = '';
-  Object.entries(FEELINGS).forEach(([category, items]) => {
+  Object.entries(feelings).forEach(([category, items]) => {
     html += `<div class="feeling-category">`;
     items.forEach(item => {
       html += `<button class="feeling-chip" data-feeling="${item}" onclick="toggleFeeling(this)">${item}</button>`;
@@ -609,9 +707,12 @@ function renderFeelingsGrid() {
 function renderNeedsGrid() {
   const grid = $('#needsGrid');
   if (!grid) return;
-  
+
+  const lang = getCurrentLang();
+  const needs = lang === 'en' ? NEEDS_EN : NEEDS;
+
   let html = '';
-  Object.entries(NEEDS).forEach(([category, items]) => {
+  Object.entries(needs).forEach(([category, items]) => {
     html += `<div class="need-category">`;
     items.forEach(item => {
       html += `<button class="need-chip" data-need="${item}" onclick="toggleNeed(this)">${item}</button>`;
@@ -1037,81 +1138,121 @@ window.copyPriorityAction = function(btn) {
 };
 
 function renderStatus() {
+  const lang = getCurrentLang();
+  const energyLevels = lang === 'en' ? ENERGY_LEVELS_EN : ENERGY_LEVELS;
+  const pressureLevels = lang === 'en' ? PRESSURE_LEVELS_EN : PRESSURE_LEVELS;
+  const clarityLevels = lang === 'en' ? CLARITY_LEVELS_EN : CLARITY_LEVELS;
+  const statusOpts = lang === 'en' ? STATUS_OPTIONS_EN : STATUS_OPTIONS;
+  const dirOpts = lang === 'en' ? DIRECTIONS_EN : DIRECTIONS;
+
+  const i18n = {
+    zh: {
+      header: '🔭 状态观测台',
+      headerSub: '今天感觉怎么样？',
+      energyLabel: '今日能量：',
+      pressureLabel: '今日压力：',
+      clarityLabel: '今日清晰度：',
+      currentStatusLabel: '当前状态：',
+      directionLabel: '今日投入方向：',
+      noteLabel: '自由备注：',
+      notePlaceholder: '今天有什么想记下的……',
+      saveBtn: '保存记录',
+      recentTitle: '最近记录',
+      noRecords: '还没有记录'
+    },
+    en: {
+      header: '🔭 Status Observatory',
+      headerSub: 'How are you feeling today?',
+      energyLabel: 'Energy Today:',
+      pressureLabel: 'Pressure Today:',
+      clarityLabel: 'Clarity Today:',
+      currentStatusLabel: 'Current Status:',
+      directionLabel: "Today's Direction:",
+      noteLabel: 'Free Note:',
+      notePlaceholder: 'Anything you want to record today...',
+      saveBtn: 'Save Record',
+      recentTitle: 'Recent Records',
+      noRecords: 'No records yet'
+    }
+  };
+
+  const t = i18n[lang];
+
   $('#app').innerHTML = `
     <div class="page status-page">
       ${renderBackButton('home')}
       <header class="page-header">
-        <h2>🔭 状态观测台</h2>
-        <p>今天感觉怎么样？</p>
+        <h2>${t.header}</h2>
+        <p>${t.headerSub}</p>
       </header>
-      
+
       <div class="status-form">
         <div class="form-group">
-          <label>今日能量：</label>
+          <label>${t.energyLabel}</label>
           <div class="slider-group">
-            ${ENERGY_LEVELS.map((l, i) => `
+            ${energyLevels.map((l, i) => `
               <button class="slider-btn ${i === 0 ? 'selected' : ''}" data-value="${i + 1}" data-type="energy" onclick="selectSlider(this)">
                 <span class="slider-label">${l}</span>
               </button>
             `).join('')}
           </div>
         </div>
-        
+
         <div class="form-group">
-          <label>今日压力：</label>
+          <label>${t.pressureLabel}</label>
           <div class="slider-group">
-            ${PRESSURE_LEVELS.map((l, i) => `
+            ${pressureLevels.map((l, i) => `
               <button class="slider-btn ${i === 0 ? 'selected' : ''}" data-value="${i + 1}" data-type="pressure" onclick="selectSlider(this)">
                 <span class="slider-label">${l}</span>
               </button>
             `).join('')}
           </div>
         </div>
-        
+
         <div class="form-group">
-          <label>今日清晰度：</label>
+          <label>${t.clarityLabel}</label>
           <div class="slider-group">
-            ${CLARITY_LEVELS.map((l, i) => `
+            ${clarityLevels.map((l, i) => `
               <button class="slider-btn ${i === 0 ? 'selected' : ''}" data-value="${i + 1}" data-type="clarity" onclick="selectSlider(this)">
                 <span class="slider-label">${l}</span>
               </button>
             `).join('')}
           </div>
         </div>
-        
+
         <div class="form-group">
-          <label>当前状态：</label>
+          <label>${t.currentStatusLabel}</label>
           <div class="status-chips">
-            ${STATUS_OPTIONS.map(s => `
+            ${statusOpts.map(s => `
               <button class="status-chip" data-status="${s}" onclick="toggleStatusChip(this)">${s}</button>
             `).join('')}
           </div>
         </div>
-        
+
         <div class="form-group">
-          <label>今日投入方向：</label>
+          <label>${t.directionLabel}</label>
           <div class="direction-chips">
-            ${DIRECTIONS.map(d => `
+            ${dirOpts.map(d => `
               <button class="direction-chip" data-direction="${d}" onclick="toggleDirectionChip(this)">${d}</button>
             `).join('')}
           </div>
         </div>
-        
+
         <div class="form-group">
-          <label>自由备注：</label>
-          <textarea id="statusNote" rows="3" placeholder="今天有什么想记下的……"></textarea>
+          <label>${t.noteLabel}</label>
+          <textarea id="statusNote" rows="3" placeholder="${t.notePlaceholder}"></textarea>
         </div>
-        
-        <button class="btn btn-primary btn-large" onclick="saveStatus()">保存记录</button>
+
+        <button class="btn btn-primary btn-large" onclick="saveStatus()">${t.saveBtn}</button>
       </div>
-      
+
       <div class="recent-records" id="recentStatus">
-        <h3>最近记录</h3>
+        <h3>${t.recentTitle}</h3>
         ${renderRecentStatusRecords()}
       </div>
     </div>
   `;
-  
+
   window.statusData = { energy: 1, pressure: 1, clarity: 1, status: [], directions: [], note: '' };
 }
 
@@ -1153,7 +1294,8 @@ window.toggleDirectionChip = function(btn) {
 
 window.saveStatus = function() {
   window.statusData.note = $('#statusNote')?.value || '';
-  
+  const lang = getCurrentLang();
+
   const record = {
     timestamp: new Date().toISOString(),
     energy: window.statusData.energy,
@@ -1163,31 +1305,42 @@ window.saveStatus = function() {
     directions: [...window.statusData.directions],
     note: window.statusData.note
   };
-  
+
   state.statusRecords.push(record);
   saveState(state);
-  
-  const feedback = getStatusFeedback(record);
-  
+
+  const feedback = getStatusFeedback(record, lang);
+
   const recentEl = $('#recentStatus');
+  const recentTitle = lang === 'en' ? 'Recent Records' : '最近记录';
   if (recentEl) {
-    recentEl.innerHTML = `<h3>最近记录</h3>${renderRecentStatusRecords()}`;
+    recentEl.innerHTML = `<h3>${recentTitle}</h3>${renderRecentStatusRecords()}`;
   }
-  
+
   alert(feedback + ' ✨');
 };
 
 function renderRecentStatusRecords() {
+  const lang = getCurrentLang();
   const recent = getRecentRecords(state.statusRecords, 5);
-  if (recent.length === 0) return '<p class="empty-note">还没有记录</p>';
-  
+  if (recent.length === 0) {
+    const empty = lang === 'en' ? 'No records yet' : '还没有记录';
+    return `<p class="empty-note">${empty}</p>`;
+  }
+
+  const labels = {
+    zh: { energy: '能量', pressure: '压力', clarity: '清晰度' },
+    en: { energy: 'Energy', pressure: 'Pressure', clarity: 'Clarity' }
+  };
+  const lbl = labels[lang] || labels.zh;
+
   return recent.map(r => {
-    const formatted = formatStatusRecord(r);
+    const formatted = formatStatusRecord(r, lang);
     return `
       <div class="record-item">
         <div class="record-time">${formatted.dateStr}</div>
         <div class="record-content">
-          能量：${formatted.energyLabel} | 压力：${formatted.pressureLabel} | 清晰度：${formatted.clarityLabel}
+          ${lbl.energy}：${formatted.energyLabel} | ${lbl.pressure}：${formatted.pressureLabel} | ${lbl.clarity}：${formatted.clarityLabel}
         </div>
         ${r.status.length > 0 ? `<div class="record-tags">${r.status.map(s => `<span class="tag">${s}</span>`).join('')}</div>` : ''}
         ${r.note ? `<div class="record-note">${r.note}</div>` : ''}
