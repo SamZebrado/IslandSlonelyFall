@@ -1068,38 +1068,92 @@ window.finishEmpathy = function() {
   state.empathyRecords.push(record);
   saveState(state);
   
+  const lang = getCurrentLang();
+  const t = getTranslations(lang);
+
   let html = '';
-  
+
+  // 感受和需求回顾区块
+  html += `
+    <div class="review-section" style="background: rgba(255,255,255,0.9); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+      <h4 style="margin-bottom: 12px; color: var(--color-primary); font-size: 16px;">${t.empathy.reviewTitle}</h4>
+
+      <div class="review-feelings" style="margin-bottom: 16px;">
+        <div style="font-weight: 500; margin-bottom: 8px; font-size: 14px;">💭 ${t.empathy.feelingsReview}</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          ${data.feelings.length > 0
+            ? data.feelings.map(f => `<span style="background: linear-gradient(135deg, #f5f0ff, #fff0f5); padding: 6px 12px; border-radius: 16px; font-size: 13px;">${f}</span>`).join('')
+            : `<span style="color: var(--color-text-light); font-size: 13px;">${t.empathy.noFeelings}</span>`
+          }
+        </div>
+      </div>
+
+      <div class="review-needs">
+        <div style="font-weight: 500; margin-bottom: 8px; font-size: 14px;">🌱 ${t.empathy.needsReview}</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          ${data.needs.length > 0
+            ? data.needs.map(n => `<span style="background: linear-gradient(135deg, #f0fff5, #fff5f0); padding: 6px 12px; border-radius: 16px; font-size: 13px;">${n}</span>`).join('')
+            : `<span style="color: var(--color-text-light); font-size: 13px;">${t.empathy.noNeeds}</span>`
+          }
+        </div>
+        ${data.needs.length > 0 ? `
+        <div style="margin-top: 12px; font-size: 12px; color: var(--color-text-light);">${t.empathy.needsConfirmHint}</div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+
   if (selfExpression) {
-    html += `<div class="expression-card"><label>对自己说的话：</label><p>${selfExpression}</p></div>`;
+    html += `<div class="expression-card"><label>${t.empathy.selfExpression}：</label><p>${selfExpression}</p></div>`;
   }
   
+  const audienceLabelsEn = {
+    self: 'Myself',
+    partnerFriend: 'Partner/Friend',
+    coworker: 'Coworker',
+    supervisor: 'Supervisor',
+    family: 'Family',
+    unsafePerson: 'Not ready to communicate'
+  };
+
+  const audienceLabel = lang === 'en' ? (audienceLabelsEn[data.audience] || data.audience) : (audienceLabels[data.audience] || data.audience);
+
   if (suggestions.length > 0) {
-    html += `<div style="margin-top: 20px;"><h4 style="margin-bottom: 12px; color: var(--color-primary);">💬 ${audienceLabels[data.audience] || data.audience}的表达建议</h4>`;
+    html += `<div style="margin-top: 20px;"><h4 style="margin-bottom: 12px; color: var(--color-primary);">💬 ${audienceLabel}${lang === 'en' ? '' : '的'}${t.empathy.expressionFor}</h4>`;
     suggestions.forEach((suggestion, idx) => {
       html += `<div class="expression-card">
         <p>${suggestion}</p>
-        <button class="btn btn-small btn-text" onclick="copyExpression(this)" data-text="${suggestion.replace(/"/g, '&quot;')}">复制</button>
+        <button class="btn btn-small btn-text" onclick="copyExpression(this)" data-text="${suggestion.replace(/"/g, '&quot;')}">${lang === 'en' ? 'Copy' : '复制'}</button>
       </div>`;
     });
     html += `</div>`;
   }
-  
+
   if (actionTips.length > 0) {
+    const actionTitle = data.mode === 'faceToFace'
+      ? (lang === 'en' ? '👀 Eye contact & body language tips' : '👀 动作与眼神建议')
+      : (lang === 'en' ? '📋 Before sending checklist' : '📋 发消息前检查');
     html += `<div class="action-suggestion">
-      <h4>${data.mode === 'faceToFace' ? '👀 动作与眼神建议' : '📋 发消息前检查'}</h4>
+      <h4>${actionTitle}</h4>
       <ul>`;
     actionTips.forEach(tip => {
       html += `<li>${tip}</li>`;
     });
     html += `</ul></div>`;
   }
-  
+
   if (!selfExpression && suggestions.length === 0) {
-    html += `<p class="gentle-note">这次记录已经放进回顾花园。</p>`;
+    html += `<p class="gentle-note">${lang === 'en' ? 'This record has been added to Review Garden.' : '这次记录已经放进回顾花园。'}</p>`;
   }
-  
-  const careActions = [
+
+  const careActions = lang === 'en' ? [
+    { icon: '💧', text: 'Drink a glass of water' },
+    { icon: '🌬️', text: 'Take a few deep breaths' },
+    { icon: '🪟', text: 'Look out the window' },
+    { icon: '🎵', text: 'Listen to a favorite song' },
+    { icon: '🧘', text: 'Stand up and stretch' },
+    { icon: '📝', text: 'Write down worries' }
+  ] : [
     { icon: '💧', text: '喝一杯水' },
     { icon: '🌬️', text: '深呼吸几次' },
     { icon: '🪟', text: '看看窗外' },
@@ -1107,31 +1161,31 @@ window.finishEmpathy = function() {
     { icon: '🧘', text: '站起来伸展一下' },
     { icon: '📝', text: '把担心写下来' }
   ];
-  
+
   html += `
     <div class="empathy-next-choices">
-      <div class="empathy-choice-header">接下来你想？</div>
+      <div class="empathy-choice-header">${t.empathy.nextChoice}</div>
       <div class="empathy-choices">
-        <button class="empathy-choice-btn" onclick="showCareSection()">🌿 我想先照顾自己</button>
-        <button class="empathy-choice-btn" onclick="goToPriorityFromEmpathy()">⚡ 我想把它变成小行动</button>
+        <button class="empathy-choice-btn" onclick="showCareSection()">🌿 ${t.empathy.careOption}</button>
+        <button class="empathy-choice-btn" onclick="goToPriorityFromEmpathy()">⚡ ${t.empathy.actionOption}</button>
       </div>
     </div>
-    
+
     <div class="care-actions-section hidden" id="careActionsSection">
-      <div class="care-actions-label">🌿 照顾一下自己</div>
+      <div class="care-actions-label">🌿 ${t.empathy.careSelf}</div>
       <div class="care-actions-grid">
         ${careActions.map(a => `<button class="care-action-btn" onclick="this.classList.toggle('done')">${a.icon} ${a.text}</button>`).join('')}
       </div>
     </div>
-    
+
     <div class="next-stop">
-      <div class="next-stop-label">下一站</div>
+      <div class="next-stop-label">${lang === 'en' ? 'Next stop' : '下一站'}</div>
       <div class="next-stop-content">
         <div>
-          <strong>去优先级决策岛</strong>
-          <p>把当前感受转成一个更清楚的选择。</p>
+          <strong>${lang === 'en' ? 'Priority Decision Island' : '去优先级决策岛'}</strong>
+          <p>${lang === 'en' ? 'Turn current feelings into a clearer choice.' : '把当前感受转成一个更清楚的选择。'}</p>
         </div>
-        <button class="btn btn-small" onclick="navigate('priority')">前往</button>
+        <button class="btn btn-small" onclick="navigate('priority')">${lang === 'en' ? 'Go' : '前往'}</button>
       </div>
     </div>
   `;
