@@ -1072,35 +1072,8 @@ window.finishEmpathy = function() {
 
   let html = '';
 
-  // 感受和需求回顾区块
-  html += `
-    <div class="review-section" style="background: rgba(255,255,255,0.9); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
-      <h4 style="margin-bottom: 12px; color: var(--color-primary); font-size: 16px;">${t('empathy.reviewTitle')}</h4>
-
-      <div class="review-feelings" style="margin-bottom: 16px;">
-        <div style="font-weight: 500; margin-bottom: 8px; font-size: 14px;">💭 ${t('empathy.feelingsReview')}</div>
-        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-          ${data.feelings.length > 0
-            ? data.feelings.map(f => `<span style="background: linear-gradient(135deg, #f5f0ff, #fff0f5); padding: 6px 12px; border-radius: 16px; font-size: 13px;">${f}</span>`).join('')
-            : `<span style="color: var(--color-text-light); font-size: 13px;">${t('empathy.noFeelings')}</span>`
-          }
-        </div>
-      </div>
-
-      <div class="review-needs">
-        <div style="font-weight: 500; margin-bottom: 8px; font-size: 14px;">🌱 ${t('empathy.needsReview')}</div>
-        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-          ${data.needs.length > 0
-            ? data.needs.map(n => `<span style="background: linear-gradient(135deg, #f0fff5, #fff5f0); padding: 6px 12px; border-radius: 16px; font-size: 13px;">${n}</span>`).join('')
-            : `<span style="color: var(--color-text-light); font-size: 13px;">${t('empathy.noNeeds')}</span>`
-          }
-        </div>
-      </div>
-    </div>
-  `;
-
   if (selfExpression) {
-    html += `<div class="expression-card"><label>${t('empathy.selfExpression')}：</label><p>${selfExpression}</p></div>`;
+    html += `<div class="expression-card"><div style="font-weight: 500; margin-bottom: 8px; font-size: 14px;">${t('empathy.selfExpression')}</div><p>${selfExpression}</p></div>`;
   }
   
   const audienceLabelsEn = {

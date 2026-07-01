@@ -96,7 +96,7 @@ function buildExpressionOptions(input) {
   const options = [];
 
   if (audience === 'self') {
-    options.push(`我现在有这些感受，并不说明我哪里不好，只是提醒我可能需要${needsText}。`);
+    options.push(`我感受到${feelingsText}，可能是因为没有满足${needsText}这些需要。`);
     options.push(`这件事可以先不用立刻解决，我先把它看清楚一点。`);
     options.push(`我允许自己现在不太舒服，这很正常。`);
     options.push(`先照顾好自己，其他的可以等一等。`);
