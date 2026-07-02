@@ -1,0 +1,30 @@
+# macOS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Dependencies
+node_modules/
+dist/
+build/
+
+# Logs
+*.log
+
+# Env
+.env
+.env.local
+
+# Archives
+*.zip
+*.tar.gz
+
+# Backup files
+*.bak
+*.backup
+
+# TMP文件夹（临时文件，不要提交到git）
+/TMP/

@@ -227,7 +227,8 @@ function renderHome() {
       reviewBadge: '花园',
       reviewTitle: '回顾花园',
       reviewDesc: '看看最近留下了什么痕迹。',
-      reviewTag: '适合静静回顾'
+      reviewTag: '适合静静回顾',
+      stableVersion: '最近的稳定版（英文支持有限）'
     },
     en: {
       appName: 'IslandSlowlyFall',
@@ -278,7 +279,8 @@ function renderHome() {
       reviewBadge: 'Garden',
       reviewTitle: 'Review Garden',
       reviewDesc: 'See what traces you left recently.',
-      reviewTag: 'Good for quiet reflection'
+      reviewTag: 'Good for quiet reflection',
+      stableVersion: 'Recent stable version (limited English support)'
     }
   };
   
@@ -408,6 +410,12 @@ function renderHome() {
           </a>
         </div>
       </section>
+
+      <div style="position: fixed; bottom: 12px; left: 16px; font-size: 12px; color: var(--color-text-light); opacity: 0.7; z-index: 100;">
+        <a href="versions/v1.0-before-i18n/" style="color: inherit; text-decoration: underline; text-underline-offset: 2px;">
+          ${t.stableVersion}
+        </a>
+      </div>
     </div>
   `;
   // 更新鼓励文案
@@ -484,6 +492,7 @@ function renderEmpathy() {
         },
         generateBtn: '生成表达建议',
         resultTitle: '✨ 你可以这样说',
+        adjustTone: '调整语气/方式',
         skip: '跳过',
         next: '下一步',
         again: '再来一次',
@@ -546,6 +555,7 @@ function renderEmpathy() {
         },
         generateBtn: 'Generate wording suggestion',
         resultTitle: '✨ A possible way to say it',
+        adjustTone: 'Adjust tone/mode',
         skip: 'Skip',
         next: 'Next',
         again: 'Try again',
@@ -665,6 +675,7 @@ function renderEmpathy() {
         <h3>${t.empathy.resultTitle}</h3>
         <div class="result-card" id="resultCard"></div>
         <div class="step-actions">
+          <button class="btn btn-text" onclick="backToTuner()">${t.empathy.adjustTone}</button>
           <button class="btn btn-secondary" onclick="navigate('empathy')">${t.empathy.again}</button>
           <button class="btn btn-primary" onclick="navigate('home')">${t.empathy.backHome}</button>
         </div>
@@ -1160,7 +1171,7 @@ window.finishEmpathy = function() {
   `;
   
   $('#resultCard').innerHTML = html;
-  document.querySelector('.empathy-step')?.classList.add('hidden');
+  document.querySelectorAll('.empathy-step').forEach(el => el.classList.add('hidden'));
   $('#empathyResult')?.classList.remove('hidden');
 };
 
@@ -1176,6 +1187,12 @@ window.copyExpression = function(btn) {
   }).catch(() => {
     alert('复制失败，请手动选择文本复制');
   });
+};
+
+window.backToTuner = function() {
+  $('#empathyResult')?.classList.add('hidden');
+  $('#empathyStep4')?.classList.remove('hidden');
+  checkExpressionReady();
 };
 
 window.copyPriorityAction = function(btn) {
