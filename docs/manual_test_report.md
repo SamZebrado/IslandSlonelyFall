@@ -13,7 +13,7 @@
 
 ```bash
 # 1. 启动静态服务器
-cd /Users/samzebrado/Documents/PersonalCodingLocal/local-guide-game
+cd <repository-root>
 python3 -m http.server 5173
 
 # 2. 运行测试

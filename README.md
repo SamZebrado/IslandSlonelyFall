@@ -40,7 +40,7 @@
 python -m http.server 5173
 
 # 或使用 Node.js
-npx serve .
+npx serve . -l 5173
 ```
 
 然后访问：`http://localhost:5173`
@@ -103,7 +103,7 @@ npx serve .
 - 无云端同步
 - 定期导出备份很重要！
 
-**数据备份：
+**数据备份：**
 - 可以导出/导入 JSON 备份
 
 ---
