@@ -40,7 +40,7 @@
 python -m http.server 5173
 
 # 或使用 Node.js
-npx serve .
+npx serve . -l 5173
 ```
 
 然后访问：`http://localhost:5173`
@@ -103,7 +103,7 @@ npx serve .
 - 无云端同步
 - 定期导出备份很重要！
 
-**数据备份：
+**数据备份：**
 - 可以导出/导入 JSON 备份
 
 ---
@@ -139,6 +139,41 @@ npx serve .
 - 纯前端，无框架依赖
 - Web Audio API（BGM）
 - Playwright（自动化测试）
+
+---
+
+## Browser regression tests
+
+Python 3.9+ and the pinned dependencies in `requirements-test.txt` are required.
+The suite uses standard-library `unittest`, starts its own loopback HTTP server
+on a free port, and creates a fresh browser context for each test. Run from the
+repository root:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-test.txt
+.venv/bin/python -m playwright install chromium
+.venv/bin/python -m unittest discover -s tests -p 'test_*.py' -v
+```
+
+If Chromium is already installed, skip the browser install command. To use an
+existing compatible Chromium executable, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`
+to its full path before running the suite. No test downloads browsers. Missing
+dependencies, browser launch errors, and failed assertions produce a nonzero
+exit status. A focused script can also be run directly, for example
+`python3 tests/test_app.py -v`.
+
+The persistence regressions can also run without Python or a browser, using
+Node.js 18+ and its built-in test runner:
+
+```bash
+node --test tests/test_storage.mjs
+```
+
+These automated checks cover the current root application. They do not certify
+physical mobile devices, audible playback, the historical `versions/` snapshot,
+or the human checks in `docs/P2_MANUAL_CHECKLIST.md`. The old test report is
+historical evidence; it is not a current suite acceptance result.
 
 ---
 

@@ -1,5 +1,24 @@
 # 本地指南游戏 MVP - Playwright 自动化测试报告
 
+> 下方的 2026-05-15 报告是历史记录，其旧计数与结论不代表当前版本验收。
+
+## 2026-10-02 自动化复核
+
+当前根目录应用的修复后测试：Chromium 自动化 **13/13 PASS**，内存存储回归 **4/4 PASS**。
+环境：macOS、Python 3.9.7、Playwright 1.58.0、已有 Chromium headless-shell 缓存（revision 1228）。
+此次没有安装依赖或下载浏览器；通过 `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` 使用已有浏览器。
+运行方式和固定 Python 依赖见 [README](../README.md#browser-regression-tests)。
+
+测试启动独立本地 HTTP 服务，每项测试使用新的浏览器 context。失败断言、启动失败和缺依赖均以非零状态退出。
+复核覆盖当前导航、共情与状态记录、表达选择、微习惯完成/跳过与刷新恢复、完整五道门、实际 JSON 文件导入导出与失败回滚、音频控制状态及失败容错。
+修复了加载时丢失习惯完成/跳过状态、丢失优先级类别字符串，以及切换完整模式时错误引用翻译对象的问题。
+
+这些结果不代表真实手机、听觉播放、临床效果、历史 `versions/` 快照或人工体验验证。
+危机关键词测试仅验证现有检测标记；提示仍位于被隐藏的第一步中，不声明实际可见性或安全效果。
+[人工验证清单](P2_MANUAL_CHECKLIST.md) 仍须独立完成，未宣称 `p2-freeze` 或所有人工项目通过。
+
+---
+
 ## 测试环境
 
 - **操作系统**: macOS
@@ -13,7 +32,7 @@
 
 ```bash
 # 1. 启动静态服务器
-cd /Users/samzebrado/Documents/PersonalCodingLocal/local-guide-game
+cd <repository-root>
 python3 -m http.server 5173
 
 # 2. 运行测试

@@ -1,0 +1,4 @@
+# Python 3.9+; standard-library unittest runs the browser suite.
+playwright==1.58.0
+pyee==13.0.1
+greenlet==3.2.5
