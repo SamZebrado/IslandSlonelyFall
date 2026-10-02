@@ -1839,6 +1839,7 @@ window.deleteHabit = function(habitId) {
 };
 
 window.setPriorityMode = function(simple) {
+  const t = getPriorityI18n();
   window.prioritySession.simpleMode = simple;
   const buttons = document.querySelectorAll('.mode-btn');
   buttons.forEach(btn => {

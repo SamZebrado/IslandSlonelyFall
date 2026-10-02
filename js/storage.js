@@ -77,7 +77,8 @@ function normalizeRecord(record, type) {
         normalized.habitId = String(normalized.habitId);
       }
       if (normalized.status !== undefined) {
-        normalized.status = ['done', 'skip', 'partial'].includes(normalized.status)
+        // Preserve the values emitted by completeHabit()/skipHabit(), plus legacy logs.
+        normalized.status = ['completed', 'skipped', 'done', 'skip', 'partial'].includes(normalized.status)
           ? normalized.status : 'done';
       }
       break;
@@ -92,7 +93,10 @@ function normalizeRecord(record, type) {
       if (normalized.result !== undefined && typeof normalized.result !== 'object') {
         normalized.result = { category: 'UNKNOWN' };
       }
-      if (normalized.decision !== undefined && typeof normalized.decision !== 'object') {
+      // Current priority records store a category string; older records used objects.
+      const decisionCategories = ['DELETE', 'DEFER', 'SIMPLIFY', 'DELEGATE', 'TODAY', 'NOW'];
+      if (normalized.decision !== undefined && typeof normalized.decision !== 'object'
+          && !decisionCategories.includes(normalized.decision)) {
         normalized.decision = {};
       }
       break;

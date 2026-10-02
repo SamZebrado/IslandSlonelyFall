@@ -90,10 +90,12 @@
   "id": "uuid-string",
   "timestamp": "ISO-date-string",
   "habitId": "habit-uuid",
-  "status": "done|skip|partial",
+  "status": "completed|skipped",
   "note": "备注"
 }
 ```
+
+当前习惯操作写入 `completed` / `skipped`；规范化保留这两个值，也保留旧记录中的 `done` / `skip` / `partial`。
 
 ### priorityRecords
 
@@ -112,9 +114,11 @@
     "minStep": "最小步骤",
     "timeBlock": "时间块"
   },
-  "decision": {}
+  "decision": "TODAY"
 }
 ```
+
+当前优先级记录的 `decision` 保存类别字符串（`DELETE` / `DEFER` / `SIMPLIFY` / `DELEGATE` / `TODAY` / `NOW`）；旧记录中的对象形式仍保留。
 
 ## 存储机制
 
