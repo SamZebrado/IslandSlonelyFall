@@ -1447,7 +1447,8 @@ function renderHabits() {
       templateWater: '喝水模板',
       templateExercise: '轻微运动模板',
       createBtn: '创建新习惯',
-      createTitle: '创建微习惯',
+      createTitle: '建立新习惯',
+      maintainTitle: '维护已有习惯',
       identityLabel: '身份句（你想成为什么样的人）：',
       identityPlaceholder: '例如：我是一个会照顾自己的人',
       actionLabel: '很小的行动：',
@@ -1455,7 +1456,7 @@ function renderHabits() {
       triggerLabel: '触发提示：',
       triggerPlaceholder: '或输入自定义触发条件',
       rewardLabel: '完成后的轻奖励：',
-      cancelBtn: '取消',
+      cancelBtn: '清空填写',
       saveBtn: '保存',
       empty: '还没有微习惯，创建一个开始吧',
       triggerPrefix: '触发：',
@@ -1492,7 +1493,8 @@ function renderHabits() {
       templateWater: 'Drink Water',
       templateExercise: 'Light Exercise',
       createBtn: 'Create New Habit',
-      createTitle: 'Create Micro Habit',
+      createTitle: 'Build a New Habit',
+      maintainTitle: 'Maintain Existing Habits',
       identityLabel: 'Identity sentence (who do you want to be):',
       identityPlaceholder: "e.g.: I'm someone who takes care of themselves",
       actionLabel: 'Tiny action:',
@@ -1500,7 +1502,7 @@ function renderHabits() {
       triggerLabel: 'Trigger cue:',
       triggerPlaceholder: 'Or type a custom trigger',
       rewardLabel: 'Light reward after completion:',
-      cancelBtn: 'Cancel',
+      cancelBtn: 'Clear Form',
       saveBtn: 'Save',
       empty: 'No micro habits yet, create one to start',
       triggerPrefix: 'Trigger: ',
@@ -1531,46 +1533,8 @@ function renderHabits() {
         <h2>${t.header}</h2>
         <p>${t.headerSub}</p>
       </header>
-      
-      <div class="habits-gentle-stats" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 16px; text-align: center; box-shadow: var(--shadow-sm);">
-        <div style="font-size: 14px; color: #92400e; margin-bottom: 8px;">${t.gentleTitle}</div>
-        <div style="display: flex; justify-content: center; gap: 24px; font-size: 13px;">
-          <div><span style="color: #059669; font-weight: 600;">${gentleStats.completed}</span> ${t.completed}</div>
-          <div><span style="color: #0891b2; font-weight: 600;">${gentleStats.total - gentleStats.completed - gentleStats.skipped}</span> ${t.pending}</div>
-          <div><span style="color: #6b7280; font-weight: 600;">${gentleStats.skipped}</span> ${t.skipped}</div>
-        </div>
-      </div>
-      
-      <div class="habits-progress">
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: ${stats.percentage}%"></div>
-        </div>
-        <span class="progress-text">${t.progress} ${stats.completed}/${stats.total}</span>
-      </div>
-      
-      <div class="student-templates">
-        <h3>${t.templates}</h3>
-        <div class="templates-grid">
-          <button class="template-chip" onclick="applyStudentTemplate('review')">${t.templateReview}</button>
-          <button class="template-chip" onclick="applyStudentTemplate('paper')">${t.templatePaper}</button>
-          <button class="template-chip" onclick="applyStudentTemplate('word')">${t.templateWord}</button>
-          <button class="template-chip" onclick="applyStudentTemplate('tidy')">${t.templateTidy}</button>
-          <button class="template-chip" onclick="applyStudentTemplate('water')">${t.templateWater}</button>
-          <button class="template-chip" onclick="applyStudentTemplate('exercise')">${t.templateExercise}</button>
-        </div>
-      </div>
-      
-      <div class="habits-actions">
-        <button class="btn btn-primary" onclick="showCreateHabit()">${t.createBtn}</button>
-      </div>
-      
-      <div class="habits-list" id="habitsList">
-        ${renderHabitsList(todayHabits, todayLogs, lang)}
-      </div>
-      
-      <div id="habitFeedbackToast" class="habit-feedback-toast hidden" style="position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); padding: 12px 20px; border-radius: 20px; box-shadow: var(--shadow-lg); z-index: 100; max-width: 280px; text-align: center;"></div>
-      
-      <div class="create-habit-form hidden" id="createHabitForm">
+
+      <div class="create-habit-form" id="createHabitForm">
         <h3>${t.createTitle}</h3>
         <div class="form-group">
           <label>${t.identityLabel}</label>
@@ -1595,10 +1559,46 @@ function renderHabits() {
           </select>
         </div>
         <div class="step-actions">
-          <button class="btn btn-text" onclick="hideCreateHabit()">${t.cancelBtn}</button>
+          <button class="btn btn-text" onclick="clearCreateHabit()">${t.cancelBtn}</button>
           <button class="btn btn-primary" onclick="saveNewHabit()">${t.saveBtn}</button>
         </div>
       </div>
+      <div class="student-templates">
+        <h3>${t.templates}</h3>
+        <div class="templates-grid">
+          <button class="template-chip" onclick="applyStudentTemplate('review')">${t.templateReview}</button>
+          <button class="template-chip" onclick="applyStudentTemplate('paper')">${t.templatePaper}</button>
+          <button class="template-chip" onclick="applyStudentTemplate('word')">${t.templateWord}</button>
+          <button class="template-chip" onclick="applyStudentTemplate('tidy')">${t.templateTidy}</button>
+          <button class="template-chip" onclick="applyStudentTemplate('water')">${t.templateWater}</button>
+          <button class="template-chip" onclick="applyStudentTemplate('exercise')">${t.templateExercise}</button>
+        </div>
+      </div>
+
+      <hr class="habits-section-divider">
+      <h3 class="habits-maintain-title">${t.maintainTitle}</h3>
+      <div class="habits-gentle-stats" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 16px; text-align: center; box-shadow: var(--shadow-sm);">
+        <div style="font-size: 14px; color: #92400e; margin-bottom: 8px;">${t.gentleTitle}</div>
+        <div style="display: flex; justify-content: center; gap: 24px; font-size: 13px;">
+          <div><span style="color: #059669; font-weight: 600;">${gentleStats.completed}</span> ${t.completed}</div>
+          <div><span style="color: #0891b2; font-weight: 600;">${gentleStats.total - gentleStats.completed - gentleStats.skipped}</span> ${t.pending}</div>
+          <div><span style="color: #6b7280; font-weight: 600;">${gentleStats.skipped}</span> ${t.skipped}</div>
+        </div>
+      </div>
+
+      <div class="habits-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${stats.percentage}%"></div>
+        </div>
+        <span class="progress-text">${t.progress} ${stats.completed}/${stats.total}</span>
+      </div>
+
+      <div class="habits-list" id="habitsList">
+        ${renderHabitsList(todayHabits, todayLogs, lang)}
+      </div>
+
+      <div id="habitFeedbackToast" class="habit-feedback-toast hidden" style="position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); padding: 12px 20px; border-radius: 20px; box-shadow: var(--shadow-lg); z-index: 100; max-width: 280px; text-align: center;"></div>
+
     </div>
   `;
 }
@@ -1716,8 +1716,15 @@ window.showCreateHabit = function() {
   $('#createHabitForm')?.classList.remove('hidden');
 };
 
-window.hideCreateHabit = function() {
-  $('#createHabitForm')?.classList.add('hidden');
+window.clearCreateHabit = function() {
+  ['habitIdentity', 'habitAction', 'habitTriggerCustom'].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) input.value = '';
+  });
+  ['habitTrigger', 'habitReward'].forEach(id => {
+    const select = document.getElementById(id);
+    if (select) select.selectedIndex = 0;
+  });
 };
 
 window.saveNewHabit = function() {
