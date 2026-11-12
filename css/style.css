@@ -2519,3 +2519,36 @@ select:focus {
   flex-direction: column;
   gap: 10px;
 }
+
+/* Keep long habit descriptions readable beside controls, especially on phones. */
+.habit-content {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.habit-icon {
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .habit-item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    row-gap: 12px;
+  }
+
+  .habit-actions {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .habit-actions .btn {
+    min-height: 44px;
+  }
+
+  .habit-badge {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+}
