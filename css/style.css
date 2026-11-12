@@ -2562,3 +2562,52 @@ select:focus {
 .habits-maintain-title {
   margin-bottom: 16px;
 }
+
+/* Narrow-screen review: keep score controls and navigation out of text columns. */
+@media (max-width: 640px) {
+  .rating-subitem {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .rating-grid-container {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .rating-grid {
+    display: grid;
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+    gap: 3px;
+  }
+
+  .rating-grid-cell {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    height: 36px;
+    aspect-ratio: auto;
+  }
+
+  .next-stop-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .next-stop-content .btn {
+    white-space: normal;
+  }
+
+  .simple-options, .gate-buttons, .mode-toggle, .record-header {
+    flex-wrap: wrap;
+  }
+
+  .simple-options .btn-option {
+    flex: 1 1 120px;
+  }
+
+  .record-title, .record-note, .task-text, .result-section p {
+    overflow-wrap: anywhere;
+  }
+}
