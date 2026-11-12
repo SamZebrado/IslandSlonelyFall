@@ -2552,3 +2552,13 @@ select:focus {
     overflow-wrap: anywhere;
   }
 }
+
+.habits-section-divider {
+  border: 0;
+  border-top: 1px solid rgba(100, 116, 139, 0.3);
+  margin: 32px 0 24px;
+}
+
+.habits-maintain-title {
+  margin-bottom: 16px;
+}
