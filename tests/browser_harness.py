@@ -87,7 +87,7 @@ class BrowserTest(unittest.TestCase):
         expect(self.page.locator('.empathy-step:visible')).to_have_count(0)
 
     def create_habit(self, action='测试：喝一杯水'):
-        self.page.locator('[onclick="showCreateHabit()"] ').click()
+        expect(self.page.locator('#createHabitForm')).to_be_visible()
         self.page.locator('#habitIdentity').fill('测试：照顾自己的人')
         self.page.locator('#habitAction').fill(action)
         self.page.locator('#createHabitForm .btn-primary').click()
