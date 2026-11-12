@@ -6,6 +6,24 @@ from browser_harness import BrowserTest
 
 
 class HabitTests(BrowserTest):
+    def test_long_habit_mobile_layout(self):
+        self.open_place('微习惯工坊')
+        item = self.create_habit('测试：深呼吸，保持淡定，提醒自己给反应留一点时间。' * 3)
+        for width in (320, 375, 430, 640):
+            with self.subTest(width=width):
+                self.page.set_viewport_size({"width": width, "height": 800})
+                content = item.locator('.habit-content').bounding_box()
+                actions = item.locator('.habit-actions').bounding_box()
+                self.assertGreater(content['width'], 150)
+                self.assertGreaterEqual(actions['y'], content['y'] + content['height'])
+                self.assertLessEqual(actions['x'] + actions['width'], width)
+                self.assertLessEqual(self.page.evaluate('document.documentElement.scrollWidth'), width)
+        item.get_by_role('button', name='点亮', exact=True).click()
+        expect(item.locator('.habit-badge')).to_be_visible()
+        self.page.reload()
+        self.open_place('微习惯工坊')
+        expect(self.page.locator('.habit-item.completed')).to_have_count(1)
+
     def test_completion_and_skip_persist_with_correct_habit(self):
         self.page.set_viewport_size({"width": 375, "height": 667})
         self.open_place('微习惯工坊')
