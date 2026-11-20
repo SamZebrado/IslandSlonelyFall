@@ -1,5 +1,8 @@
 const STORAGE_KEY = 'localGuideGameState';
 const BACKUP_KEY = 'localGuideGameBackup';
+const DEDUP_UNDO_KEY = 'localGuideGameDedupUndo';
+const ARCHIVE_LISTS = ['empathyRecords', 'statusRecords', 'habits', 'habitLogs',
+  'priorityRecords', 'ratingRecords', 'momentumRecords'];
 const SCHEMA_VERSION = 2;
 const APP_VERSION = '1.0.0';
 
@@ -12,6 +15,7 @@ const DEFAULT_STATE = {
   habitLogs: [],
   priorityRecords: [],
   ratingRecords: [],
+  momentumRecords: [],
   meta: {
     createdAt: null,
     updatedAt: null
@@ -188,6 +192,10 @@ function normalizeState(rawState) {
     }
   }
   
+  if (Array.isArray(rawState?.momentumRecords)) {
+    state.momentumRecords = rawState.momentumRecords.filter(r => r && typeof r === 'object');
+  }
+
   state.schemaVersion = SCHEMA_VERSION;
   state.appVersion = APP_VERSION;
   
@@ -257,6 +265,7 @@ export function saveState(state) {
     state.appVersion = APP_VERSION;
     
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.removeItem(DEDUP_UNDO_KEY);
     
     window.dispatchEvent(new StorageEvent('storage', {
       key: STORAGE_KEY,
@@ -270,9 +279,109 @@ export function saveState(state) {
   }
 }
 
+// Compare the stored JSON before normalization can synthesize IDs or change fields.
+function canonicalRecord(value) {
+  if (Array.isArray(value)) return '[' + value.map(canonicalRecord).join(',') + ']';
+  if (value && typeof value === 'object') {
+    return '{' + Object.keys(value).sort().map(key =>
+      JSON.stringify(key) + ':' + canonicalRecord(value[key])).join(',') + '}';
+  }
+  return JSON.stringify(value);
+}
+
+function deduplicateArchives(state) {
+  const next = { ...state };
+  let removed = 0;
+  for (const field of ARCHIVE_LISTS) {
+    if (!Array.isArray(state[field])) continue;
+    const seen = new Set();
+    next[field] = state[field].filter(record => {
+      // Leave malformed entries untouched rather than treating them as records.
+      if (!record || typeof record !== 'object' || Array.isArray(record)) return true;
+      const key = canonicalRecord(record);
+      if (seen.has(key)) {
+        removed++;
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+  }
+  return { state: next, removed };
+}
+
+function parseArchive(raw) {
+  const state = JSON.parse(raw);
+  if (!state || typeof state !== 'object' || Array.isArray(state)) {
+    throw new Error('Invalid archive');
+  }
+  return state;
+}
+
+export function previewArchiveCleanup() {
+  try {
+    const original = localStorage.getItem(STORAGE_KEY);
+    if (original === null) return { removed: 0, original };
+    return { removed: deduplicateArchives(parseArchive(original)).removed, original };
+  } catch {
+    return { error: 'unavailable' };
+  }
+}
+
+export function cleanDuplicateArchives(expected) {
+  try {
+    const original = localStorage.getItem(STORAGE_KEY);
+    if (original !== expected) return { error: 'changed' };
+    if (original === null) return { removed: 0 };
+    const result = deduplicateArchives(parseArchive(original));
+    if (!result.removed) return { removed: 0 };
+
+    // Keep the unmodified snapshot before writing anything to the active archive.
+    localStorage.setItem(DEDUP_UNDO_KEY, original);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(result.state));
+    return { removed: result.removed };
+  } catch {
+    return { error: 'unavailable' };
+  }
+}
+
+function getUndoSnapshot() {
+  const original = localStorage.getItem(DEDUP_UNDO_KEY);
+  if (original === null) return null;
+  const result = deduplicateArchives(parseArchive(original));
+  if (!result.removed || localStorage.getItem(STORAGE_KEY) !== JSON.stringify(result.state)) return null;
+  return original;
+}
+
+export function canUndoArchiveCleanup() {
+  try {
+    return getUndoSnapshot() !== null;
+  } catch {
+    return false;
+  }
+}
+
+export function undoArchiveCleanup() {
+  try {
+    const original = getUndoSnapshot();
+    if (original === null) return { error: 'changed' };
+    localStorage.setItem(STORAGE_KEY, original);
+    localStorage.removeItem(DEDUP_UNDO_KEY);
+    return { restored: true };
+  } catch {
+    return { error: 'unavailable' };
+  }
+}
+
 export function exportData() {
-  const state = loadState();
-  return JSON.stringify(state, null, 2);
+  let state;
+  try {
+    state = parseArchive(localStorage.getItem(STORAGE_KEY));
+  } catch {
+    // Unlike loadState(), export never writes a recovery snapshot to local storage.
+    state = loadBackup() || createDefaultState();
+  }
+  return JSON.stringify(deduplicateArchives(state).state, null, 2);
 }
 
 export function exportBackup() {
@@ -337,6 +446,7 @@ export function importData(jsonStr) {
 export function clearAllData() {
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(BACKUP_KEY);
+  localStorage.removeItem(DEDUP_UNDO_KEY);
   return true;
 }
 

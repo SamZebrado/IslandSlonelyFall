@@ -1,4 +1,5 @@
-import { loadState, saveState, exportData, importData, clearAllData, hasExistingData } from './storage.js';
+import { loadState, saveState, exportData, importData, clearAllData, hasExistingData,
+  previewArchiveCleanup, cleanDuplicateArchives, canUndoArchiveCleanup, undoArchiveCleanup } from './storage.js';
 import { FEELINGS, FEELINGS_EN, NEEDS, NEEDS_EN, TARGETS, TARGETS_EN, TONES_EN, EXPRESSIONS, generateEmpathyResponse } from './empathy.js';
 import { buildExpressionOptions, buildActionTips } from './expressionTuner.js';
 import { ENERGY_LEVELS_EN, PRESSURE_LEVELS_EN, CLARITY_LEVELS_EN, STATUS_OPTIONS_EN, DIRECTIONS_EN, ENERGY_LEVELS, PRESSURE_LEVELS, CLARITY_LEVELS, STATUS_OPTIONS, DIRECTIONS, formatStatusRecord, getStatusFeedback } from './dashboard.js';
@@ -1028,6 +1029,8 @@ function checkExpressionReady() {
   }
 }
 
+const lastSavedEmpathyDrafts = new WeakMap();
+
 window.finishEmpathy = function() {
   const data = window.empathyData;
   
@@ -1066,18 +1069,28 @@ window.finishEmpathy = function() {
   data.expressionTuner.suggestions = suggestions;
   data.expressionTuner.actionTips = actionTips;
   
-  const record = {
-    timestamp: new Date().toISOString(),
+  const payload = {
     situation: data.situation,
-    feelings: data.feelings,
-    needs: data.needs,
+    feelings: [...data.feelings],
+    needs: [...data.needs],
     request: data.request,
     selfExpression,
     expressionTuner: { ...data.expressionTuner }
   };
-  
-  state.empathyRecords.push(record);
-  saveState(state);
+
+  // Reinvoking Generate on this unchanged draft must not create a new save.
+  // New draft objects and edited drafts are still saved separately.
+  const signature = JSON.stringify(payload);
+  const previous = lastSavedEmpathyDrafts.get(data);
+  if (previous?.signature !== signature || !state.empathyRecords.includes(previous.record)) {
+    const record = { timestamp: new Date().toISOString(), ...payload };
+    state.empathyRecords.push(record);
+    if (saveState(state)) {
+      lastSavedEmpathyDrafts.set(data, { signature, record });
+    } else {
+      state.empathyRecords.pop();
+    }
+  }
   
   const lang = getCurrentLang();
 
@@ -2948,6 +2961,8 @@ function renderReview() {
       dataManage: '数据管理',
       exportJson: '导出 JSON',
       importJson: '导入 JSON',
+      deduplicate: '存档去重',
+      undoDeduplicate: '撤销上次去重',
       clearAll: '清空全部数据',
       crisisTitle: '🆘 需要更多支持？',
       crisisToggle: '点击展开',
@@ -2974,6 +2989,8 @@ function renderReview() {
       dataManage: 'Data Management',
       exportJson: 'Export JSON',
       importJson: 'Import JSON',
+      deduplicate: 'Remove exact duplicates',
+      undoDeduplicate: 'Undo last cleanup',
       clearAll: 'Clear All Data',
       crisisTitle: '🆘 Need more support?',
       crisisToggle: 'Click to expand',
@@ -3084,6 +3101,8 @@ function renderReview() {
         <div class="action-buttons">
           <button class="btn btn-secondary" onclick="exportAllData()">${t.exportJson}</button>
           <button class="btn btn-secondary" onclick="importAllData()">${t.importJson}</button>
+          <button class="btn btn-secondary" onclick="deduplicateGardenArchives()">${t.deduplicate}</button>
+          ${canUndoArchiveCleanup() ? `<button class="btn btn-secondary" onclick="undoGardenArchiveCleanup()">${t.undoDeduplicate}</button>` : ''}
           <button class="btn btn-danger" onclick="clearAllRecords()">${t.clearAll}</button>
         </div>
         <input type="file" id="importFile" accept=".json" class="hidden" onchange="handleImport(this)">
@@ -3091,6 +3110,39 @@ function renderReview() {
     </div>
   `;
 }
+
+function showArchiveCleanupError(error, zh) {
+  if (error === 'changed') {
+    alert(zh ? '存档已变化。没有覆盖任何记录，请重新查看。' : 'The archive changed. No records were overwritten. Please check again.');
+  } else {
+    alert(zh ? '无法处理存档。请检查浏览器存储是否可用或是否已满。' : 'Could not process the archive. Check whether browser storage is available or full.');
+  }
+}
+
+window.deduplicateGardenArchives = function() {
+  const zh = getCurrentLang() === 'zh';
+  const preview = previewArchiveCleanup();
+  if (preview.error) return showArchiveCleanupError(preview.error, zh);
+  if (!preview.removed) return alert(zh ? '没有完全重复的存档。' : 'No exact duplicates found.');
+  const message = zh
+    ? `发现 ${preview.removed} 条完全重复的存档。保留每组的第一条，其余记录不变。在存档再次更改前，可在花园撤销。要去重吗？`
+    : `Found ${preview.removed} exact duplicate(s). The first copy will be kept and other records left unchanged. You can undo this in the garden until the archive changes again. Continue?`;
+  if (!confirm(message)) return;
+  const result = cleanDuplicateArchives(preview.original);
+  if (result.error) return showArchiveCleanupError(result.error, zh);
+  state = loadState();
+  renderReview();
+  alert(zh ? `已去除 ${result.removed} 条完全重复的存档。` : `Removed ${result.removed} exact duplicate(s).`);
+};
+
+window.undoGardenArchiveCleanup = function() {
+  const zh = getCurrentLang() === 'zh';
+  const result = undoArchiveCleanup();
+  if (result.error) return showArchiveCleanupError(result.error, zh);
+  state = loadState();
+  renderReview();
+  alert(zh ? '已恢复去重前的存档。' : 'The archive before cleanup has been restored.');
+};
 
 window.exportAllData = function() {
   const data = exportData();
